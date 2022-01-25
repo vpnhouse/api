@@ -1,0 +1,124 @@
+openapi: 3.0.3
+info:
+  title: DiscoveryAPI
+  version: '1.0'
+  contact:
+    email: kovalevss@sibedge.com
+    name: Sergey Kovalev
+  description: Discovery API
+paths:
+  /api/client/locations:
+    get:
+      summary: Get locations
+      tags:
+        - client
+        - discovery
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+              examples: {}
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-locations
+      description: Returns available locations for client
+    parameters: []
+  /api/client/credentials:
+    get:
+      summary: Get credentials
+      tags:
+        - client
+        - discovery
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-credentials
+      description: Return credentials to connect for specific location
+      parameters:
+        - schema:
+            type: string
+            example: US
+          in: query
+          name: location
+    parameters: []
+components:
+  schemas:
+    Node:
+      title: Node
+      type: object
+      x-examples:
+        example-1:
+          value:
+            id: 40ae2017-df2b-4828-a450-3b9766a3b001
+            tunnel_type:
+              - wireguard
+            connection_query:
+              - 'https://vpn-node-abc.project.org'
+      properties:
+        id:
+          type: string
+          example: node-dev-1
+        connection_addresses:
+          type: array
+          items:
+            type: string
+            example: 'https://vpn-node-dev-1.project.org'
+        connection_ips:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+    Location:
+      title: Locations
+      type: object
+      x-examples:
+        example:
+          value:
+            id: US
+            name: 'United States, NY'
+            labels:
+              country: United States
+              city: New-York
+      properties:
+        id:
+          type: string
+          example: US
+        name:
+          type: string
+          example: United States
+        labels:
+          type: object
+      required:
+        - id
+        - name
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+tags:
+  - name: client
+  - name: discovery
+security:
+  - bearer: []

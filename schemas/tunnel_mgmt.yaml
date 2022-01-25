@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: NodeAPI @ Federation
+  version: '1.0'
+  description: Internal API for managing VPN nodes via the Federation service
+  contact:
+    name: Sergey Kovalev
+    email: kovalevss@sibedge.com
+paths:
+  /api/tunnel/federation/ping:
+    get:
+      summary: ''
+      tags:
+        - federation
+        - ping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: federation-ping
+      description: 'Check node liveliness'
+      security:
+        - Federation_key: []
+
+  /api/tunnel/federation/set-authorizer-keys:
+    post:
+      operationId: federation-set-authorizer-keys
+      summary: 'Push authorizer keys to the tunnel node'
+      tags:
+        - federation
+        - keys
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: 'federation.yaml#/components/schemas/PublicKeyRecord'
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+components:
+  schemas:
+    PingResponse:
+      title: 'Tunnel ping response'
+      description: 'Contains short statistic from the node'
+      type: object
+      properties:
+        peers_total:
+          type: integer
+        peers_with_traffic:
+          type: integer
+        if_rx_packets:
+          type: integer
+        if_rx_bytes:
+          type: integer
+        if_rx_errors:
+          type: integer
+        if_tx_packets:
+          type: integer
+        if_tx_bytes:
+          type: integer
+        if_tx_errors:
+          type: integer
+      required:
+        - peers_total
+        - peers_with_traffic
+        - if_rx_packets
+        - if_rx_bytes
+        - if_rx_errors
+        - if_tx_packets
+        - if_tx_bytes
+        - if_tx_errors
+      x-examples:
+        example-1:
+          peers_total: 2
+          peers_with_traffic: 1
+          if_rx_packets: 100
+          if_rx_bytes:  5000
+          if_rx_errors: 12
+          if_tx_packets: 200
+          if_tx_bytes: 4331
+          if_tx_errors: 0
+
+  securitySchemes:
+    Federation_key:
+      name: X-URANIUM-FEDERATION-KEY
+      type: apiKey
+      in: header
+tags:
+  - name: federation
+  - name: keys
+  - name: ping
+
+security:
+  - Federation_key: []

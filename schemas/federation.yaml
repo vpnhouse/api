@@ -1,0 +1,581 @@
+openapi: 3.0.3
+info:
+  title: federation
+  version: '1.0'
+  contact:
+    email: kovalevss@sibedge.com
+    name: Sergey Kovalev
+  description: Federation API
+paths:
+  /api/federation/nodes:
+    get:
+      summary: List nodes
+      tags:
+        - backend
+        - list
+        - node
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NodeRecord'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: list-nodes
+      description: Receive full list of known nodes
+      security:
+        - ManagementKey: []
+        - DiscoveryKey: []
+    parameters: []
+  '/api/federation/nodes/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get node info
+      tags:
+        - backend
+        - get
+        - node
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-node-info
+      description: Get specific node information
+    patch:
+      summary: Update node
+      operationId: update-node
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+      description: Update node information
+      tags:
+        - backend
+        - update
+        - node
+    delete:
+      summary: Delete node
+      operationId: delete-node
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Delete node
+      tags:
+        - backend
+        - delete
+        - node
+    post:
+      summary: Register node
+      operationId: register-node
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+            examples:
+              example-1:
+                value:
+                  addresses:
+                    - 'http://example.com'
+                  labels: {}
+                  state: enabled
+                  healthy: true
+                  created: '2021-05-28T13:23:15Z'
+                  updated: '2021-05-28T13:23:15Z'
+      description: Register node
+      tags:
+        - backend
+        - update
+        - node
+      parameters: []
+  '/api/federation/nodes/{id}/addresses':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List node addresses
+      tags:
+        - backend
+        - get
+        - node
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples: {}
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: list-node-addresses
+      description: Get node list of addresses
+    post:
+      summary: Set node address
+      operationId: set-node-address
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Set node address
+      tags:
+        - backend
+        - node
+        - update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              example-1:
+                value: string
+    delete:
+      summary: Unset node address
+      operationId: unset-node-address
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Unset node address
+      tags:
+        - node
+        - update
+        - backend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+  '/api/federation/nodes/{id}/labels':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List node labels
+      tags:
+        - backend
+        - get
+        - node
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: list-node-labels
+      description: Get node list of labels
+  '/api/federation/node/{id}/labels/{label}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: label
+        in: path
+        required: true
+    get:
+      summary: Get node label value
+      tags:
+        - backend
+        - get
+        - node
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-node-label
+      description: Get node label value
+    post:
+      summary: Set node label value
+      operationId: set-node-label
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Set node label value
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      tags:
+        - backend
+        - update
+        - node
+    delete:
+      summary: Delete node label
+      operationId: delete-node-label
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Delete node label
+      tags:
+        - backend
+        - update
+        - node
+  /api/federation/keys:
+    get:
+      summary: List public keys
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicKeyRecord'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          description: Forbidden
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: list-keys
+      description: List public keys
+      security: []
+  '/api/federation/keys/{id}':
+    get:
+      summary: Manage public keys
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicKey'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-key-by-id
+      description: Manage public keys
+      security: []
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: key id
+    post:
+      tags:
+        - keys
+        - add
+      summary: ''
+      operationId: update-key
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Add public key
+      security:
+        - ManagementKey: []
+        - AuthorizerKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicKey'
+    delete:
+      tags:
+        - keys
+        - delete
+      summary: ''
+      operationId: delete-key
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      security:
+        - ManagementKey: []
+      description: Delete  public key
+  /api/federation/import/inventory:
+    post:
+      summary: Import inventory
+      operationId: import-inventory
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      tags:
+        - node
+        - update
+        - list
+      description: Import nodes from inventory in YAML format
+      requestBody:
+        description: Ansible inventory in YAML format
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: string
+              format: binary
+components:
+  schemas:
+    Node:
+      title: Node
+      type: object
+      properties:
+        addresses:
+          type: array
+          items:
+            type: string
+            format: uri
+        labels:
+          type: object
+        state:
+          type: string
+          enum:
+            - enabled
+            - disabled
+        healthy:
+          type: boolean
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          example: '2021-05-28T13:23:15Z'
+        updated:
+          type: string
+          format: date-time
+          example: '2021-05-28T13:23:15Z'
+    NodeRecord:
+      title: NodeRecord
+      type: object
+      properties:
+        id:
+          type: string
+        node:
+          $ref: '#/components/schemas/Node'
+      required:
+        - id
+        - node
+      x-examples:
+        example-1:
+          id: string
+          node:
+            addresses:
+              - 'http://example.com'
+            labels: {}
+            state: enabled
+            healthy: true
+            created: '2021-05-28T13:23:15Z'
+            updated: '2021-05-28T13:23:15Z'
+    PublicKey:
+      title: PublicKey
+      type: object
+      x-examples:
+        example-1:
+          key: base64-encoded public key bytes
+          expires: '2021-05-28T13:23:15Z'
+      properties:
+        key:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          example: '2021-05-28T13:23:15Z'
+      required:
+        - key
+    PublicKeyRecord:
+      title: PublicKeyRecord
+      type: object
+      x-examples:
+        example-1:
+          id: d93de844-3587-4ead-9ade-a16a236839cc
+          key: base64-encoded public key bytes
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          $ref: '#/components/schemas/PublicKey'
+      required:
+        - id
+        - key
+
+  securitySchemes:
+    ManagementKey:
+      name: X-URANIUM-MGMT-KEY
+      type: apiKey
+      in: header
+    DiscoveryKey:
+      name: X-URANIUM-DISCOVERY-KEY
+      type: apiKey
+      in: header
+    AuthorizerKey:
+      name: X-URANIUM-AUTHORIZER-KEY
+      type: apiKey
+      in: header
+    TunnelKey:
+      name: X-URANIUM-TUNNEL-KEY
+      type: apiKey
+      in: query
+
+security:
+  - ManagementKey: []
+tags:
+  - name: get
+  - name: list
+  - name: add
+  - name: delete
+  - name: update
+  - name: backend
+  - name: node
+  - name: keys

@@ -1,0 +1,133 @@
+openapi: 3.0.3
+info:
+  title: AuthAPI
+  version: '1.0'
+  contact:
+    name: Sergey Kovalev
+    email: kovalevss@sibedge.com
+  description: 'Authentication API  '
+paths:
+  /api/client/signin:
+    post:
+      summary: Authenticate user
+      operationId: authenticate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Authenticate user and provide access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+            examples: {}
+      tags:
+        - auth
+        - client
+      security:
+        - bearer: []
+        - basic: []
+    parameters: []
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      title: AuthRequest
+      x-examples:
+        example-paid:
+          value:
+            project: TestProject
+            client_platform: iphone
+            client_version: 1.0.1
+            device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            auth_type: firebase
+            auth_info: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        example-anonymus:
+          value:
+            project: TestProject
+            client_platform: iphone
+            client_version: 1.0.1
+            device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            auth_type: anonymous
+            auth_info: d269c0c4-288e-44d5-b719-ffd9096aa6ff
+      properties:
+        project:
+          type: string
+          example: TestProject
+        client_platform:
+          type: string
+          example: iphone
+        client_version:
+          type: string
+          example: 1.0.1
+        device_id:
+          type: string
+          example: f7df7c7a-3569-401c-b612-f49b775bb19e
+          format: uuid
+        auth_type:
+          type: string
+          example: firebase
+        auth_info:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      required:
+        - project
+        - client_platform
+        - client_version
+        - device_id
+        - auth_type
+        - auth_info
+      writeOnly: true
+    AuthResponse:
+      title: AuthResponse
+      type: object
+      x-examples:
+        example-paid:
+          value:
+            access_token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ2cG4tbm9kZSIsImV4cCI6MTYyNDk0OTk0NywianRpIjoiNTUxNzYyODQtZDdkZS0xMWViLWE2NDUtMDI0MmFjMTIwMDAyIiwiaWF0IjoxNjI0ODYzNTQ3LCJpc3MiOiJUZXN0UHJvamVjdC1BdXRoLTEtMiIsIm5iZiI6MTYyNDg2MzU0Nywic3ViIjoiRmVuZFZQTlRlc3RQcm9qZWN0L2ZpcmViYXNlL0pvaG5Eb2UifQ.REIfc3DB4e4pU7GyNU7vmJfsJBDu-0PLghV06KIdEM0Vhg4jVFA4MzgRU_j151PrAalSrpj0gLJGW8qZfqSLyDshRQCjgKYEt_X5PmNVkFmAjUz6hwCBJ8tMRxfhG2vcG1WZF80aTLLx6LQ0NwGT6hfAYEemzAecVwvnTuE1BQow3c1T71uZSByLDP1WAa0ZYnNZjceOGeikSXK5RtHogSyZkud7zfi_dKhDzW8Pgd_06HYEmexogv3LMpbJ0NY0nrRnxqPlJ1-uqQ6OIktQe1RvLe7BTGBthp_wrAv3Z9YdGSzJrlJhr1hg6qTzzdo0UHdvCpMeIun8bpr7OWVEIg
+            refresh_token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyZWZyZXNoIiwiZXhwIjoxNjMwMTMzOTQ3LCJqdGkiOiI1NTE3NjI4NC1kN2RlLTExZWItYTY0NS0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2MjQ4NjM1NDcsImlzcyI6IlRlc3RQcm9qZWN0LUF1dGgtMS0yIiwibmJmIjoxNjI0ODYzNTQ3LCJzdWIiOiJGZW5kVlBOVGVzdFByb2plY3QvZmlyZWJhc2UvSm9obkRvZSJ9.GbhbrSxLcoj7yJFQnh1Pq2_3OXMnffihRaRyOsHay8RLyZzwHTpHN_uEcT-5z7l_kbrcWWMuswChrnt6zYuzzMa_qPFXpSIwkf3xXrFOr4Og-wLQqsy6Uh7-hJB546mMt-bT7tCFXZbNRtCm_lzIW6mPAcIJtofJsqSPaFL-xWrJEl0m4vRNV4NusGwlCuE7uvjQPLUF5gS98QLLWNWyHipVWxjSEK57I0ngrsOU7b4jETHxtgYYQ_O2S5GoOUe0YrwYFkrKP1LB3eE_aAw-toOJSP6eVm_Y345MBVJj8NcGa3Kbdm5SzZhHs2P-ZoKc8Yp2FdiFPyCq6VDmQ2PyXw
+            discovery_address:
+              - 'https://discovery.project.io/api/client/locations'
+        example-anonymous:
+          value:
+            access_token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ2cG4tbm9kZSIsImV4cCI6MTYyNDk0OTk0NywianRpIjoiNTUxNzYyODQtZDdkZS0xMWViLWE2NDUtMDI0MmFjMTIwMDAyIiwiaWF0IjoxNjI0ODYzNTQ3LCJpc3MiOiJUZXN0UHJvamVjdC1BdXRoLTEtMiIsIm5iZiI6MTYyNDg2MzU0Nywic3ViIjoiRmVuZFZQTlRlc3RQcm9qZWN0L2Fub255bW91cy9kMjY5YzBjNC0yODhlLTQ0ZDUtYjcxOS1mZmQ5MDk2YWE2ZmYifQ.iTcsdx200Lv_tzqBjO5xdEQ6iPDQj0_Uqo-b1BdlcZGVPsXN_HmtAu-pKK5SrkYjGAsmnhF_4dxFeZnYmtYgsfbjDdqalejwsAJWWdYN1rPHoAncuLE4bgy7FKH-ugHlGaPVdlN1HT-ASdu4Z8aVVQOJSG66NmMmyW7YmmxfXD8VqMxoBZZneRu2PlVdRHxEIWmWihvSwdUW_rjw9nbIecidYftGI5FEivYkM9yR74iU3WeXG2zr_peqlfREuTGPCBb_bA2v45SVUS1f_gVEiokpRfYlX3W129DS0gpnz0fLddSFDwt2hNY8MyGKEnhwxPCBQNWgyJnqVo29J4rmhQ
+            refresh_token: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyZWZyZXNoIiwiZXhwIjoxNjMwMTMzOTQ3LCJqdGkiOiI1NTE3NjI4NC1kN2RlLTExZWItYTY0NS0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2MjQ4NjM1NDcsImlzcyI6IlRlc3RQcm9qZWN0LUF1dGgtMS0yIiwibmJmIjoxNjI0ODYzNTQ3LCJzdWIiOiJGZW5kVlBOVGVzdFByb2plY3QvYW5vbnltb3VzL2QyNjljMGM0LTI4OGUtNDRkNS1iNzE5LWZmZDkwOTZhYTZmZiJ9.grtYMQCqGy7xDFnrJLYMYNJhCKNwTLhgab_bM6Kz12aNq9ZPBq44nB9YHI0pyj3OJ6eHCM9Ze5aBJh7LOyIQMLFS20g2YwBbGUEWO3rpuubQ5UE0o_fI8zRFNzkSkSbroR-xTgqQoteznfSH1I824K4FWgthGws-r8lwrix3ZjBVGzqzOAnnP6NtKg8nI3FMppSyas2fCBm92ojpE6EUkOK5KhwTXKIuwx9X7YebtDVLxyi1NfGpDESzCitvjTnvy65HCcvZNGnHT03VXdto-CtrkzM628FIljKR-RN_TbPjK-SXK5O52Z7u0jkEmtKrn4zzIjfXF1zGCMkPqxAjZw
+            discovery_address:
+              - 'https://discovery-free.project.io/api/client/locations'
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJ2cG4tbm9kZSIsImV4cCI6MTYyNDk0OTk0NywianRpIjoiNTUxNzYyODQtZDdkZS0xMWViLWE2NDUtMDI0MmFjMTIwMDAyIiwiaWF0IjoxNjI0ODYzNTQ3LCJpc3MiOiJUZXN0UHJvamVjdC1BdXRoLTEtMiIsIm5iZiI6MTYyNDg2MzU0Nywic3ViIjoiRmVuZFZQTlRlc3RQcm9qZWN0L2ZpcmViYXNlL0pvaG5Eb2UifQ.REIfc3DB4e4pU7GyNU7vmJfsJBDu-0PLghV06KIdEM0Vhg4jVFA4MzgRU_j151PrAalSrpj0gLJGW8qZfqSLyDshRQCjgKYEt_X5PmNVkFmAjUz6hwCBJ8tMRxfhG2vcG1WZF80aTLLx6LQ0NwGT6hfAYEemzAecVwvnTuE1BQow3c1T71uZSByLDP1WAa0ZYnNZjceOGeikSXK5RtHogSyZkud7zfi_dKhDzW8Pgd_06HYEmexogv3LMpbJ0NY0nrRnxqPlJ1-uqQ6OIktQe1RvLe7BTGBthp_wrAv3Z9YdGSzJrlJhr1hg6qTzzdo0UHdvCpMeIun8bpr7OWVEIg
+        refresh_token:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjBmNmQwZGFiLWU0NzgtNGQ1Ni1hZGJhLTU5M2ZhYmE4ZTRhYiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyZWZyZXNoIiwiZXhwIjoxNjMwMTMzOTQ3LCJqdGkiOiI1NTE3NjI4NC1kN2RlLTExZWItYTY0NS0wMjQyYWMxMjAwMDIiLCJpYXQiOjE2MjQ4NjM1NDcsImlzcyI6IlRlc3RQcm9qZWN0LUF1dGgtMS0yIiwibmJmIjoxNjI0ODYzNTQ3LCJzdWIiOiJGZW5kVlBOVGVzdFByb2plY3QvZmlyZWJhc2UvSm9obkRvZSJ9.GbhbrSxLcoj7yJFQnh1Pq2_3OXMnffihRaRyOsHay8RLyZzwHTpHN_uEcT-5z7l_kbrcWWMuswChrnt6zYuzzMa_qPFXpSIwkf3xXrFOr4Og-wLQqsy6Uh7-hJB546mMt-bT7tCFXZbNRtCm_lzIW6mPAcIJtofJsqSPaFL-xWrJEl0m4vRNV4NusGwlCuE7uvjQPLUF5gS98QLLWNWyHipVWxjSEK57I0ngrsOU7b4jETHxtgYYQ_O2S5GoOUe0YrwYFkrKP1LB3eE_aAw-toOJSP6eVm_Y345MBVJj8NcGa3Kbdm5SzZhHs2P-ZoKc8Yp2FdiFPyCq6VDmQ2PyXw
+        discovery_addresses:
+          type: array
+          items:
+            type: string
+            format: uri
+            example: 'https://discovery.project.io/api/client/locations'
+      required:
+        - access_token
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+    basic:
+      type: http
+      scheme: basic
+tags:
+  - name: auth
+  - name: client

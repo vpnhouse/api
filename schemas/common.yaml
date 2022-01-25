@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: common
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    ConnectionIdentifiers:
+      title: ConnectionIdentifiers
+      type: object
+      x-examples:
+        example:
+          value:
+            user_id: Project/Authorizer/user@org
+            installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+            session_id: de9e0337-fb16-4669-b07d-9f261c329461
+      properties:
+        user_id:
+          type: string
+          pattern: '^([^\/]*)\/([^\/]*)\/(.*)$'
+          example: Project/Authorizer/user@org
+          nullable: true
+        installation_id:
+          format: uuid
+          example: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+          type: string
+          nullable: true
+        session_id:
+          type: string
+          format: uuid
+          example: de9e0337-fb16-4669-b07d-9f261c329461
+          nullable: true
+    Error:
+      title: Error
+      type: object
+      description: Generic error response.
+      x-examples:
+        example:
+          value:
+            result: INVALID_PEER
+            error: invalid peer info
+            details: invalid character '\\n' in string literal
+            field: string
+      properties:
+        result:
+          type: string
+          example: INVALID_PEER
+          description: Machine-readable error code.
+        error:
+          type: string
+          description: User-friendly error description.
+          example: invalid peer info
+        details:
+          type: string
+          description: 'Message, which we can put to application logs.'
+          example: invalid character '\\n' in string literal
+        field:
+          type: string
+          description: 'The name of field, caused error.'
+      required:
+        - result
+  responses:
+    OperationSuccessful:
+      description: Operation successful
+    ResponseError:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

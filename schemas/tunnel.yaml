@@ -1,0 +1,284 @@
+openapi: 3.0.3
+info:
+  title: NodeAPI @ Client
+  version: '1.0'
+  description: Public API for VPN clients
+  contact:
+    name: Sergey Kovalev
+    email: kovalevss@sibedge.com
+paths:
+  /api/client/connect:
+    post:
+      summary: Client connect
+      operationId: client-connect
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientConfiguration'
+              examples: {}
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Connect client peer
+      tags:
+        - create
+        - peer
+        - client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Connection request information.
+              properties:
+                type:
+                  $ref: '#/components/schemas/PeerType'
+                info_wireguard:
+                  $ref: '#/components/schemas/PeerWireguard'
+                identifiers:
+                  $ref: 'common.yaml#/components/schemas/ConnectionIdentifiers'
+                location:
+                  type: string
+                  example: US
+              required:
+                - type
+                - identifiers
+            examples:
+              example:
+                value:
+                  type: wireguard
+                  info_wireguard:
+                    public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+                  identifiers:
+                    installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+                    session_id: de9e0337-fb16-4669-b07d-9f261c329461
+    parameters: []
+  /api/client/connect_unsafe:
+    parameters: []
+    get:
+      summary: ''
+      operationId: client-connect-unsafe
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              examples:
+                example:
+                  value: |
+                    [Interface]
+                    PrivateKey = qGcWjdWrzRzv8/sl4e4pzMkj4nrS0ruaPOfpqNx25UQ=
+                    Address = 10.77.77.100/32
+
+                    [Peer]
+                    PublicKey = cKTC/nHfuC8CQAdzcdN10F4+X3/Q8+XXlLr1wUXBPjo=
+                    AllowedIPs = 0.0.0.0/0
+                    Endpoint = 136.244.94.37:3000
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      tags:
+        - create
+        - peer
+        - client
+      description: Unsafe client connect
+  /api/client/disconnect:
+    post:
+      summary: Client disconnect
+      operationId: client-disconnect
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      parameters: []
+      description: Disconnect client peer
+      tags:
+        - delete
+        - peer
+        - client
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'common.yaml#/components/schemas/ConnectionIdentifiers'
+            examples:
+              example:
+                value:
+                  installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+                  session_id: de9e0337-fb16-4669-b07d-9f261c329461
+    parameters: []
+  /api/client/ping:
+    post:
+      summary: Client ping
+      operationId: client-ping
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Update peer expiration time
+      tags:
+        - peer
+        - update
+        - client
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'common.yaml#/components/schemas/ConnectionIdentifiers'
+            examples:
+              example:
+                value:
+                  installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+                  session_id: de9e0337-fb16-4669-b07d-9f261c329461
+    parameters: []
+components:
+  schemas:
+    PeerWireguard:
+      title: PeerWireguard
+      type: object
+      description: Wireguard-specific tunnel information.
+      x-examples:
+        example:
+          value:
+            public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+      properties:
+        public_key:
+          type: string
+          description: Wireguard public key.
+          example: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+    ConnectInfoWireguard:
+      title: ConnectInfoWireguard
+      type: object
+      x-examples:
+        example:
+          value:
+            server_public_key: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+            server_ipv4: 1.2.3.4
+            server_port: 3000
+            tunnel_ipv4: 192.168.2.2
+            keepalive: 60
+            allowed_ips:
+              - 0.0.0.0/0
+            dns:
+              - 192.168.0.1
+      description: Connection information for wireguard peers.
+      properties:
+        server_public_key:
+          type: string
+          minLength: 44
+          maxLength: 44
+          example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+          description: Server public key.
+        server_ipv4:
+          type: string
+          format: ipv4
+          example: 1.2.3.4
+          description: Public IPv4 of a wireguard server.
+        server_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          example: 3000
+          description: Public wireguard port.
+        tunnel_ipv4:
+          type: string
+          format: ipv4
+          example: 192.168.2.2
+          description: Client's tunnel IPv4 address.
+        keepalive:
+          type: integer
+          minimum: 0
+          maximum: 3600
+          example: 60
+          description: Keepalive interval to be set on client side.
+        allowed_ips:
+          type: array
+          description: 'Array of subnet, allowed to be sent to tunnel.'
+          items:
+            type: string
+            example: 0.0.0.0/0
+        dns:
+          type: array
+          description: List of DNS servers.
+          items:
+            type: string
+            format: ipv4
+        ping_interval:
+          type: integer
+          minimum: 1
+          example: 60
+      required:
+        - server_public_key
+        - server_ipv4
+        - server_port
+        - tunnel_ipv4
+        - keepalive
+        - allowed_ips
+        - dns
+        - ping_interval
+    PeerType:
+      type: string
+      title: PeerType
+      enum:
+        - wireguard
+      example: wireguard
+      description: Peer tunnel type.
+    ClientConfiguration:
+      title: ClientConfiguration
+      type: object
+      description: Information to configure client on client side.
+      x-examples:
+        example:
+          value:
+            peer_id: 712d9808-4829-424e-a6e9-db8706a04ef2
+            info_wireguard:
+              server_public_key: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+              server_ipv4: 1.2.3.4
+              server_port: 3000
+              tunnel_ipv4: 192.168.2.2
+              keepalive: 60
+              allowed_ips:
+                - 0.0.0.0/0
+              dns:
+                - 192.168.0.1
+      properties:
+        info_wireguard:
+          $ref: '#/components/schemas/ConnectInfoWireguard'
+  securitySchemes:
+    Token_auth:
+      type: http
+      scheme: bearer
+tags:
+  - name: client
+  - name: peer
+  - name: create
+  - name: update
+  - name: delete
+security:
+  - Token_auth: []
