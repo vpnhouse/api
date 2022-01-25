@@ -1,0 +1,660 @@
+openapi: 3.0.3
+info:
+  title: NodeAPI @ Admin
+  version: '1.0'
+  description: Internal API for managing peers on vpn core nodes
+  contact:
+    name: Sergey Kovalev
+    email: xray@randoman.ru
+paths:
+  /api/tunnel/admin/peers:
+    get:
+      summary: List peers
+      tags:
+        - peer
+        - list
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeerRecord'
+              examples:
+                example:
+                  value:
+                    - id: 42
+                      peer:
+                        label: Home PC
+                        type: wireguard
+                        info_wireguard:
+                          public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+                        identifiers:
+                          user_id: Project/Authorizer/user@org
+                          installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+                          session_id: de9e0337-fb16-4669-b07d-9f261c329461
+                        claims: string
+                        ipv4: 10.42.3.33
+                        expires: '2021-05-28T13:43:10Z'
+                        created: '2021-05-28T13:23:15Z'
+                        updated: '2021-05-28T13:23:15Z'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      operationId: admin-list-peers
+      description: Get list of peers
+    post:
+      summary: Create peer
+      operationId: admin-create-peer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeerRecord'
+              examples:
+                example:
+                  value:
+                    id: 42
+                    peer:
+                      label: Home PC
+                      type: wireguard
+                      info_wireguard:
+                        public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+                      identifiers:
+                        user_id: Project/Authorizer/user@org
+                        installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+                        session_id: de9e0337-fb16-4669-b07d-9f261c329461
+                      claims: string
+                      ipv4: 10.42.3.33
+                      expires: '2021-05-28T13:43:10Z'
+                      created: '2021-05-28T13:23:15Z'
+                      updated: '2021-05-28T13:23:15Z'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '507':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Create new peer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Peer'
+      tags:
+        - create
+        - peer
+  '/api/tunnel/admin/peers/{id}':
+    get:
+      summary: Get peer info
+      tags:
+        - get
+        - peer
+      responses:
+        '200':
+          # todo: can we replace it with `Peer`?
+          $ref: '#/components/responses/PeerInfo'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-get-peer
+      description: Get peer information
+    put:
+      summary: Update peer
+      operationId: admin-update-peer
+      responses:
+        '200':
+          # todo: can we replace it with `Peer`?
+          $ref: '#/components/responses/PeerInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Update peer info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Peer'
+      tags:
+        - update
+        - peer
+    delete:
+      summary: Delete peer
+      operationId: admin-delete-peer
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Delete peer
+      tags:
+        - delete
+        - peer
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 42
+        name: id
+        in: path
+        required: true
+  '/api/tunnel/admin/trusted/{id}':
+    get:
+      summary: Get trusted key
+      tags:
+        - get
+        - trusted_key
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-get-trusted-key
+      description: Get trusted key
+      parameters: []
+    post:
+      summary: Add trusted key
+      operationId: admin-add-trusted-key
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '507':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Create new trusted key
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      tags:
+        - create
+        - trusted_key
+    put:
+      summary: Update trusted key
+      operationId: admin-update-trusted-key
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Update trusted key
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      tags:
+        - update
+        - trusted_key
+    delete:
+      summary: Delete trusted key
+      operationId: admin-delete-trusted-key
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Delete trusted key
+      parameters: []
+      tags:
+        - delete
+        - trusted_key
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+          example: 3136f88d-b149-45a2-b658-21aa0ee2395f
+        name: id
+        in: path
+        required: true
+  /api/tunnel/admin/trusted:
+    get:
+      summary: List trusted keys
+      tags:
+        - list
+        - trusted_key
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrustedKeyRecord'
+              examples:
+                example:
+                  value:
+                    - id: ea147ad4-168f-4c16-b9c3-5628217db616
+                      key: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-list-trusted-keys
+      description: List trusted keys
+      parameters: [ ]
+  /api/tunnel/admin/settings:
+    get:
+      summary: Get settings
+      tags:
+        - settings
+        - get
+      responses:
+        '200':
+          $ref: '#/components/responses/SettingsInfo'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-get-settings
+      parameters: []
+      description: Get current server settings
+    patch:
+      summary: Update settings
+      operationId: admin-update-settings
+      responses:
+        '200':
+          $ref: '#/components/responses/SettingsInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+        description: ''
+      tags:
+        - settings
+        - update
+      description: Update server settings
+    parameters: []
+  /api/tunnel/admin/auth:
+    get:
+      summary: Admin authentication
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAuthResponse'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-do-auth
+      security:
+        - Basic_auth: []
+        - Token_auth: []
+      description: Authorize administrator
+    parameters: []
+  /api/tunnel/admin/reload:
+    get:
+      summary: Service reload
+      tags: []
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-reload-service
+      description: Reloads service with new configuration
+    parameters: []
+  /api/tunnel/admin/status:
+    get:
+      summary: Server status
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStatusResponse'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-get-status
+      description: Returns current server status
+    parameters: []
+components:
+  schemas:
+    Settings:
+      title: Settings
+      type: object
+      x-examples:
+        example-read:
+          value:
+            log_level: debug
+            admin_user_name: admin
+            wireguard_listen_port: 3000
+            wireguard_keepalive: 60
+            wireguard_subnet: 10.42.0.0/16
+            wireguard_server_ipv4: 1.2.3.4
+            wireguard_server_port: 3000
+            wireguard_public_key: n4btQ30d0OxK12rIzbN5mWk2MGZm8EWxrrk6LFro320=
+            ping_interval: 300
+            connection_timeout: 600
+            http_listen_addr: '0.0.0.0:80'
+            dns:
+              - 192.168.0.1
+        example-write:
+          value:
+            log_level: debug
+            admin_user_name: admin
+            admin_password: My$uperp@$$@0rd
+            wireguard_listen_port: 3000
+            wireguard_keepalive: 60
+            wireguard_subnet: 10.42.0.0/16
+            wireguard_server_ipv4: 1.2.3.4
+            wireguard_server_port: 3000
+            ping_interval: 300
+            connection_timeout: 600
+            http_listen_addr: '0.0.0.0:80'
+            dns:
+              - 192.168.0.1
+      description: Server-side configuration.
+      properties:
+        log_level:
+          type: string
+          enum:
+            - debug
+            - info
+            - warning
+            - error
+          example: debug
+          description: Logging level.
+        admin_user_name:
+          type: string
+          example: admin
+          description: Admin username.
+        admin_password:
+          type: string
+          format: password
+          description: 'Admin password (write-only, never returned).'
+          example: My$uperp@$$@0rd
+          writeOnly: true
+        wireguard_listen_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          example: 3000
+          description: Wireguard listening port.
+        wireguard_keepalive:
+          type: integer
+          minimum: 1
+          example: 60
+          description: Wireguard keepalive interval.
+        wireguard_subnet:
+          type: string
+          example: 10.42.0.0/16
+          description: Wireguard subnet.
+        wireguard_server_ipv4:
+          type: string
+          example: 1.2.3.4
+          format: ipv4
+          description: Public ipv4 address of a wireguard server.
+        wireguard_server_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          example: 3000
+          description: Public UDP port of a wireguard server.
+        wireguard_public_key:
+          type: string
+          example: n4btQ30d0OxK12rIzbN5mWk2MGZm8EWxrrk6LFro320=
+          minLength: 44
+          maxLength: 44
+          description: Wireguard public key (read only).
+          readOnly: true
+        ping_interval:
+          type: integer
+          example: 300
+          minimum: 1
+        connection_timeout:
+          type: integer
+          example: 600
+          minimum: 1
+        http_listen_addr:
+          type: string
+          example: '0.0.0.0:80'
+          description: 'HTTP listening IP:Port pair.'
+        dns:
+          type: array
+          description: Array of DNS servers.
+          items:
+            type: string
+            format: ipv4
+    AdminAuthResponse:
+      title: ResponseAdminAuth
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT for accessing other administrative endpoints.
+          readOnly: true
+      required:
+        - access_token
+    ServiceStatusResponse:
+      title: ServiceStatusResponse
+      type: object
+      description: Current operation status.
+      properties:
+        restart_required:
+          type: boolean
+          description: 'Indicate, whether service requires restart to apply latest settings.'
+      required:
+        - restart_required
+    TrustedKey:
+      title: TrustedKey
+      type: string
+    TrustedKeyRecord:
+      title: TrustedList
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          $ref: '#/components/schemas/TrustedKey'
+      required:
+        - id
+        - key
+    Peer:
+      type: object
+      title: Peer
+      description: Peer representation.
+      x-examples:
+        example:
+          value:
+            id: 42
+            label: Home PC
+            type: wireguard
+            info_wireguard:
+              public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+            ipv4: 10.42.3.33
+            created: '2021-05-28T13:23:15Z'
+            updated: '2021-05-28T13:23:15Z'
+            expires: '2021-05-28T13:43:10Z'
+            peer_id: 46a6dbb2-1cc6-48e7-8374-0d386c3f17f0
+            claims: string
+      properties:
+        label:
+          type: string
+          description: Label of the peer.
+          example: Home PC
+          nullable: true
+        type:
+          $ref: 'tunnel.yaml#/components/schemas/PeerType'
+        info_wireguard:
+          $ref: 'tunnel.yaml#/components/schemas/PeerWireguard'
+        identifiers:
+          $ref: 'common.yaml#/components/schemas/ConnectionIdentifiers'
+        claims:
+          type: string
+          description: JWT information data.
+          nullable: true
+        ipv4:
+          type: string
+          format: ipv4
+          description: Tunneling IPv4 address of a peer.
+          example: 10.42.3.33
+          nullable: true
+        expires:
+          type: string
+          format: date-time
+          example: '2021-05-28T13:43:10Z'
+          description: Peer expiration time.
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          description: The date when the peer was created.
+          example: '2021-05-28T13:23:15Z'
+        updated:
+          type: string
+          format: date-time
+          description: The date when the peer was updated last time.
+          example: '2021-05-28T13:23:15Z'
+    PeerRecord:
+      title: Peer repr for a list responses
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 42
+        peer:
+          $ref: '#/components/schemas/Peer'
+      required:
+        - id
+        - peer
+
+  responses:
+    PeerInfo:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Peer'
+    SettingsInfo:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Settings'
+    TrustedKeyInfo:
+      description: Example response
+      content:
+        text/plain:
+          schema:
+            type: string
+
+  securitySchemes:
+    Token_auth:
+      type: http
+      scheme: bearer
+    Basic_auth:
+      type: http
+      scheme: basic
+
+tags:
+  - name: create
+  - name: delete
+  - name: get
+  - name: list
+  - name: node
+  - name: peer
+  - name: search
+  - name: settings
+security:
+  - Token_auth: []
