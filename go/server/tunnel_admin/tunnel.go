@@ -37,6 +37,12 @@ type AdminAuthResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
+// InitialSetupRequest defines model for InitialSetupRequest.
+type InitialSetupRequest struct {
+	AdminPassword string `json:"admin_password"`
+	ServerIpMask  string `json:"server_ip_mask"`
+}
+
 // Peer representation.
 type Peer struct {
 	// JWT information data.
@@ -135,6 +141,9 @@ type PeerInfo Peer
 // Server-side configuration.
 type SettingsInfo Settings
 
+// AdminInitialSetupJSONBody defines parameters for AdminInitialSetup.
+type AdminInitialSetupJSONBody InitialSetupRequest
+
 // AdminCreatePeerJSONBody defines parameters for AdminCreatePeer.
 type AdminCreatePeerJSONBody Peer
 
@@ -143,6 +152,9 @@ type AdminUpdatePeerJSONBody Peer
 
 // AdminUpdateSettingsJSONBody defines parameters for AdminUpdateSettings.
 type AdminUpdateSettingsJSONBody Settings
+
+// AdminInitialSetupJSONRequestBody defines body for AdminInitialSetup for application/json ContentType.
+type AdminInitialSetupJSONRequestBody AdminInitialSetupJSONBody
 
 // AdminCreatePeerJSONRequestBody defines body for AdminCreatePeer for application/json ContentType.
 type AdminCreatePeerJSONRequestBody AdminCreatePeerJSONBody
@@ -158,6 +170,9 @@ type ServerInterface interface {
 	// Admin authentication
 	// (GET /api/tunnel/admin/auth)
 	AdminDoAuth(w http.ResponseWriter, r *http.Request)
+	// Set initial parameters
+	// (POST /api/tunnel/admin/initial-setup)
+	AdminInitialSetup(w http.ResponseWriter, r *http.Request)
 	// List peers
 	// (GET /api/tunnel/admin/peers)
 	AdminListPeers(w http.ResponseWriter, r *http.Request)
@@ -221,6 +236,21 @@ func (siw *ServerInterfaceWrapper) AdminDoAuth(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AdminDoAuth(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminInitialSetup operation middleware
+func (siw *ServerInterfaceWrapper) AdminInitialSetup(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminInitialSetup(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -660,6 +690,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/auth", wrapper.AdminDoAuth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/admin/initial-setup", wrapper.AdminInitialSetup)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/peers", wrapper.AdminListPeers)
