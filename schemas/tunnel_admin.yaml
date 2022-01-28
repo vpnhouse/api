@@ -406,6 +406,34 @@ paths:
       operationId: admin-get-status
       description: Returns current server status
     parameters: []
+  /api/tunnel/admin/initial-setup:
+    post:
+      summary: Set initial parameters
+      operationId: admin-initial-setup
+      security: []
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitialSetupRequest'
+        description: ''
+      tags:
+        - settings
+        - initial
+
 components:
   schemas:
     Settings:
@@ -618,6 +646,17 @@ components:
       required:
         - id
         - peer
+    InitialSetupRequest:
+      title: initial setup request
+      type: object
+      properties:
+        admin_password:
+          type: string
+        server_ip_mask:
+          type: string
+      required:
+        - admin_password
+        - server_ip_mask
 
   responses:
     PeerInfo:
