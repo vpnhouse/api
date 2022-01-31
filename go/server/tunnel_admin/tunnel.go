@@ -73,7 +73,9 @@ type Peer struct {
 
 // PeerRecord defines model for PeerRecord.
 type PeerRecord struct {
-	Id int64 `json:"id"`
+	// Connection information for wireguard peers.
+	ConnectInfo *externalRef1.ConnectInfoWireguard `json:"connect_info,omitempty"`
+	Id          int64                              `json:"id"`
 
 	// Peer representation.
 	Peer Peer `json:"peer"`
