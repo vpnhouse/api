@@ -46,6 +46,19 @@ components:
           type: string
           example: INVALID_PEER
           description: Machine-readable error code.
+          enum:
+            - "INTERNAL_ERROR"
+            - "INVALID_ARGUMENT"
+            - "NOT_FOUND"
+            - "ENTRY_EXISTS"
+            - "STORAGE_ERROR"
+            - "TUNNEL_ERROR"
+            - "UNAUTHORIZED"
+            - "AUTH_FAILED"
+            - "INSUFFICIENT_STORAGE"
+            - "SERVICE_UNAVAILABLE"
+            - "CONFIGURATION_REQUIRED"
+            - "FORBIDDEN"
         error:
           type: string
           description: User-friendly error description.
