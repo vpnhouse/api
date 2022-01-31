@@ -643,6 +643,8 @@ components:
           example: 42
         peer:
           $ref: '#/components/schemas/Peer'
+        connect_info:
+          $ref: 'tunnel.yaml#/components/schemas/ConnectInfoWireguard'
       required:
         - id
         - peer
