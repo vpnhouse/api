@@ -433,6 +433,24 @@ paths:
       tags:
         - settings
         - initial
+  '/api/tunnel/admin/connection-info/wireguard':
+    get:
+      operationId: admin-connection-info-wireguard
+      summary: Get peer-independent wireguard configuration from a server
+      tags:
+        - get
+        - conenction-info
+      responses:
+        '200':
+          $ref: '#/components/responses/ServerWireguardOptions'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
 
 components:
   schemas:
@@ -643,8 +661,6 @@ components:
           example: 42
         peer:
           $ref: '#/components/schemas/Peer'
-        connect_info:
-          $ref: 'tunnel.yaml#/components/schemas/ConnectInfoWireguard'
       required:
         - id
         - peer
@@ -673,6 +689,54 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Settings'
+    ServerWireguardOptions:
+      description: Peer-independent wireguard configuration from a server
+      content:
+        application/json:
+          schema:
+            properties:
+              server_public_key:
+                type: string
+                minLength: 44
+                maxLength: 44
+                example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+                description: Server public key.
+              server_ipv4:
+                type: string
+                format: ipv4
+                example: 1.2.3.4
+                description: Public IPv4 of a wireguard server.
+              server_port:
+                type: integer
+                minimum: 1
+                maximum: 65535
+                example: 3000
+                description: Public wireguard port.
+              keepalive:
+                type: integer
+                minimum: 0
+                maximum: 3600
+                example: 60
+                description: Keepalive interval to be set on client side.
+              allowed_ips:
+                type: array
+                description: 'List of subnets, allowed to be sent to tunnel.'
+                items:
+                  type: string
+                  example: 0.0.0.0/0
+              dns:
+                type: array
+                description: List of DNS servers.
+                items:
+                  type: string
+                  format: ipv4
+            required:
+              - server_public_key
+              - server_ipv4
+              - server_port
+              - keepalive
+              - allowed_ips
+              - dns
     TrustedKeyInfo:
       description: Example response
       content:
