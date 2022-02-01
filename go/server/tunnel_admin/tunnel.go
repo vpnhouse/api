@@ -73,9 +73,7 @@ type Peer struct {
 
 // PeerRecord defines model for PeerRecord.
 type PeerRecord struct {
-	// Connection information for wireguard peers.
-	ConnectInfo *externalRef1.ConnectInfoWireguard `json:"connect_info,omitempty"`
-	Id          int64                              `json:"id"`
+	Id int64 `json:"id"`
 
 	// Peer representation.
 	Peer Peer `json:"peer"`
@@ -140,6 +138,27 @@ type TrustedKeyRecord struct {
 // Peer representation.
 type PeerInfo Peer
 
+// ServerWireguardOptions defines model for ServerWireguardOptions.
+type ServerWireguardOptions struct {
+	// List of subnets, allowed to be sent to tunnel.
+	AllowedIps []string `json:"allowed_ips"`
+
+	// List of DNS servers.
+	Dns []string `json:"dns"`
+
+	// Keepalive interval to be set on client side.
+	Keepalive int `json:"keepalive"`
+
+	// Public IPv4 of a wireguard server.
+	ServerIpv4 string `json:"server_ipv4"`
+
+	// Public wireguard port.
+	ServerPort int `json:"server_port"`
+
+	// Server public key.
+	ServerPublicKey string `json:"server_public_key"`
+}
+
 // Server-side configuration.
 type SettingsInfo Settings
 
@@ -172,6 +191,9 @@ type ServerInterface interface {
 	// Admin authentication
 	// (GET /api/tunnel/admin/auth)
 	AdminDoAuth(w http.ResponseWriter, r *http.Request)
+	// Get connection info for the peer
+	// (GET /api/tunnel/admin/connection-info/wireguard)
+	AdminConnectionInfoWireguard(w http.ResponseWriter, r *http.Request)
 	// Set initial parameters
 	// (POST /api/tunnel/admin/initial-setup)
 	AdminInitialSetup(w http.ResponseWriter, r *http.Request)
@@ -238,6 +260,23 @@ func (siw *ServerInterfaceWrapper) AdminDoAuth(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AdminDoAuth(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminConnectionInfoWireguard operation middleware
+func (siw *ServerInterfaceWrapper) AdminConnectionInfoWireguard(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminConnectionInfoWireguard(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -692,6 +731,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/auth", wrapper.AdminDoAuth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/admin/connection-info/wireguard", wrapper.AdminConnectionInfoWireguard)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/tunnel/admin/initial-setup", wrapper.AdminInitialSetup)
