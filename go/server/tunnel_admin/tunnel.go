@@ -43,6 +43,11 @@ type InitialSetupRequest struct {
 	ServerIpMask  string `json:"server_ip_mask"`
 }
 
+// IpPoolAddress defines model for IpPoolAddress.
+type IpPoolAddress struct {
+	IpAddress string `json:"ip_address"`
+}
+
 // Peer representation.
 type Peer struct {
 	// JWT information data.
@@ -135,6 +140,9 @@ type TrustedKeyRecord struct {
 	Key TrustedKey `json:"key"`
 }
 
+// IpPoolSuggestResult defines model for IpPoolSuggestResult.
+type IpPoolSuggestResult IpPoolAddress
+
 // Peer representation.
 type PeerInfo Peer
 
@@ -157,6 +165,7 @@ type ServerWireguardOptions struct {
 
 	// Server public key.
 	ServerPublicKey string `json:"server_public_key"`
+	Subnet          string `json:"subnet"`
 }
 
 // Server-side configuration.
@@ -164,6 +173,9 @@ type SettingsInfo Settings
 
 // AdminInitialSetupJSONBody defines parameters for AdminInitialSetup.
 type AdminInitialSetupJSONBody InitialSetupRequest
+
+// AdminIppoolIsUsedJSONBody defines parameters for AdminIppoolIsUsed.
+type AdminIppoolIsUsedJSONBody IpPoolAddress
 
 // AdminCreatePeerJSONBody defines parameters for AdminCreatePeer.
 type AdminCreatePeerJSONBody Peer
@@ -176,6 +188,9 @@ type AdminUpdateSettingsJSONBody Settings
 
 // AdminInitialSetupJSONRequestBody defines body for AdminInitialSetup for application/json ContentType.
 type AdminInitialSetupJSONRequestBody AdminInitialSetupJSONBody
+
+// AdminIppoolIsUsedJSONRequestBody defines body for AdminIppoolIsUsed for application/json ContentType.
+type AdminIppoolIsUsedJSONRequestBody AdminIppoolIsUsedJSONBody
 
 // AdminCreatePeerJSONRequestBody defines body for AdminCreatePeer for application/json ContentType.
 type AdminCreatePeerJSONRequestBody AdminCreatePeerJSONBody
@@ -197,6 +212,12 @@ type ServerInterface interface {
 	// Set initial parameters
 	// (POST /api/tunnel/admin/initial-setup)
 	AdminInitialSetup(w http.ResponseWriter, r *http.Request)
+	// Suggest an available IP address by the server pool
+	// (GET /api/tunnel/admin/ip-pool/suggest)
+	AdminIppoolSuggest(w http.ResponseWriter, r *http.Request)
+	// Check that the IP address is used by the server pool
+	// (POST /api/tunnel/admin/ip-pool/suggest)
+	AdminIppoolIsUsed(w http.ResponseWriter, r *http.Request)
 	// List peers
 	// (GET /api/tunnel/admin/peers)
 	AdminListPeers(w http.ResponseWriter, r *http.Request)
@@ -292,6 +313,40 @@ func (siw *ServerInterfaceWrapper) AdminInitialSetup(w http.ResponseWriter, r *h
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AdminInitialSetup(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminIppoolSuggest operation middleware
+func (siw *ServerInterfaceWrapper) AdminIppoolSuggest(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminIppoolSuggest(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminIppoolIsUsed operation middleware
+func (siw *ServerInterfaceWrapper) AdminIppoolIsUsed(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminIppoolIsUsed(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -737,6 +792,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/tunnel/admin/initial-setup", wrapper.AdminInitialSetup)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/admin/ip-pool/suggest", wrapper.AdminIppoolSuggest)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/admin/ip-pool/suggest", wrapper.AdminIppoolIsUsed)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/peers", wrapper.AdminListPeers)
