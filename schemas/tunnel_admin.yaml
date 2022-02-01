@@ -445,9 +445,7 @@ paths:
           $ref: '#/components/responses/ServerWireguardOptions'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '404':
+        '409':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'

@@ -191,7 +191,7 @@ type ServerInterface interface {
 	// Admin authentication
 	// (GET /api/tunnel/admin/auth)
 	AdminDoAuth(w http.ResponseWriter, r *http.Request)
-	// Get connection info for the peer
+	// Get peer-independent wireguard configuration from a server
 	// (GET /api/tunnel/admin/connection-info/wireguard)
 	AdminConnectionInfoWireguard(w http.ResponseWriter, r *http.Request)
 	// Set initial parameters
