@@ -449,6 +449,41 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+  '/api/tunnel/admin/ip-pool/suggest':
+    get:
+      operationId: admin-ippool-suggest
+      summary: Suggest an available IP address by the server pool
+      tags:
+        - get
+        - ippool
+        - suggest
+      responses:
+        '200':
+          $ref: '#/components/responses/IpPoolSuggestResult'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      operationId: admin-ippool-is-used
+      summary: Check that the IP address is used by the server pool
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IpPoolAddress'
+
 
 components:
   schemas:
@@ -674,6 +709,14 @@ components:
         - admin_password
         - server_ip_mask
 
+    IpPoolAddress:
+      title: ""
+      properties:
+        ip_address:
+          type: string
+      required:
+        - ip_address
+
   responses:
     PeerInfo:
       description: Example response
@@ -693,6 +736,8 @@ components:
         application/json:
           schema:
             properties:
+              subnet:
+                type: string
               server_public_key:
                 type: string
                 minLength: 44
@@ -735,12 +780,20 @@ components:
               - keepalive
               - allowed_ips
               - dns
+              - subnet
     TrustedKeyInfo:
       description: Example response
       content:
         text/plain:
           schema:
             type: string
+
+    IpPoolSuggestResult:
+      description: returns suggested IP address
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IpPoolAddress'
 
   securitySchemes:
     Token_auth:
