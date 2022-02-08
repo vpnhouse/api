@@ -25,9 +25,12 @@ type Location struct {
 
 // Node defines model for Node.
 type Node struct {
+	// list of node URLs (including schema)
 	ConnectionAddresses *[]string `json:"connection_addresses,omitempty"`
-	ConnectionIps       *[]string `json:"connection_ips,omitempty"`
-	Id                  string    `json:"id"`
+
+	// list of node IP addresses
+	ConnectionIps *[]string `json:"connection_ips,omitempty"`
+	Id            string    `json:"id"`
 }
 
 // GetCredentialsParams defines parameters for GetCredentials.
