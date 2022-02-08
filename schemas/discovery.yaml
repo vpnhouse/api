@@ -81,11 +81,13 @@ components:
           example: node-dev-1
         connection_addresses:
           type: array
+          description: "list of node URLs (including schema)"
           items:
             type: string
             example: 'https://vpn-node-dev-1.project.org'
         connection_ips:
           type: array
+          description: "list of node IP addresses"
           items:
             type: string
       required:
