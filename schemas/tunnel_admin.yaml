@@ -705,9 +705,15 @@ components:
           type: string
         server_ip_mask:
           type: string
+        enable_ssl:
+           type: boolean
+        domain_name:
+          type: string
       required:
         - admin_password
         - server_ip_mask
+        - enable_ssl
+        - domain_name
 
     IpPoolAddress:
       title: ""
