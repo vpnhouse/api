@@ -40,6 +40,8 @@ type AdminAuthResponse struct {
 // InitialSetupRequest defines model for InitialSetupRequest.
 type InitialSetupRequest struct {
 	AdminPassword string `json:"admin_password"`
+	DomainName    string `json:"domain_name"`
+	EnableSsl     bool   `json:"enable_ssl"`
 	ServerIpMask  string `json:"server_ip_mask"`
 }
 
