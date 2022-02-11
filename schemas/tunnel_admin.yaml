@@ -77,17 +77,17 @@ paths:
                       created: '2021-05-28T13:23:15Z'
                       updated: '2021-05-28T13:23:15Z'
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '507':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Create new peer
       requestBody:
         content:
@@ -105,16 +105,15 @@ paths:
         - peer
       responses:
         '200':
-          # todo: can we replace it with `Peer`?
           $ref: '#/components/responses/PeerInfo'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-get-peer
       description: Get peer information
     put:
@@ -122,20 +121,19 @@ paths:
       operationId: admin-update-peer
       responses:
         '200':
-          # todo: can we replace it with `Peer`?
           $ref: '#/components/responses/PeerInfo'
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Update peer info
       requestBody:
         content:
@@ -150,15 +148,15 @@ paths:
       operationId: admin-delete-peer
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: common.yaml#/components/responses/OperationSuccessful
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Delete peer
       tags:
         - delete
@@ -182,13 +180,13 @@ paths:
         '200':
           $ref: '#/components/responses/TrustedKeyInfo'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-get-trusted-key
       description: Get trusted key
       parameters: []
@@ -199,17 +197,17 @@ paths:
         '200':
           $ref: '#/components/responses/TrustedKeyInfo'
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '507':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Create new trusted key
       requestBody:
         content:
@@ -226,17 +224,17 @@ paths:
         '200':
           $ref: '#/components/responses/TrustedKeyInfo'
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Update trusted key
       requestBody:
         content:
@@ -251,15 +249,15 @@ paths:
       operationId: admin-delete-trusted-key
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: common.yaml#/components/responses/OperationSuccessful
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       description: Delete trusted key
       parameters: []
       tags:
@@ -294,14 +292,14 @@ paths:
                     - id: ea147ad4-168f-4c16-b9c3-5628217db616
                       key: string
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-list-trusted-keys
       description: List trusted keys
-      parameters: [ ]
+      parameters: []
   /api/tunnel/admin/settings:
     get:
       summary: Get settings
@@ -312,13 +310,13 @@ paths:
         '200':
           $ref: '#/components/responses/SettingsInfo'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-get-settings
       parameters: []
       description: Get current server settings
@@ -329,13 +327,13 @@ paths:
         '200':
           $ref: '#/components/responses/SettingsInfo'
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       requestBody:
         content:
           application/json:
@@ -359,11 +357,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminAuthResponse'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-do-auth
       security:
         - Basic_auth: []
@@ -376,13 +374,13 @@ paths:
       tags: []
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: common.yaml#/components/responses/OperationSuccessful
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-reload-service
       description: Reloads service with new configuration
     parameters: []
@@ -398,11 +396,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServiceStatusResponse'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       operationId: admin-get-status
       description: Returns current server status
     parameters: []
@@ -413,17 +411,17 @@ paths:
       security: []
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: common.yaml#/components/responses/OperationSuccessful
         '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       requestBody:
         content:
           application/json:
@@ -433,7 +431,7 @@ paths:
       tags:
         - settings
         - initial
-  '/api/tunnel/admin/connection-info/wireguard':
+  /api/tunnel/admin/connection-info/wireguard:
     get:
       operationId: admin-connection-info-wireguard
       summary: Get peer-independent wireguard configuration from a server
@@ -444,12 +442,12 @@ paths:
         '200':
           $ref: '#/components/responses/ServerWireguardOptions'
         '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-  '/api/tunnel/admin/ip-pool/suggest':
+          $ref: common.yaml#/components/responses/ResponseError
+  /api/tunnel/admin/ip-pool/suggest:
     get:
       operationId: admin-ippool-suggest
       summary: Suggest an available IP address by the server pool
@@ -461,30 +459,28 @@ paths:
         '200':
           $ref: '#/components/responses/IpPoolSuggestResult'
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
     post:
       operationId: admin-ippool-is-used
       summary: Check that the IP address is used by the server pool
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: common.yaml#/components/responses/OperationSuccessful
         '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
         '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          $ref: common.yaml#/components/responses/ResponseError
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/IpPoolAddress'
-
-
 components:
   schemas:
     Settings:
@@ -652,11 +648,11 @@ components:
           example: Home PC
           nullable: true
         type:
-          $ref: 'tunnel.yaml#/components/schemas/PeerType'
+          $ref: tunnel.yaml#/components/schemas/PeerType
         info_wireguard:
-          $ref: 'tunnel.yaml#/components/schemas/PeerWireguard'
+          $ref: tunnel.yaml#/components/schemas/PeerWireguard
         identifiers:
-          $ref: 'common.yaml#/components/schemas/ConnectionIdentifiers'
+          $ref: common.yaml#/components/schemas/ConnectionIdentifiers
         claims:
           type: string
           description: JWT information data.
@@ -703,20 +699,25 @@ components:
       properties:
         admin_password:
           type: string
+          format: password
         server_ip_mask:
           type: string
+        enable_ssl:
+          type: boolean
+        domain_name:
+          type: string
+          format: hostname
       required:
         - admin_password
         - server_ip_mask
-
+        - enable_ssl
     IpPoolAddress:
-      title: ""
+      title: ''
       properties:
         ip_address:
           type: string
       required:
         - ip_address
-
   responses:
     PeerInfo:
       description: Example response
@@ -787,14 +788,12 @@ components:
         text/plain:
           schema:
             type: string
-
     IpPoolSuggestResult:
       description: returns suggested IP address
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/IpPoolAddress'
-
   securitySchemes:
     Token_auth:
       type: http
@@ -802,7 +801,6 @@ components:
     Basic_auth:
       type: http
       scheme: basic
-
 tags:
   - name: create
   - name: delete
