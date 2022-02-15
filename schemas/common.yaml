@@ -59,6 +59,7 @@ components:
             - "SERVICE_UNAVAILABLE"
             - "CONFIGURATION_REQUIRED"
             - "FORBIDDEN"
+            - "INVALID_CONFIGURATION"
         error:
           type: string
           description: User-friendly error description.
