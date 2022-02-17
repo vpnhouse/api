@@ -11,8 +11,7 @@ paths:
     get:
       summary: List peers
       tags:
-        - peer
-        - list
+        - peers
       responses:
         '200':
           description: OK
@@ -95,14 +94,12 @@ paths:
             schema:
               $ref: '#/components/schemas/Peer'
       tags:
-        - create
-        - peer
+        - peers
   '/api/tunnel/admin/peers/{id}':
     get:
       summary: Get peer info
       tags:
-        - get
-        - peer
+        - peers
       responses:
         '200':
           # todo: can we replace it with `Peer`?
@@ -143,8 +140,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Peer'
       tags:
-        - update
-        - peer
+        - peers
     delete:
       summary: Delete peer
       operationId: admin-delete-peer
@@ -161,8 +157,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
       description: Delete peer
       tags:
-        - delete
-        - peer
+        - peers
     parameters:
       - schema:
           type: integer
@@ -176,8 +171,7 @@ paths:
     get:
       summary: Get trusted key
       tags:
-        - get
-        - trusted_key
+        - trusted_keys
       responses:
         '200':
           $ref: '#/components/responses/TrustedKeyInfo'
@@ -217,8 +211,7 @@ paths:
             schema:
               type: string
       tags:
-        - create
-        - trusted_key
+        - trusted_keys
     put:
       summary: Update trusted key
       operationId: admin-update-trusted-key
@@ -244,8 +237,7 @@ paths:
             schema:
               type: string
       tags:
-        - update
-        - trusted_key
+        - trusted_keys
     delete:
       summary: Delete trusted key
       operationId: admin-delete-trusted-key
@@ -263,8 +255,7 @@ paths:
       description: Delete trusted key
       parameters: []
       tags:
-        - delete
-        - trusted_key
+        - trusted_keys
     parameters:
       - schema:
           type: string
@@ -277,8 +268,7 @@ paths:
     get:
       summary: List trusted keys
       tags:
-        - list
-        - trusted_key
+        - trusted_keys
       responses:
         '200':
           description: OK
@@ -307,7 +297,6 @@ paths:
       summary: Get settings
       tags:
         - settings
-        - get
       responses:
         '200':
           $ref: '#/components/responses/SettingsInfo'
@@ -344,13 +333,13 @@ paths:
         description: ''
       tags:
         - settings
-        - update
       description: Update server settings
     parameters: []
   /api/tunnel/admin/auth:
     get:
       summary: Admin authentication
-      tags: []
+      tags:
+        - common
       responses:
         '200':
           description: OK
@@ -373,7 +362,8 @@ paths:
   /api/tunnel/admin/reload:
     get:
       summary: Service reload
-      tags: []
+      tags:
+        - common
       responses:
         '200':
           $ref: 'common.yaml#/components/responses/OperationSuccessful'
@@ -389,7 +379,8 @@ paths:
   /api/tunnel/admin/status:
     get:
       summary: Server status
-      tags: []
+      tags:
+        - common
       responses:
         '200':
           description: OK
@@ -432,13 +423,11 @@ paths:
         description: ''
       tags:
         - settings
-        - initial
   '/api/tunnel/admin/connection-info/wireguard':
     get:
       operationId: admin-connection-info-wireguard
       summary: Get peer-independent wireguard configuration from a server
       tags:
-        - get
         - conenction-info
       responses:
         '200':
@@ -454,9 +443,7 @@ paths:
       operationId: admin-ippool-suggest
       summary: Suggest an available IP address by the server pool
       tags:
-        - get
         - ippool
-        - suggest
       responses:
         '200':
           $ref: '#/components/responses/IpPoolSuggestResult'
@@ -469,6 +456,8 @@ paths:
     post:
       operationId: admin-ippool-is-used
       summary: Check that the IP address is used by the server pool
+      tags:
+        - ippool
       responses:
         '200':
           $ref: 'common.yaml#/components/responses/OperationSuccessful'
@@ -483,7 +472,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/IpPoolAddress'
-
 
 components:
   schemas:
@@ -809,14 +797,5 @@ components:
       type: http
       scheme: basic
 
-tags:
-  - name: create
-  - name: delete
-  - name: get
-  - name: list
-  - name: node
-  - name: peer
-  - name: search
-  - name: settings
 security:
   - Token_auth: []
