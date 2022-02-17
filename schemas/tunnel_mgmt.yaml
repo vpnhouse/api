@@ -53,6 +53,133 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  '/api/tunnel/trusted-keys/{id}':
+    get:
+      summary: Get trusted key
+      tags:
+        - trusted_keys
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-get-trusted-key
+      description: Get trusted key
+      parameters: [ ]
+    post:
+      summary: Add trusted key
+      operationId: admin-add-trusted-key
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '507':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Create new trusted key
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      tags:
+        - trusted_keys
+    put:
+      summary: Update trusted key
+      operationId: admin-update-trusted-key
+      responses:
+        '200':
+          $ref: '#/components/responses/TrustedKeyInfo'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Update trusted key
+      requestBody:
+        content:
+          text/plain:
+            schema:
+              type: string
+      tags:
+        - trusted_keys
+    delete:
+      summary: Delete trusted key
+      operationId: admin-delete-trusted-key
+      responses:
+        '200':
+          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Delete trusted key
+      parameters: [ ]
+      tags:
+        - trusted_keys
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+          example: 3136f88d-b149-45a2-b658-21aa0ee2395f
+        name: id
+        in: path
+        required: true
+
+  /api/tunnel/trusted-keys:
+    get:
+      summary: List trusted keys
+      tags:
+        - trusted_keys
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrustedKeyRecord'
+              examples:
+                example:
+                  value:
+                    - id: ea147ad4-168f-4c16-b9c3-5628217db616
+                      key: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: admin-list-trusted-keys
+      description: List trusted keys
+      parameters: [ ]
+
 components:
   schemas:
     PingResponse:
@@ -95,6 +222,30 @@ components:
           if_tx_packets: 200
           if_tx_bytes: 4331
           if_tx_errors: 0
+
+    TrustedKey:
+      title: TrustedKey
+      type: string
+
+    TrustedKeyRecord:
+      title: TrustedList
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          $ref: '#/components/schemas/TrustedKey'
+      required:
+        - id
+        - key
+
+  responses:
+    TrustedKeyInfo:
+      description: Example response
+      content:
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/TrustedKey'
 
   securitySchemes:
     Federation_key:

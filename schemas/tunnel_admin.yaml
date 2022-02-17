@@ -102,7 +102,6 @@ paths:
         - peers
       responses:
         '200':
-          # todo: can we replace it with `Peer`?
           $ref: '#/components/responses/PeerInfo'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
@@ -167,131 +166,6 @@ paths:
         name: id
         in: path
         required: true
-  '/api/tunnel/admin/trusted/{id}':
-    get:
-      summary: Get trusted key
-      tags:
-        - trusted_keys
-      responses:
-        '200':
-          $ref: '#/components/responses/TrustedKeyInfo'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-get-trusted-key
-      description: Get trusted key
-      parameters: []
-    post:
-      summary: Add trusted key
-      operationId: admin-add-trusted-key
-      responses:
-        '200':
-          $ref: '#/components/responses/TrustedKeyInfo'
-        '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '507':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create new trusted key
-      requestBody:
-        content:
-          text/plain:
-            schema:
-              type: string
-      tags:
-        - trusted_keys
-    put:
-      summary: Update trusted key
-      operationId: admin-update-trusted-key
-      responses:
-        '200':
-          $ref: '#/components/responses/TrustedKeyInfo'
-        '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '409':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Update trusted key
-      requestBody:
-        content:
-          text/plain:
-            schema:
-              type: string
-      tags:
-        - trusted_keys
-    delete:
-      summary: Delete trusted key
-      operationId: admin-delete-trusted-key
-      responses:
-        '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '404':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Delete trusted key
-      parameters: []
-      tags:
-        - trusted_keys
-    parameters:
-      - schema:
-          type: string
-          format: uuid
-          example: 3136f88d-b149-45a2-b658-21aa0ee2395f
-        name: id
-        in: path
-        required: true
-  /api/tunnel/admin/trusted:
-    get:
-      summary: List trusted keys
-      tags:
-        - trusted_keys
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TrustedKeyRecord'
-              examples:
-                example:
-                  value:
-                    - id: ea147ad4-168f-4c16-b9c3-5628217db616
-                      key: string
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-list-trusted-keys
-      description: List trusted keys
-      parameters: [ ]
   /api/tunnel/admin/settings:
     get:
       summary: Get settings
@@ -428,7 +302,7 @@ paths:
       operationId: admin-connection-info-wireguard
       summary: Get peer-independent wireguard configuration from a server
       tags:
-        - conenction-info
+        - connection-info
       responses:
         '200':
           $ref: '#/components/responses/ServerWireguardOptions'
@@ -601,20 +475,6 @@ components:
           description: 'Indicate, whether service requires restart to apply latest settings.'
       required:
         - restart_required
-    TrustedKey:
-      title: TrustedKey
-      type: string
-    TrustedKeyRecord:
-      title: TrustedList
-      type: object
-      properties:
-        id:
-          type: string
-        key:
-          $ref: '#/components/schemas/TrustedKey'
-      required:
-        - id
-        - key
     Peer:
       type: object
       title: Peer
@@ -702,7 +562,6 @@ components:
         - server_ip_mask
         - enable_ssl
         - domain_name
-
     IpPoolAddress:
       title: ""
       properties:
@@ -775,13 +634,6 @@ components:
               - allowed_ips
               - dns
               - subnet
-    TrustedKeyInfo:
-      description: Example response
-      content:
-        text/plain:
-          schema:
-            type: string
-
     IpPoolSuggestResult:
       description: returns suggested IP address
       content:
