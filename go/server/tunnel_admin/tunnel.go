@@ -133,15 +133,6 @@ type Settings struct {
 // Logging level.
 type SettingsLogLevel string
 
-// TrustedKey defines model for TrustedKey.
-type TrustedKey string
-
-// TrustedKeyRecord defines model for TrustedKeyRecord.
-type TrustedKeyRecord struct {
-	Id  string     `json:"id"`
-	Key TrustedKey `json:"key"`
-}
-
 // IpPoolSuggestResult defines model for IpPoolSuggestResult.
 type IpPoolSuggestResult IpPoolAddress
 
@@ -247,21 +238,6 @@ type ServerInterface interface {
 	// Server status
 	// (GET /api/tunnel/admin/status)
 	AdminGetStatus(w http.ResponseWriter, r *http.Request)
-	// List trusted keys
-	// (GET /api/tunnel/admin/trusted)
-	AdminListTrustedKeys(w http.ResponseWriter, r *http.Request)
-	// Delete trusted key
-	// (DELETE /api/tunnel/admin/trusted/{id})
-	AdminDeleteTrustedKey(w http.ResponseWriter, r *http.Request, id string)
-	// Get trusted key
-	// (GET /api/tunnel/admin/trusted/{id})
-	AdminGetTrustedKey(w http.ResponseWriter, r *http.Request, id string)
-	// Add trusted key
-	// (POST /api/tunnel/admin/trusted/{id})
-	AdminAddTrustedKey(w http.ResponseWriter, r *http.Request, id string)
-	// Update trusted key
-	// (PUT /api/tunnel/admin/trusted/{id})
-	AdminUpdateTrustedKey(w http.ResponseWriter, r *http.Request, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -544,135 +520,6 @@ func (siw *ServerInterfaceWrapper) AdminGetStatus(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// AdminListTrustedKeys operation middleware
-func (siw *ServerInterfaceWrapper) AdminListTrustedKeys(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AdminListTrustedKeys(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// AdminDeleteTrustedKey operation middleware
-func (siw *ServerInterfaceWrapper) AdminDeleteTrustedKey(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AdminDeleteTrustedKey(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// AdminGetTrustedKey operation middleware
-func (siw *ServerInterfaceWrapper) AdminGetTrustedKey(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AdminGetTrustedKey(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// AdminAddTrustedKey operation middleware
-func (siw *ServerInterfaceWrapper) AdminAddTrustedKey(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AdminAddTrustedKey(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// AdminUpdateTrustedKey operation middleware
-func (siw *ServerInterfaceWrapper) AdminUpdateTrustedKey(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AdminUpdateTrustedKey(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -827,21 +674,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/status", wrapper.AdminGetStatus)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/tunnel/admin/trusted", wrapper.AdminListTrustedKeys)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/tunnel/admin/trusted/{id}", wrapper.AdminDeleteTrustedKey)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/tunnel/admin/trusted/{id}", wrapper.AdminGetTrustedKey)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/tunnel/admin/trusted/{id}", wrapper.AdminAddTrustedKey)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/tunnel/admin/trusted/{id}", wrapper.AdminUpdateTrustedKey)
 	})
 
 	return r
