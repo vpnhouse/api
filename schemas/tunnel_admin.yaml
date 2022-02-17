@@ -797,13 +797,5 @@ components:
       type: http
       scheme: basic
 
-#tags:
-#  - name: peers
-#  - name: trusted_keys
-#  - name: conenction-info
-#  - name: settings
-#  - name: common
-#  - name: ippool
-
 security:
   - Token_auth: []
