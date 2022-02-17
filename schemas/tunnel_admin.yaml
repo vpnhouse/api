@@ -9,7 +9,8 @@ info:
 paths:
   /api/tunnel/admin/peers:
     get:
-      summary: List peers
+      summary: Get list of peers
+      operationId: admin-list-peers
       tags:
         - peers
       responses:
@@ -21,60 +22,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PeerRecord'
-              examples:
-                example:
-                  value:
-                    - id: 42
-                      peer:
-                        label: Home PC
-                        type: wireguard
-                        info_wireguard:
-                          public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
-                        identifiers:
-                          user_id: Project/Authorizer/user@org
-                          installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
-                          session_id: de9e0337-fb16-4669-b07d-9f261c329461
-                        claims: string
-                        ipv4: 10.42.3.33
-                        expires: '2021-05-28T13:43:10Z'
-                        created: '2021-05-28T13:23:15Z'
-                        updated: '2021-05-28T13:23:15Z'
         '401':
-          description: Unauthorized
+          $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
-          description: Forbidden
+          $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
-          description: Internal Server Error
-      operationId: admin-list-peers
-      description: Get list of peers
+          $ref: 'common.yaml#/components/responses/ResponseError'
     post:
       summary: Create peer
       operationId: admin-create-peer
+      tags:
+        - peers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Peer'
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PeerRecord'
-              examples:
-                example:
-                  value:
-                    id: 42
-                    peer:
-                      label: Home PC
-                      type: wireguard
-                      info_wireguard:
-                        public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
-                      identifiers:
-                        user_id: Project/Authorizer/user@org
-                        installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
-                        session_id: de9e0337-fb16-4669-b07d-9f261c329461
-                      claims: string
-                      ipv4: 10.42.3.33
-                      expires: '2021-05-28T13:43:10Z'
-                      created: '2021-05-28T13:23:15Z'
-                      updated: '2021-05-28T13:23:15Z'
+          $ref: '#/components/responses/PeerInfo'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -87,17 +53,11 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '507':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create new peer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Peer'
-      tags:
-        - peers
+
   '/api/tunnel/admin/peers/{id}':
     get:
       summary: Get peer info
+      operationId: admin-get-peer
       tags:
         - peers
       responses:
@@ -111,14 +71,13 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-get-peer
-      description: Get peer information
     put:
       summary: Update peer
       operationId: admin-update-peer
+      tags:
+        - peers
       responses:
         '200':
-          # todo: can we replace it with `Peer`?
           $ref: '#/components/responses/PeerInfo'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
@@ -132,17 +91,17 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Update peer info
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Peer'
-      tags:
-        - peers
+
     delete:
       summary: Delete peer
       operationId: admin-delete-peer
+      tags:
+        - peers
       responses:
         '200':
           $ref: 'common.yaml#/components/responses/OperationSuccessful'
@@ -154,9 +113,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Delete peer
-      tags:
-        - peers
+
     parameters:
       - schema:
           type: integer
@@ -166,9 +123,11 @@ paths:
         name: id
         in: path
         required: true
+
   /api/tunnel/admin/settings:
     get:
-      summary: Get settings
+      summary: Get current server settings
+      operationId: admin-get-settings
       tags:
         - settings
       responses:
@@ -182,12 +141,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-get-settings
-      parameters: []
-      description: Get current server settings
+
     patch:
-      summary: Update settings
+      summary: Update server settings
       operationId: admin-update-settings
+      tags:
+        - settings
       responses:
         '200':
           $ref: '#/components/responses/SettingsInfo'
@@ -204,38 +163,31 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Settings'
-        description: ''
-      tags:
-        - settings
-      description: Update server settings
-    parameters: []
+
   /api/tunnel/admin/auth:
     get:
-      summary: Admin authentication
+      summary: Authorize as the node admin
+      operationId: admin-do-auth
       tags:
         - common
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AdminAuthResponse'
+          $ref: '#/components/responses/AdminAuthResponse'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '404':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-do-auth
+
       security:
         - Basic_auth: []
         - Token_auth: []
-      description: Authorize administrator
-    parameters: []
+
   /api/tunnel/admin/reload:
     get:
-      summary: Service reload
+      summary: Reloads service with new configuration
+      operationId: admin-reload-service
       tags:
         - common
       responses:
@@ -247,34 +199,31 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-reload-service
-      description: Reloads service with new configuration
-    parameters: []
+
   /api/tunnel/admin/status:
     get:
-      summary: Server status
+      summary: Get current service status
+      operationId: admin-get-status
       tags:
         - common
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceStatusResponse'
+          $ref: '#/components/responses/ServiceStatusResponse'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: admin-get-status
-      description: Returns current server status
-    parameters: []
+
   /api/tunnel/admin/initial-setup:
     post:
       summary: Set initial parameters
       operationId: admin-initial-setup
+      tags:
+        - settings
+      # empty security because this handle must be public
+      # (at least for the very first call).
       security: []
       responses:
         '200':
@@ -294,9 +243,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InitialSetupRequest'
-        description: ''
-      tags:
-        - settings
+
   '/api/tunnel/admin/connection-info/wireguard':
     get:
       operationId: admin-connection-info-wireguard
@@ -312,10 +259,11 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+
   '/api/tunnel/admin/ip-pool/suggest':
     get:
-      operationId: admin-ippool-suggest
       summary: Suggest an available IP address by the server pool
+      operationId: admin-ippool-suggest
       tags:
         - ippool
       responses:
@@ -409,27 +357,32 @@ components:
           minimum: 1
           maximum: 65535
           example: 3000
-          description: Wireguard listening port.
-        wireguard_keepalive:
-          type: integer
-          minimum: 1
-          example: 60
-          description: Wireguard keepalive interval.
-        wireguard_subnet:
-          type: string
-          example: 10.42.0.0/16
-          description: Wireguard subnet.
-        wireguard_server_ipv4:
-          type: string
-          example: 1.2.3.4
-          format: ipv4
-          description: Public ipv4 address of a wireguard server.
+          description: |
+            Wireguard listen port inside the container.
+            In 99% cases it matches the `wireguard_server_port` value.
         wireguard_server_port:
           type: integer
           minimum: 1
           maximum: 65535
           example: 3000
-          description: Public UDP port of a wireguard server.
+          description: |
+            Public UDP port of a wireguard server.
+            This value is announced to peers, in 99% cases it is the same as the `wireguard_listen_port`.
+            May differs from the `wireguard_listen_port`'s value if NATed (especially with docker).
+        wireguard_keepalive:
+          type: integer
+          minimum: 1
+          example: 60
+          description: Keepalive interval for wireguard peers.
+        wireguard_subnet:
+          type: string
+          example: 10.42.0.0/16
+          description: Subnet for wireguard peers.
+        wireguard_server_ipv4:
+          type: string
+          example: 1.2.3.4
+          format: ipv4
+          description: Public ipv4 address of a wireguard server.
         wireguard_public_key:
           type: string
           example: n4btQ30d0OxK12rIzbN5mWk2MGZm8EWxrrk6LFro320=
@@ -451,11 +404,11 @@ components:
           description: 'HTTP listening IP:Port pair.'
         dns:
           type: array
-          description: Array of DNS servers.
+          description: DNS servers to announce to a peer
           items:
             type: string
             format: ipv4
-    AdminAuthResponse:
+    AdminAuth:
       title: ResponseAdminAuth
       type: object
       properties:
@@ -465,10 +418,10 @@ components:
           readOnly: true
       required:
         - access_token
-    ServiceStatusResponse:
+    ServiceStatus:
       title: ServiceStatusResponse
       type: object
-      description: Current operation status.
+      description: Holds current staus flags of the service
       properties:
         restart_required:
           type: boolean
@@ -534,6 +487,22 @@ components:
     PeerRecord:
       title: Peer repr for a list responses
       type: object
+      example:
+        id: 42
+        peer:
+          label: Home PC
+          type: wireguard
+          info_wireguard:
+            public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
+          identifiers:
+            user_id: Project/Authorizer/user@org
+            installation_id: d1a1b2e2-d84b-4537-9a93-c4d3cd412598
+            session_id: de9e0337-fb16-4669-b07d-9f261c329461
+          claims: string
+          ipv4: 10.42.3.33
+          expires: '2021-05-28T13:43:10Z'
+          created: '2021-05-28T13:23:15Z'
+          updated: '2021-05-28T13:23:15Z'
       properties:
         id:
           type: integer
@@ -590,6 +559,7 @@ components:
           schema:
             properties:
               subnet:
+                description: "Network subnet/mask for wireguard clients, e.g 10.235.0.0/24"
                 type: string
               server_public_key:
                 type: string
@@ -640,6 +610,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/IpPoolAddress'
+    AdminAuthResponse:
+      description: return credentials of authorized session
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AdminAuth'
+    ServiceStatusResponse:
+      description: "returns current status flags"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceStatus'
 
   securitySchemes:
     Token_auth:
