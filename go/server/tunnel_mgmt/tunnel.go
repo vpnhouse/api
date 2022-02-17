@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	externalRef1 "github.com/Codename-Uranium/api/go/server/federation"
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -28,6 +29,15 @@ type PingResponse struct {
 	PeersWithTraffic int `json:"peers_with_traffic"`
 }
 
+// TrustedKey defines model for TrustedKey.
+type TrustedKey string
+
+// TrustedKeyRecord defines model for TrustedKeyRecord.
+type TrustedKeyRecord struct {
+	Id  string     `json:"id"`
+	Key TrustedKey `json:"key"`
+}
+
 // FederationSetAuthorizerKeysJSONBody defines parameters for FederationSetAuthorizerKeys.
 type FederationSetAuthorizerKeysJSONBody []externalRef1.PublicKeyRecord
 
@@ -42,6 +52,21 @@ type ServerInterface interface {
 	// Push authorizer keys to the tunnel node
 	// (POST /api/tunnel/federation/set-authorizer-keys)
 	FederationSetAuthorizerKeys(w http.ResponseWriter, r *http.Request)
+	// List trusted keys
+	// (GET /api/tunnel/trusted-keys)
+	AdminListTrustedKeys(w http.ResponseWriter, r *http.Request)
+	// Delete trusted key
+	// (DELETE /api/tunnel/trusted-keys/{id})
+	AdminDeleteTrustedKey(w http.ResponseWriter, r *http.Request, id string)
+	// Get trusted key
+	// (GET /api/tunnel/trusted-keys/{id})
+	AdminGetTrustedKey(w http.ResponseWriter, r *http.Request, id string)
+	// Add trusted key
+	// (POST /api/tunnel/trusted-keys/{id})
+	AdminAddTrustedKey(w http.ResponseWriter, r *http.Request, id string)
+	// Update trusted key
+	// (PUT /api/tunnel/trusted-keys/{id})
+	AdminUpdateTrustedKey(w http.ResponseWriter, r *http.Request, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -78,6 +103,135 @@ func (siw *ServerInterfaceWrapper) FederationSetAuthorizerKeys(w http.ResponseWr
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.FederationSetAuthorizerKeys(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminListTrustedKeys operation middleware
+func (siw *ServerInterfaceWrapper) AdminListTrustedKeys(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Federation_keyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminListTrustedKeys(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminDeleteTrustedKey operation middleware
+func (siw *ServerInterfaceWrapper) AdminDeleteTrustedKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Federation_keyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminDeleteTrustedKey(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminGetTrustedKey operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetTrustedKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Federation_keyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminGetTrustedKey(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminAddTrustedKey operation middleware
+func (siw *ServerInterfaceWrapper) AdminAddTrustedKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Federation_keyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminAddTrustedKey(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminUpdateTrustedKey operation middleware
+func (siw *ServerInterfaceWrapper) AdminUpdateTrustedKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Federation_keyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminUpdateTrustedKey(w, r, id)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -205,6 +359,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/tunnel/federation/set-authorizer-keys", wrapper.FederationSetAuthorizerKeys)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/trusted-keys", wrapper.AdminListTrustedKeys)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/tunnel/trusted-keys/{id}", wrapper.AdminDeleteTrustedKey)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/trusted-keys/{id}", wrapper.AdminGetTrustedKey)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/trusted-keys/{id}", wrapper.AdminAddTrustedKey)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/tunnel/trusted-keys/{id}", wrapper.AdminUpdateTrustedKey)
 	})
 
 	return r
