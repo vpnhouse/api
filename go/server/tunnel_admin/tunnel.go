@@ -31,8 +31,8 @@ const (
 	SettingsLogLevelWarning SettingsLogLevel = "warning"
 )
 
-// AdminAuthResponse defines model for AdminAuthResponse.
-type AdminAuthResponse struct {
+// AdminAuth defines model for AdminAuth.
+type AdminAuth struct {
 	// JWT for accessing other administrative endpoints.
 	AccessToken string `json:"access_token"`
 }
@@ -86,8 +86,8 @@ type PeerRecord struct {
 	Peer Peer `json:"peer"`
 }
 
-// Current operation status.
-type ServiceStatusResponse struct {
+// Holds current staus flags of the service
+type ServiceStatus struct {
 	// Indicate, whether service requires restart to apply latest settings.
 	RestartRequired bool `json:"restart_required"`
 }
@@ -101,7 +101,7 @@ type Settings struct {
 	AdminUserName     *string `json:"admin_user_name,omitempty"`
 	ConnectionTimeout *int    `json:"connection_timeout,omitempty"`
 
-	// Array of DNS servers.
+	// DNS servers to announce to a peer
 	Dns *[]string `json:"dns,omitempty"`
 
 	// HTTP listening IP:Port pair.
@@ -111,10 +111,11 @@ type Settings struct {
 	LogLevel     *SettingsLogLevel `json:"log_level,omitempty"`
 	PingInterval *int              `json:"ping_interval,omitempty"`
 
-	// Wireguard keepalive interval.
+	// Keepalive interval for wireguard peers.
 	WireguardKeepalive *int `json:"wireguard_keepalive,omitempty"`
 
-	// Wireguard listening port.
+	// Wireguard listen port inside the container.
+	// In 99% cases it matches the `wireguard_server_port` value.
 	WireguardListenPort *int `json:"wireguard_listen_port,omitempty"`
 
 	// Wireguard public key (read only).
@@ -124,14 +125,19 @@ type Settings struct {
 	WireguardServerIpv4 *string `json:"wireguard_server_ipv4,omitempty"`
 
 	// Public UDP port of a wireguard server.
+	// This value is announced to peers, in 99% cases it is the same as the `wireguard_listen_port`.
+	// May differs from the `wireguard_listen_port`'s value if NATed (especially with docker).
 	WireguardServerPort *int `json:"wireguard_server_port,omitempty"`
 
-	// Wireguard subnet.
+	// Subnet for wireguard peers.
 	WireguardSubnet *string `json:"wireguard_subnet,omitempty"`
 }
 
 // Logging level.
 type SettingsLogLevel string
+
+// AdminAuthResponse defines model for AdminAuthResponse.
+type AdminAuthResponse AdminAuth
 
 // IpPoolSuggestResult defines model for IpPoolSuggestResult.
 type IpPoolSuggestResult IpPoolAddress
@@ -158,8 +164,13 @@ type ServerWireguardOptions struct {
 
 	// Server public key.
 	ServerPublicKey string `json:"server_public_key"`
-	Subnet          string `json:"subnet"`
+
+	// Network subnet/mask for wireguard clients, e.g 10.235.0.0/24
+	Subnet string `json:"subnet"`
 }
+
+// Holds current staus flags of the service
+type ServiceStatusResponse ServiceStatus
 
 // Server-side configuration.
 type SettingsInfo Settings
@@ -196,7 +207,7 @@ type AdminUpdateSettingsJSONRequestBody AdminUpdateSettingsJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Admin authentication
+	// Authorize as the node admin
 	// (GET /api/tunnel/admin/auth)
 	AdminDoAuth(w http.ResponseWriter, r *http.Request)
 	// Get peer-independent wireguard configuration from a server
@@ -211,7 +222,7 @@ type ServerInterface interface {
 	// Check that the IP address is used by the server pool
 	// (POST /api/tunnel/admin/ip-pool/suggest)
 	AdminIppoolIsUsed(w http.ResponseWriter, r *http.Request)
-	// List peers
+	// Get list of peers
 	// (GET /api/tunnel/admin/peers)
 	AdminListPeers(w http.ResponseWriter, r *http.Request)
 	// Create peer
@@ -226,16 +237,16 @@ type ServerInterface interface {
 	// Update peer
 	// (PUT /api/tunnel/admin/peers/{id})
 	AdminUpdatePeer(w http.ResponseWriter, r *http.Request, id int64)
-	// Service reload
+	// Reloads service with new configuration
 	// (GET /api/tunnel/admin/reload)
 	AdminReloadService(w http.ResponseWriter, r *http.Request)
-	// Get settings
+	// Get current server settings
 	// (GET /api/tunnel/admin/settings)
 	AdminGetSettings(w http.ResponseWriter, r *http.Request)
-	// Update settings
+	// Update server settings
 	// (PATCH /api/tunnel/admin/settings)
 	AdminUpdateSettings(w http.ResponseWriter, r *http.Request)
-	// Server status
+	// Get current service status
 	// (GET /api/tunnel/admin/status)
 	AdminGetStatus(w http.ResponseWriter, r *http.Request)
 }
