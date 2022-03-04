@@ -20,6 +20,20 @@ const (
 	Token_authScopes = "Token_auth.Scopes"
 )
 
+// Defines values for DomainConfigMode.
+const (
+	DomainConfigModeDirect DomainConfigMode = "direct"
+
+	DomainConfigModeReverseProxy DomainConfigMode = "reverse-proxy"
+)
+
+// Defines values for DomainConfigSchema.
+const (
+	DomainConfigSchemaHttp DomainConfigSchema = "http"
+
+	DomainConfigSchemaHttps DomainConfigSchema = "https"
+)
+
 // Defines values for SettingsLogLevel.
 const (
 	SettingsLogLevelDebug SettingsLogLevel = "debug"
@@ -37,12 +51,54 @@ type AdminAuth struct {
 	AccessToken string `json:"access_token"`
 }
 
+// Domain name, reverse proxy, and SSL configuration,
+// used for the initial configuration.
+// In furure may also be used as part of Settings.
+type DomainConfig struct {
+	// Domain name for the service, required.
+	// In the "direct" mode we'll issue the SSL certificate for that domain name,
+	// in "reverse-proxy" mode we need this name to build the extenral links.
+	// If no configuraton is provided (InitialSetupRequest->domain is empty) - the external IP is used.
+	DomainName string `json:"domain_name"`
+
+	// We'll try to issue the SSL certificate if set.
+	// For the "direct" mode only.
+	IssueSsl bool `json:"issue_ssl"`
+
+	// Shows how the http traffic delivered to the service.
+	// The "direct" meand that we serve 80/443 by ourselves, so
+	// we can also manage the SSL certificates.
+	// The "reverse-proxy" means that we're behind the reverse proxy,
+	// like nginx. We wont manage and server SSL in that case.
+	Mode DomainConfigMode `json:"mode"`
+
+	// How the reverse-proxy serving our traffic for the external clients.
+	// So the schema + domain_name produces a valid link to the service.
+	// For the "reverse-proxy" mode only.
+	Schema DomainConfigSchema `json:"schema"`
+}
+
+// Shows how the http traffic delivered to the service.
+// The "direct" meand that we serve 80/443 by ourselves, so
+// we can also manage the SSL certificates.
+// The "reverse-proxy" means that we're behind the reverse proxy,
+// like nginx. We wont manage and server SSL in that case.
+type DomainConfigMode string
+
+// How the reverse-proxy serving our traffic for the external clients.
+// So the schema + domain_name produces a valid link to the service.
+// For the "reverse-proxy" mode only.
+type DomainConfigSchema string
+
 // InitialSetupRequest defines model for InitialSetupRequest.
 type InitialSetupRequest struct {
 	AdminPassword string `json:"admin_password"`
-	DomainName    string `json:"domain_name"`
-	EnableSsl     bool   `json:"enable_ssl"`
-	ServerIpMask  string `json:"server_ip_mask"`
+
+	// Domain name, reverse proxy, and SSL configuration,
+	// used for the initial configuration.
+	// In furure may also be used as part of Settings.
+	Domain       *DomainConfig `json:"domain,omitempty"`
+	ServerIpMask string        `json:"server_ip_mask"`
 }
 
 // IpPoolAddress defines model for IpPoolAddress.
