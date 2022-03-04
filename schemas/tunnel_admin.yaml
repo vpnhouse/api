@@ -522,15 +522,54 @@ components:
           type: string
         server_ip_mask:
           type: string
-        enable_ssl:
-           type: boolean
-        domain_name:
-          type: string
+        domain:
+          # optional domain name config,
+          # send this if "[ ] I have a domain" is checked.
+          $ref: "#/components/schemas/DomainConfig"
       required:
         - admin_password
         - server_ip_mask
-        - enable_ssl
+    DomainConfig:
+      description: |
+        Domain name, reverse proxy, and SSL configuration,
+        used for the initial configuration.
+        In furure may also be used as part of Settings.
+      type: object
+      properties:
+        mode:
+          description: |
+            Shows how the http traffic delivered to the service.
+            The "direct" meand that we serve 80/443 by ourselves, so
+            we can also manage the SSL certificates.
+            The "reverse-proxy" means that we're behind the reverse proxy,
+            like nginx. We wont manage and server SSL in that case.
+          type: string
+          enum: ["direct", "reverse-proxy"]
+        domain_name:
+          description: |
+            Domain name for the service, required.
+            In the "direct" mode we'll issue the SSL certificate for that domain name,
+            in "reverse-proxy" mode we need this name to build the extenral links.
+            If no configuraton is provided (InitialSetupRequest->domain is empty) - the external IP is used.
+          type: string
+        issue_ssl:
+          description: |
+            We'll try to issue the SSL certificate if set.
+            For the "direct" mode only.
+          type: boolean
+        schema:
+          description: |
+            How the reverse-proxy serving our traffic for the external clients.
+            So the schema + domain_name produces a valid link to the service.
+            For the "reverse-proxy" mode only.
+          type: string
+          enum: ["http", "https"]
+      required:
+        - mode
         - domain_name
+        - issue_ssl
+        - schema
+
     IpPoolAddress:
       title: ""
       properties:
