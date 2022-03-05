@@ -54,6 +54,34 @@ paths:
         '507':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/tunnel/admin/peers/shared:
+    post:
+      summary: "create a peer for sharing via the unique link"
+      operationId: "admin-create-shared-peer"
+      tags:
+        - peers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Peer'
+      responses:
+        '200':
+          $ref: '#/components/responses/PeerLink'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '507':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+
   '/api/tunnel/admin/peers/{id}':
     get:
       summary: Get peer info
@@ -573,6 +601,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Peer'
+    PeerLink:
+      description: "A link to activate the shared peer"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              link:
+                type: string
+            required:
+              - link
     SettingsInfo:
       description: Example response
       content:

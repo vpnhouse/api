@@ -183,6 +183,11 @@ type IpPoolSuggestResult IpPoolAddress
 // Peer representation.
 type PeerInfo Peer
 
+// PeerLink defines model for PeerLink.
+type PeerLink struct {
+	Link string `json:"link"`
+}
+
 // ServerWireguardOptions defines model for ServerWireguardOptions.
 type ServerWireguardOptions struct {
 	// List of subnets, allowed to be sent to tunnel.
@@ -222,6 +227,9 @@ type AdminIppoolIsUsedJSONBody IpPoolAddress
 // AdminCreatePeerJSONBody defines parameters for AdminCreatePeer.
 type AdminCreatePeerJSONBody Peer
 
+// AdminCreateSharedPeerJSONBody defines parameters for AdminCreateSharedPeer.
+type AdminCreateSharedPeerJSONBody Peer
+
 // AdminUpdatePeerJSONBody defines parameters for AdminUpdatePeer.
 type AdminUpdatePeerJSONBody Peer
 
@@ -236,6 +244,9 @@ type AdminIppoolIsUsedJSONRequestBody AdminIppoolIsUsedJSONBody
 
 // AdminCreatePeerJSONRequestBody defines body for AdminCreatePeer for application/json ContentType.
 type AdminCreatePeerJSONRequestBody AdminCreatePeerJSONBody
+
+// AdminCreateSharedPeerJSONRequestBody defines body for AdminCreateSharedPeer for application/json ContentType.
+type AdminCreateSharedPeerJSONRequestBody AdminCreateSharedPeerJSONBody
 
 // AdminUpdatePeerJSONRequestBody defines body for AdminUpdatePeer for application/json ContentType.
 type AdminUpdatePeerJSONRequestBody AdminUpdatePeerJSONBody
@@ -266,6 +277,9 @@ type ServerInterface interface {
 	// Create peer
 	// (POST /api/tunnel/admin/peers)
 	AdminCreatePeer(w http.ResponseWriter, r *http.Request)
+	// create a peer for sharing via the unique link
+	// (POST /api/tunnel/admin/peers/shared)
+	AdminCreateSharedPeer(w http.ResponseWriter, r *http.Request)
 	// Delete peer
 	// (DELETE /api/tunnel/admin/peers/{id})
 	AdminDeletePeer(w http.ResponseWriter, r *http.Request, id int64)
@@ -408,6 +422,23 @@ func (siw *ServerInterfaceWrapper) AdminCreatePeer(w http.ResponseWriter, r *htt
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AdminCreatePeer(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminCreateSharedPeer operation middleware
+func (siw *ServerInterfaceWrapper) AdminCreateSharedPeer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminCreateSharedPeer(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -702,6 +733,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/tunnel/admin/peers", wrapper.AdminCreatePeer)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/admin/peers/shared", wrapper.AdminCreateSharedPeer)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/tunnel/admin/peers/{id}", wrapper.AdminDeletePeer)
