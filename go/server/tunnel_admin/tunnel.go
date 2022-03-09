@@ -236,6 +236,9 @@ type AdminUpdatePeerJSONBody Peer
 // AdminUpdateSettingsJSONBody defines parameters for AdminUpdateSettings.
 type AdminUpdateSettingsJSONBody Settings
 
+// PublicPeerActivateJSONBody defines parameters for PublicPeerActivate.
+type PublicPeerActivateJSONBody externalRef1.PeerWireguard
+
 // AdminInitialSetupJSONRequestBody defines body for AdminInitialSetup for application/json ContentType.
 type AdminInitialSetupJSONRequestBody AdminInitialSetupJSONBody
 
@@ -253,6 +256,9 @@ type AdminUpdatePeerJSONRequestBody AdminUpdatePeerJSONBody
 
 // AdminUpdateSettingsJSONRequestBody defines body for AdminUpdateSettings for application/json ContentType.
 type AdminUpdateSettingsJSONRequestBody AdminUpdateSettingsJSONBody
+
+// PublicPeerActivateJSONRequestBody defines body for PublicPeerActivate for application/json ContentType.
+type PublicPeerActivateJSONRequestBody PublicPeerActivateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -301,6 +307,9 @@ type ServerInterface interface {
 	// Get current service status
 	// (GET /api/tunnel/admin/status)
 	AdminGetStatus(w http.ResponseWriter, r *http.Request)
+	// Activate the shared peer via the unique URL
+	// (POST /api/tunnel/public/activate-peer/{key})
+	PublicPeerActivate(w http.ResponseWriter, r *http.Request, key string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -600,6 +609,34 @@ func (siw *ServerInterfaceWrapper) AdminGetStatus(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// PublicPeerActivate operation middleware
+func (siw *ServerInterfaceWrapper) PublicPeerActivate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameter("simple", false, "key", chi.URLParam(r, "key"), &key)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "key", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PublicPeerActivate(w, r, key)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -757,6 +794,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/status", wrapper.AdminGetStatus)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/public/activate-peer/{key}", wrapper.PublicPeerActivate)
 	})
 
 	return r
