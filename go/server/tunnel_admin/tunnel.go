@@ -114,9 +114,6 @@ type Peer struct {
 	// Label of the peer.
 	Label *string `json:"label"`
 
-	// Peer tunnel type.
-	Type *externalRef1.PeerType `json:"type,omitempty"`
-
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }

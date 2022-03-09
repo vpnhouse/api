@@ -497,8 +497,6 @@ components:
           description: Label of the peer.
           example: Home PC
           nullable: true
-        type:
-          $ref: 'tunnel.yaml#/components/schemas/PeerType'
         info_wireguard:
           $ref: 'tunnel.yaml#/components/schemas/PeerWireguard'
         identifiers:
