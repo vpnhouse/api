@@ -203,11 +203,10 @@ type IpPoolSuggestResult IpPoolAddress
 
 // PeerActivationResponse defines model for PeerActivationResponse.
 type PeerActivationResponse struct {
-	// Peer representation.
-	Peer *Peer `json:"peer,omitempty"`
+	Peer PeerRecord `json:"peer"`
 
 	// Peer-independent wireguard configuration from a server
-	WireguardOptions *WireguardOptions `json:"wireguard_options,omitempty"`
+	WireguardOptions WireguardOptions `json:"wireguard_options"`
 }
 
 // Peer representation.

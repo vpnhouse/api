@@ -699,9 +699,12 @@ components:
             type: object
             properties:
               peer:
-                $ref: '#/components/schemas/Peer'
+                $ref: '#/components/schemas/PeerRecord'
               wireguard_options:
                 $ref: '#/components/schemas/WireguardOptions'
+            required:
+              - peer
+              - wireguard_options
 
     SettingsInfo:
       description: Example response
