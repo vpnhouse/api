@@ -330,7 +330,6 @@ paths:
         name: key
         in: path
         required: true
-
     post:
       operationId: public-peer-activate
       summary: Activate the shared peer via the unique URL
@@ -338,7 +337,7 @@ paths:
         - ippool
       responses:
         '200':
-          $ref: 'common.yaml#/components/responses/OperationSuccessful'
+          $ref: '#/components/responses/PeerActivationResponse'
         '404':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '409':
@@ -620,6 +619,57 @@ components:
       required:
         - ip_address
 
+    WireguardOptions:
+      description: Peer-independent wireguard configuration from a server
+      type: object
+      properties:
+        subnet:
+          description: "Network subnet/mask for wireguard clients, e.g 10.235.0.0/24"
+          type: string
+        server_public_key:
+          type: string
+          minLength: 44
+          maxLength: 44
+          example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+          description: Server public key.
+        server_ipv4:
+          type: string
+          format: ipv4
+          example: 1.2.3.4
+          description: Public IPv4 of a wireguard server.
+        server_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          example: 3000
+          description: Public wireguard port.
+        keepalive:
+          type: integer
+          minimum: 0
+          maximum: 3600
+          example: 60
+          description: Keepalive interval to be set on client side.
+        allowed_ips:
+          type: array
+          description: 'List of subnets, allowed to be sent to tunnel.'
+          items:
+            type: string
+            example: 0.0.0.0/0
+        dns:
+          type: array
+          description: List of DNS servers.
+          items:
+            type: string
+            format: ipv4
+      required:
+        - server_public_key
+        - server_ipv4
+        - server_port
+        - keepalive
+        - allowed_ips
+        - dns
+        - subnet
+
   responses:
     PeerInfo:
       description: Example response
@@ -638,6 +688,21 @@ components:
                 type: string
             required:
               - link
+    PeerActivationResponse:
+      description: |
+        Full information about the Wireguard connection
+        for the activated peer. Used to build QR code and config
+        on the publicly available activation page.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              peer:
+                $ref: '#/components/schemas/Peer'
+              wireguard_options:
+                $ref: '#/components/schemas/WireguardOptions'
+
     SettingsInfo:
       description: Example response
       content:
@@ -649,53 +714,7 @@ components:
       content:
         application/json:
           schema:
-            properties:
-              subnet:
-                description: "Network subnet/mask for wireguard clients, e.g 10.235.0.0/24"
-                type: string
-              server_public_key:
-                type: string
-                minLength: 44
-                maxLength: 44
-                example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
-                description: Server public key.
-              server_ipv4:
-                type: string
-                format: ipv4
-                example: 1.2.3.4
-                description: Public IPv4 of a wireguard server.
-              server_port:
-                type: integer
-                minimum: 1
-                maximum: 65535
-                example: 3000
-                description: Public wireguard port.
-              keepalive:
-                type: integer
-                minimum: 0
-                maximum: 3600
-                example: 60
-                description: Keepalive interval to be set on client side.
-              allowed_ips:
-                type: array
-                description: 'List of subnets, allowed to be sent to tunnel.'
-                items:
-                  type: string
-                  example: 0.0.0.0/0
-              dns:
-                type: array
-                description: List of DNS servers.
-                items:
-                  type: string
-                  format: ipv4
-            required:
-              - server_public_key
-              - server_ipv4
-              - server_port
-              - keepalive
-              - allowed_ips
-              - dns
-              - subnet
+            $ref: '#/components/schemas/WireguardOptions'
     IpPoolSuggestResult:
       description: returns suggested IP address
       content:

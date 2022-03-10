@@ -171,22 +171,8 @@ type Settings struct {
 	WireguardSubnet *string `json:"wireguard_subnet,omitempty"`
 }
 
-// AdminAuthResponse defines model for AdminAuthResponse.
-type AdminAuthResponse AdminAuth
-
-// IpPoolSuggestResult defines model for IpPoolSuggestResult.
-type IpPoolSuggestResult IpPoolAddress
-
-// Peer representation.
-type PeerInfo Peer
-
-// PeerLink defines model for PeerLink.
-type PeerLink struct {
-	Link string `json:"link"`
-}
-
-// ServerWireguardOptions defines model for ServerWireguardOptions.
-type ServerWireguardOptions struct {
+// Peer-independent wireguard configuration from a server
+type WireguardOptions struct {
 	// List of subnets, allowed to be sent to tunnel.
 	AllowedIps []string `json:"allowed_ips"`
 
@@ -208,6 +194,32 @@ type ServerWireguardOptions struct {
 	// Network subnet/mask for wireguard clients, e.g 10.235.0.0/24
 	Subnet string `json:"subnet"`
 }
+
+// AdminAuthResponse defines model for AdminAuthResponse.
+type AdminAuthResponse AdminAuth
+
+// IpPoolSuggestResult defines model for IpPoolSuggestResult.
+type IpPoolSuggestResult IpPoolAddress
+
+// PeerActivationResponse defines model for PeerActivationResponse.
+type PeerActivationResponse struct {
+	// Peer representation.
+	Peer *Peer `json:"peer,omitempty"`
+
+	// Peer-independent wireguard configuration from a server
+	WireguardOptions *WireguardOptions `json:"wireguard_options,omitempty"`
+}
+
+// Peer representation.
+type PeerInfo Peer
+
+// PeerLink defines model for PeerLink.
+type PeerLink struct {
+	Link string `json:"link"`
+}
+
+// Peer-independent wireguard configuration from a server
+type ServerWireguardOptions WireguardOptions
 
 // Holds current staus flags of the service
 type ServiceStatusResponse ServiceStatus
