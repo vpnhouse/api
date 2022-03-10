@@ -372,7 +372,6 @@ components:
         example-write:
           value:
             log_level: debug
-            admin_user_name: admin
             admin_password: My$uperp@$$@0rd
             wireguard_listen_port: 3000
             wireguard_keepalive: 60
