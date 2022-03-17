@@ -34,17 +34,6 @@ const (
 	DomainConfigSchemaHttps DomainConfigSchema = "https"
 )
 
-// Defines values for SettingsLogLevel.
-const (
-	SettingsLogLevelDebug SettingsLogLevel = "debug"
-
-	SettingsLogLevelError SettingsLogLevel = "error"
-
-	SettingsLogLevelInfo SettingsLogLevel = "info"
-
-	SettingsLogLevelWarning SettingsLogLevel = "warning"
-)
-
 // AdminAuth defines model for AdminAuth.
 type AdminAuth struct {
 	// JWT for accessing other administrative endpoints.
@@ -53,7 +42,6 @@ type AdminAuth struct {
 
 // Domain name, reverse proxy, and SSL configuration,
 // used for the initial configuration.
-// In furure may also be used as part of Settings.
 type DomainConfig struct {
 	// Domain name for the service, required.
 	// In the "direct" mode we'll issue the SSL certificate for that domain name,
@@ -96,7 +84,6 @@ type InitialSetupRequest struct {
 
 	// Domain name, reverse proxy, and SSL configuration,
 	// used for the initial configuration.
-	// In furure may also be used as part of Settings.
 	Domain       *DomainConfig `json:"domain,omitempty"`
 	ServerIpMask string        `json:"server_ip_mask"`
 }
@@ -151,21 +138,19 @@ type ServiceStatus struct {
 // Server-side configuration.
 type Settings struct {
 	// Admin password (write-only, never returned).
-	AdminPassword *string `json:"admin_password,omitempty"`
-
-	// Admin username.
-	AdminUserName     *string `json:"admin_user_name,omitempty"`
+	AdminPassword     *string `json:"admin_password,omitempty"`
 	ConnectionTimeout *int    `json:"connection_timeout,omitempty"`
 
 	// DNS servers to announce to a peer
 	Dns *[]string `json:"dns,omitempty"`
 
+	// Domain name, reverse proxy, and SSL configuration,
+	// used for the initial configuration.
+	Domain *DomainConfig `json:"domain,omitempty"`
+
 	// HTTP listening IP:Port pair.
 	HttpListenAddr *string `json:"http_listen_addr,omitempty"`
-
-	// Logging level.
-	LogLevel     *SettingsLogLevel `json:"log_level,omitempty"`
-	PingInterval *int              `json:"ping_interval,omitempty"`
+	PingInterval   *int    `json:"ping_interval,omitempty"`
 
 	// Keepalive interval for wireguard peers.
 	WireguardKeepalive *int `json:"wireguard_keepalive,omitempty"`
@@ -188,9 +173,6 @@ type Settings struct {
 	// Subnet for wireguard peers.
 	WireguardSubnet *string `json:"wireguard_subnet,omitempty"`
 }
-
-// Logging level.
-type SettingsLogLevel string
 
 // AdminAuthResponse defines model for AdminAuthResponse.
 type AdminAuthResponse AdminAuth

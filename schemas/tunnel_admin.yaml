@@ -303,8 +303,6 @@ components:
       x-examples:
         example-read:
           value:
-            log_level: debug
-            admin_user_name: admin
             wireguard_listen_port: 3000
             wireguard_keepalive: 60
             wireguard_subnet: 10.42.0.0/16
@@ -333,19 +331,6 @@ components:
               - 192.168.0.1
       description: Server-side configuration.
       properties:
-        log_level:
-          type: string
-          enum:
-            - debug
-            - info
-            - warning
-            - error
-          example: debug
-          description: Logging level.
-        admin_user_name:
-          type: string
-          example: admin
-          description: Admin username.
         admin_password:
           type: string
           format: password
@@ -408,6 +393,10 @@ components:
           items:
             type: string
             format: ipv4
+        domain:
+          # optional domain+SSL config,
+          # send this if "[ ] I have a domain" is checked.
+          $ref: "#/components/schemas/DomainConfig"
     AdminAuth:
       title: ResponseAdminAuth
       type: object
@@ -533,7 +522,6 @@ components:
       description: |
         Domain name, reverse proxy, and SSL configuration,
         used for the initial configuration.
-        In furure may also be used as part of Settings.
       type: object
       properties:
         mode:
