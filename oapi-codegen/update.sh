@@ -18,7 +18,7 @@ target=../go/client/federation/federation.go
 ln=$(grep -m1 -n "github.com/deepmap/oapi-codegen/pkg/runtime" $target | cut -d: -f1)
 ed $target << END
 ${ln}a
-	externalRef1 "github.com/Codename-Uranium/api/go/server/common"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 .
 w
 q
@@ -33,7 +33,7 @@ ln=$(grep -m1 -n "strings" $target | cut -d: -f1)
 ed ../go/client/tunnel_mgmt/tunnel.go << END
 ${ln}a
 
-	externalRef1 "github.com/Codename-Uranium/api/go/server/common"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 .
 w
 q
