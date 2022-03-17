@@ -1,4 +1,4 @@
-module github.com/Codename-Uranium/api
+module github.com/vpnhouse/api
 
 go 1.17
 

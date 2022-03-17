@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"time"
 
-	externalRef0 "github.com/Codename-Uranium/api/go/server/common"
-	externalRef1 "github.com/Codename-Uranium/api/go/server/tunnel"
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
+	externalRef1 "github.com/vpnhouse/api/go/server/tunnel"
 )
 
 const (
