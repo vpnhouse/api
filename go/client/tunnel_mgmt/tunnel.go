@@ -14,10 +14,10 @@ import (
 	"net/url"
 	"strings"
 
-	externalRef1 "github.com/Codename-Uranium/api/go/server/common"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 
-	externalRef0 "github.com/Codename-Uranium/api/go/client/federation"
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	externalRef0 "github.com/vpnhouse/api/go/client/federation"
 )
 
 const (

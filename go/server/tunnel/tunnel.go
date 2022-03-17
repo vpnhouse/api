@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"net/http"
 
-	externalRef0 "github.com/Codename-Uranium/api/go/server/common"
 	"github.com/go-chi/chi/v5"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (

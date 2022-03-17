@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"net/http"
 
-	externalRef1 "github.com/Codename-Uranium/api/go/server/federation"
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
+	externalRef1 "github.com/vpnhouse/api/go/server/federation"
 )
 
 const (
