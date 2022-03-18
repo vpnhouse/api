@@ -54,6 +54,34 @@ paths:
         '507':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/tunnel/admin/peers/shared:
+    post:
+      summary: "create a peer for sharing via the unique link"
+      operationId: "admin-create-shared-peer"
+      tags:
+        - peers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Peer'
+      responses:
+        '200':
+          $ref: '#/components/responses/PeerLink'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '507':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+
   '/api/tunnel/admin/peers/{id}':
     get:
       summary: Get peer info
@@ -295,6 +323,47 @@ paths:
             schema:
               $ref: '#/components/schemas/IpPoolAddress'
 
+  '/api/tunnel/public/activate-peer/{key}':
+    parameters:
+      - schema:
+          type: string
+        name: key
+        in: path
+        required: true
+    get:
+      operationId: public-peer-status
+      summary: Chech the shared peer status before the activation request
+      tags:
+        - shared-peer
+      responses:
+        '200':
+          $ref: '#/components/responses/PeerActivationStatus'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      operationId: public-peer-activate
+      summary: Activate the shared peer via the unique URL
+      tags:
+        - shared-peer
+      responses:
+        '200':
+          $ref: '#/components/responses/PeerActivationResponse'
+        '404':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'tunnel.yaml#/components/schemas/PeerWireguard'
+
 components:
   schemas:
     Settings:
@@ -317,7 +386,6 @@ components:
         example-write:
           value:
             log_level: debug
-            admin_user_name: admin
             admin_password: My$uperp@$$@0rd
             wireguard_listen_port: 3000
             wireguard_keepalive: 60
@@ -441,8 +509,6 @@ components:
           description: Label of the peer.
           example: Home PC
           nullable: true
-        type:
-          $ref: 'tunnel.yaml#/components/schemas/PeerType'
         info_wireguard:
           $ref: 'tunnel.yaml#/components/schemas/PeerWireguard'
         identifiers:
@@ -566,6 +632,73 @@ components:
       required:
         - ip_address
 
+    WireguardOptions:
+      description: Peer-independent wireguard configuration from a server
+      type: object
+      properties:
+        subnet:
+          description: "Network subnet/mask for wireguard clients, e.g 10.235.0.0/24"
+          type: string
+        server_public_key:
+          type: string
+          minLength: 44
+          maxLength: 44
+          example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
+          description: Server public key.
+        server_ipv4:
+          type: string
+          format: ipv4
+          example: 1.2.3.4
+          description: Public IPv4 of a wireguard server.
+        server_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          example: 3000
+          description: Public wireguard port.
+        keepalive:
+          type: integer
+          minimum: 0
+          maximum: 3600
+          example: 60
+          description: Keepalive interval to be set on client side.
+        allowed_ips:
+          type: array
+          description: 'List of subnets, allowed to be sent to tunnel.'
+          items:
+            type: string
+            example: 0.0.0.0/0
+        dns:
+          type: array
+          description: List of DNS servers.
+          items:
+            type: string
+            format: ipv4
+      required:
+        - server_public_key
+        - server_ipv4
+        - server_port
+        - keepalive
+        - allowed_ips
+        - dns
+        - subnet
+
+    PeerActivation:
+      description: |
+        Returns the status of the shared peer.
+        "not_activated" - no configuration has been given, we can
+          activate it immeadietly.
+        "activated" - the peer has already been activated,
+          we must ask a user about a re-activation (previously
+          issued credentials will be invalidated).
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "not_activated", "activated" ]
+      required:
+        - status
+
   responses:
     PeerInfo:
       description: Example response
@@ -573,6 +706,40 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Peer'
+    PeerLink:
+      description: "A link to activate the shared peer"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              link:
+                type: string
+            required:
+              - link
+    PeerActivationResponse:
+      description: |
+        Full information about the Wireguard connection
+        for the activated peer. Used to build QR code and config
+        on the publicly available activation page.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              peer:
+                $ref: '#/components/schemas/PeerRecord'
+              wireguard_options:
+                $ref: '#/components/schemas/WireguardOptions'
+            required:
+              - peer
+              - wireguard_options
+    PeerActivationStatus:
+      description: ""
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PeerActivation'
     SettingsInfo:
       description: Example response
       content:
@@ -584,53 +751,7 @@ components:
       content:
         application/json:
           schema:
-            properties:
-              subnet:
-                description: "Network subnet/mask for wireguard clients, e.g 10.235.0.0/24"
-                type: string
-              server_public_key:
-                type: string
-                minLength: 44
-                maxLength: 44
-                example: b0o7b8vXx9EH3uLJucOJUed0slvSppv7RCmC8jXRr1o=
-                description: Server public key.
-              server_ipv4:
-                type: string
-                format: ipv4
-                example: 1.2.3.4
-                description: Public IPv4 of a wireguard server.
-              server_port:
-                type: integer
-                minimum: 1
-                maximum: 65535
-                example: 3000
-                description: Public wireguard port.
-              keepalive:
-                type: integer
-                minimum: 0
-                maximum: 3600
-                example: 60
-                description: Keepalive interval to be set on client side.
-              allowed_ips:
-                type: array
-                description: 'List of subnets, allowed to be sent to tunnel.'
-                items:
-                  type: string
-                  example: 0.0.0.0/0
-              dns:
-                type: array
-                description: List of DNS servers.
-                items:
-                  type: string
-                  format: ipv4
-            required:
-              - server_public_key
-              - server_ipv4
-              - server_port
-              - keepalive
-              - allowed_ips
-              - dns
-              - subnet
+            $ref: '#/components/schemas/WireguardOptions'
     IpPoolSuggestResult:
       description: returns suggested IP address
       content:

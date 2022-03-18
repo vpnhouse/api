@@ -16,11 +16,6 @@ const (
 	Token_authScopes = "Token_auth.Scopes"
 )
 
-// Defines values for PeerType.
-const (
-	PeerTypeWireguard PeerType = "wireguard"
-)
-
 // Information to configure client on client side.
 type ClientConfiguration struct {
 	// Connection information for wireguard peers.
@@ -52,9 +47,6 @@ type ConnectInfoWireguard struct {
 	TunnelIpv4 string `json:"tunnel_ipv4"`
 }
 
-// Peer tunnel type.
-type PeerType string
-
 // Wireguard-specific tunnel information.
 type PeerWireguard struct {
 	// Wireguard public key.
@@ -68,9 +60,6 @@ type ClientConnectJSONBody struct {
 	// Wireguard-specific tunnel information.
 	InfoWireguard *PeerWireguard `json:"info_wireguard,omitempty"`
 	Location      *string        `json:"location,omitempty"`
-
-	// Peer tunnel type.
-	Type PeerType `json:"type"`
 }
 
 // ClientDisconnectJSONBody defines parameters for ClientDisconnect.

@@ -34,6 +34,13 @@ const (
 	DomainConfigSchemaHttps DomainConfigSchema = "https"
 )
 
+// Defines values for PeerActivationStatus.
+const (
+	PeerActivationStatusActivated PeerActivationStatus = "activated"
+
+	PeerActivationStatusNotActivated PeerActivationStatus = "not_activated"
+)
+
 // AdminAuth defines model for AdminAuth.
 type AdminAuth struct {
 	// JWT for accessing other administrative endpoints.
@@ -114,12 +121,22 @@ type Peer struct {
 	// Label of the peer.
 	Label *string `json:"label"`
 
-	// Peer tunnel type.
-	Type *externalRef1.PeerType `json:"type,omitempty"`
-
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }
+
+// Returns the status of the shared peer.
+// "not_activated" - no configuration has been given, we can
+//   activate it immeadietly.
+// "activated" - the peer has already been activated,
+//   we must ask a user about a re-activation (previously
+//   issued credentials will be invalidated).
+type PeerActivation struct {
+	Status PeerActivationStatus `json:"status"`
+}
+
+// PeerActivationStatus defines model for PeerActivation.Status.
+type PeerActivationStatus string
 
 // PeerRecord defines model for PeerRecord.
 type PeerRecord struct {
@@ -174,17 +191,8 @@ type Settings struct {
 	WireguardSubnet *string `json:"wireguard_subnet,omitempty"`
 }
 
-// AdminAuthResponse defines model for AdminAuthResponse.
-type AdminAuthResponse AdminAuth
-
-// IpPoolSuggestResult defines model for IpPoolSuggestResult.
-type IpPoolSuggestResult IpPoolAddress
-
-// Peer representation.
-type PeerInfo Peer
-
-// ServerWireguardOptions defines model for ServerWireguardOptions.
-type ServerWireguardOptions struct {
+// Peer-independent wireguard configuration from a server
+type WireguardOptions struct {
 	// List of subnets, allowed to be sent to tunnel.
 	AllowedIps []string `json:"allowed_ips"`
 
@@ -207,6 +215,31 @@ type ServerWireguardOptions struct {
 	Subnet string `json:"subnet"`
 }
 
+// AdminAuthResponse defines model for AdminAuthResponse.
+type AdminAuthResponse AdminAuth
+
+// IpPoolSuggestResult defines model for IpPoolSuggestResult.
+type IpPoolSuggestResult IpPoolAddress
+
+// PeerActivationResponse defines model for PeerActivationResponse.
+type PeerActivationResponse struct {
+	Peer PeerRecord `json:"peer"`
+
+	// Peer-independent wireguard configuration from a server
+	WireguardOptions WireguardOptions `json:"wireguard_options"`
+}
+
+// Peer representation.
+type PeerInfo Peer
+
+// PeerLink defines model for PeerLink.
+type PeerLink struct {
+	Link string `json:"link"`
+}
+
+// Peer-independent wireguard configuration from a server
+type ServerWireguardOptions WireguardOptions
+
 // Holds current staus flags of the service
 type ServiceStatusResponse ServiceStatus
 
@@ -222,11 +255,17 @@ type AdminIppoolIsUsedJSONBody IpPoolAddress
 // AdminCreatePeerJSONBody defines parameters for AdminCreatePeer.
 type AdminCreatePeerJSONBody Peer
 
+// AdminCreateSharedPeerJSONBody defines parameters for AdminCreateSharedPeer.
+type AdminCreateSharedPeerJSONBody Peer
+
 // AdminUpdatePeerJSONBody defines parameters for AdminUpdatePeer.
 type AdminUpdatePeerJSONBody Peer
 
 // AdminUpdateSettingsJSONBody defines parameters for AdminUpdateSettings.
 type AdminUpdateSettingsJSONBody Settings
+
+// PublicPeerActivateJSONBody defines parameters for PublicPeerActivate.
+type PublicPeerActivateJSONBody externalRef1.PeerWireguard
 
 // AdminInitialSetupJSONRequestBody defines body for AdminInitialSetup for application/json ContentType.
 type AdminInitialSetupJSONRequestBody AdminInitialSetupJSONBody
@@ -237,11 +276,17 @@ type AdminIppoolIsUsedJSONRequestBody AdminIppoolIsUsedJSONBody
 // AdminCreatePeerJSONRequestBody defines body for AdminCreatePeer for application/json ContentType.
 type AdminCreatePeerJSONRequestBody AdminCreatePeerJSONBody
 
+// AdminCreateSharedPeerJSONRequestBody defines body for AdminCreateSharedPeer for application/json ContentType.
+type AdminCreateSharedPeerJSONRequestBody AdminCreateSharedPeerJSONBody
+
 // AdminUpdatePeerJSONRequestBody defines body for AdminUpdatePeer for application/json ContentType.
 type AdminUpdatePeerJSONRequestBody AdminUpdatePeerJSONBody
 
 // AdminUpdateSettingsJSONRequestBody defines body for AdminUpdateSettings for application/json ContentType.
 type AdminUpdateSettingsJSONRequestBody AdminUpdateSettingsJSONBody
+
+// PublicPeerActivateJSONRequestBody defines body for PublicPeerActivate for application/json ContentType.
+type PublicPeerActivateJSONRequestBody PublicPeerActivateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -266,6 +311,9 @@ type ServerInterface interface {
 	// Create peer
 	// (POST /api/tunnel/admin/peers)
 	AdminCreatePeer(w http.ResponseWriter, r *http.Request)
+	// create a peer for sharing via the unique link
+	// (POST /api/tunnel/admin/peers/shared)
+	AdminCreateSharedPeer(w http.ResponseWriter, r *http.Request)
 	// Delete peer
 	// (DELETE /api/tunnel/admin/peers/{id})
 	AdminDeletePeer(w http.ResponseWriter, r *http.Request, id int64)
@@ -287,6 +335,12 @@ type ServerInterface interface {
 	// Get current service status
 	// (GET /api/tunnel/admin/status)
 	AdminGetStatus(w http.ResponseWriter, r *http.Request)
+	// Chech the shared peer status before the activation request
+	// (GET /api/tunnel/public/activate-peer/{key})
+	PublicPeerStatus(w http.ResponseWriter, r *http.Request, key string)
+	// Activate the shared peer via the unique URL
+	// (POST /api/tunnel/public/activate-peer/{key})
+	PublicPeerActivate(w http.ResponseWriter, r *http.Request, key string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -408,6 +462,23 @@ func (siw *ServerInterfaceWrapper) AdminCreatePeer(w http.ResponseWriter, r *htt
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.AdminCreatePeer(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AdminCreateSharedPeer operation middleware
+func (siw *ServerInterfaceWrapper) AdminCreateSharedPeer(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AdminCreateSharedPeer(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -569,6 +640,62 @@ func (siw *ServerInterfaceWrapper) AdminGetStatus(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// PublicPeerStatus operation middleware
+func (siw *ServerInterfaceWrapper) PublicPeerStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameter("simple", false, "key", chi.URLParam(r, "key"), &key)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "key", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PublicPeerStatus(w, r, key)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PublicPeerActivate operation middleware
+func (siw *ServerInterfaceWrapper) PublicPeerActivate(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameter("simple", false, "key", chi.URLParam(r, "key"), &key)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "key", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PublicPeerActivate(w, r, key)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -704,6 +831,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/tunnel/admin/peers", wrapper.AdminCreatePeer)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/admin/peers/shared", wrapper.AdminCreateSharedPeer)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/tunnel/admin/peers/{id}", wrapper.AdminDeletePeer)
 	})
 	r.Group(func(r chi.Router) {
@@ -723,6 +853,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/status", wrapper.AdminGetStatus)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/public/activate-peer/{key}", wrapper.PublicPeerStatus)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/tunnel/public/activate-peer/{key}", wrapper.PublicPeerActivate)
 	})
 
 	return r
