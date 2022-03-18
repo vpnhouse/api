@@ -34,6 +34,13 @@ const (
 	DomainConfigSchemaHttps DomainConfigSchema = "https"
 )
 
+// Defines values for PeerActivationStatus.
+const (
+	PeerActivationStatusActivated PeerActivationStatus = "activated"
+
+	PeerActivationStatusNotActivated PeerActivationStatus = "not_activated"
+)
+
 // AdminAuth defines model for AdminAuth.
 type AdminAuth struct {
 	// JWT for accessing other administrative endpoints.
@@ -117,6 +124,19 @@ type Peer struct {
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }
+
+// Returns the status of the shared peer.
+// "not_activated" - no configuration has been given, we can
+//   activate it immeadietly.
+// "activated" - the peer has already been activated,
+//   we must ask a user about a re-activation (previously
+//   issued credentials will be invalidated).
+type PeerActivation struct {
+	Status PeerActivationStatus `json:"status"`
+}
+
+// PeerActivationStatus defines model for PeerActivation.Status.
+type PeerActivationStatus string
 
 // PeerRecord defines model for PeerRecord.
 type PeerRecord struct {
@@ -315,6 +335,9 @@ type ServerInterface interface {
 	// Get current service status
 	// (GET /api/tunnel/admin/status)
 	AdminGetStatus(w http.ResponseWriter, r *http.Request)
+	// Chech the shared peer status before the activation request
+	// (GET /api/tunnel/public/activate-peer/{key})
+	PublicPeerStatus(w http.ResponseWriter, r *http.Request, key string)
 	// Activate the shared peer via the unique URL
 	// (POST /api/tunnel/public/activate-peer/{key})
 	PublicPeerActivate(w http.ResponseWriter, r *http.Request, key string)
@@ -617,6 +640,34 @@ func (siw *ServerInterfaceWrapper) AdminGetStatus(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// PublicPeerStatus operation middleware
+func (siw *ServerInterfaceWrapper) PublicPeerStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "key" -------------
+	var key string
+
+	err = runtime.BindStyledParameter("simple", false, "key", chi.URLParam(r, "key"), &key)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "key", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, Token_authScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PublicPeerStatus(w, r, key)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // PublicPeerActivate operation middleware
 func (siw *ServerInterfaceWrapper) PublicPeerActivate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -802,6 +853,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/tunnel/admin/status", wrapper.AdminGetStatus)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/tunnel/public/activate-peer/{key}", wrapper.PublicPeerStatus)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/tunnel/public/activate-peer/{key}", wrapper.PublicPeerActivate)
