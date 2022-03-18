@@ -39,8 +39,6 @@ paths:
               type: object
               description: Connection request information.
               properties:
-                type:
-                  $ref: '#/components/schemas/PeerType'
                 info_wireguard:
                   $ref: '#/components/schemas/PeerWireguard'
                 identifiers:
@@ -242,13 +240,6 @@ components:
         - allowed_ips
         - dns
         - ping_interval
-    PeerType:
-      type: string
-      title: PeerType
-      enum:
-        - wireguard
-      example: wireguard
-      description: Peer tunnel type.
     ClientConfiguration:
       title: ClientConfiguration
       type: object
