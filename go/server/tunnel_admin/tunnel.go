@@ -34,6 +34,15 @@ const (
 	DomainConfigSchemaHttps DomainConfigSchema = "https"
 )
 
+// Defines values for PeerNetAccessPolicy.
+const (
+	PeerNetAccessPolicyN0 PeerNetAccessPolicy = 0
+
+	PeerNetAccessPolicyN1 PeerNetAccessPolicy = 1
+
+	PeerNetAccessPolicyN2 PeerNetAccessPolicy = 2
+)
+
 // Defines values for PeerActivationStatus.
 const (
 	PeerActivationStatusActivated PeerActivationStatus = "activated"
@@ -121,9 +130,17 @@ type Peer struct {
 	// Label of the peer.
 	Label *string `json:"label"`
 
+	// Network policy: isolate the peer (internet access only)
+	// or allow to talk to its network neighbours (like in LANs)
+	NetAccessPolicy *PeerNetAccessPolicy `json:"net_access_policy"`
+
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }
+
+// Network policy: isolate the peer (internet access only)
+// or allow to talk to its network neighbours (like in LANs)
+type PeerNetAccessPolicy int
 
 // Returns the status of the shared peer.
 // "not_activated" - no configuration has been given, we can

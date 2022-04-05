@@ -523,6 +523,20 @@ components:
           description: Tunneling IPv4 address of a peer.
           example: 10.42.3.33
           nullable: true
+        net_access_policy:
+          description: |
+            Network policy: isolate the peer (internet access only)
+            or allow to talk to its network neighbours (like in LANs)
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 2
+          x-enum-varnames:
+            - Default
+            - InternetOnly
+            - AllowAll
+          nullable: true
         expires:
           type: string
           format: date-time
