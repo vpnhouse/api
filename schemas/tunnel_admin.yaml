@@ -537,6 +537,14 @@ components:
             - InternetOnly
             - AllowAll
           nullable: true
+        rate_limit:
+          description: |
+            How much of bandwidth the client is allowed to consume.
+            Takes no effect if the traffic control subsystem is
+            disabled on a node.
+            [!] Bits per Second, must follow SI.
+          type: integer
+          nullable: true
         expires:
           type: string
           format: date-time

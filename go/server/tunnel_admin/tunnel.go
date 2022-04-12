@@ -134,6 +134,12 @@ type Peer struct {
 	// or allow to talk to its network neighbours (like in LANs)
 	NetAccessPolicy *PeerNetAccessPolicy `json:"net_access_policy"`
 
+	// How much of bandwidth the client is allowed to consume.
+	// Takes no effect if the traffic control subsystem is
+	// disabled on a node.
+	// [!] Bits per Second, must follow SI.
+	RateLimit *int `json:"rate_limit"`
+
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }
