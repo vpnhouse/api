@@ -465,6 +465,9 @@ components:
           # optional domain+SSL config,
           # send this if "[ ] I have a domain" is checked.
           $ref: "#/components/schemas/DomainConfig"
+        send_stats:
+          description: allow to send anonymous hearbeats
+          type: boolean
     AdminAuth:
       title: ResponseAdminAuth
       type: object
@@ -599,6 +602,9 @@ components:
           type: string
         server_ip_mask:
           type: string
+        send_stats:
+          description: allow to send anonymous hearbeats and install notifications
+          type: boolean
         domain:
           # optional domain name config,
           # send this if "[ ] I have a domain" is checked.
@@ -618,7 +624,7 @@ components:
             The "direct" meand that we serve 80/443 by ourselves, so
             we can also manage the SSL certificates.
             The "reverse-proxy" means that we're behind the reverse proxy,
-            like nginx. We wont manage and server SSL in that case.
+            like nginx. We wont manage and serve the SSL traffic in that case.
           type: string
           enum: ["direct", "reverse-proxy"]
         domain_name:
