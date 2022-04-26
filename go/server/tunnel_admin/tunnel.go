@@ -73,7 +73,7 @@ type DomainConfig struct {
 	// The "direct" meand that we serve 80/443 by ourselves, so
 	// we can also manage the SSL certificates.
 	// The "reverse-proxy" means that we're behind the reverse proxy,
-	// like nginx. We wont manage and server SSL in that case.
+	// like nginx. We wont manage and serve the SSL traffic in that case.
 	Mode DomainConfigMode `json:"mode"`
 
 	// How the reverse-proxy serving our traffic for the external clients.
@@ -86,7 +86,7 @@ type DomainConfig struct {
 // The "direct" meand that we serve 80/443 by ourselves, so
 // we can also manage the SSL certificates.
 // The "reverse-proxy" means that we're behind the reverse proxy,
-// like nginx. We wont manage and server SSL in that case.
+// like nginx. We wont manage and serve the SSL traffic in that case.
 type DomainConfigMode string
 
 // How the reverse-proxy serving our traffic for the external clients.
@@ -100,8 +100,11 @@ type InitialSetupRequest struct {
 
 	// Domain name, reverse proxy, and SSL configuration,
 	// used for the initial configuration.
-	Domain       *DomainConfig `json:"domain,omitempty"`
-	ServerIpMask string        `json:"server_ip_mask"`
+	Domain *DomainConfig `json:"domain,omitempty"`
+
+	// allow to send anonymous hearbeats and install notifications
+	SendStats    *bool  `json:"send_stats,omitempty"`
+	ServerIpMask string `json:"server_ip_mask"`
 }
 
 // IpPoolAddress defines model for IpPoolAddress.
@@ -191,6 +194,9 @@ type Settings struct {
 	// HTTP listening IP:Port pair.
 	HttpListenAddr *string `json:"http_listen_addr,omitempty"`
 	PingInterval   *int    `json:"ping_interval,omitempty"`
+
+	// allow to send anonymous hearbeats
+	SendStats *bool `json:"send_stats,omitempty"`
 
 	// Keepalive interval for wireguard peers.
 	WireguardKeepalive *int `json:"wireguard_keepalive,omitempty"`
