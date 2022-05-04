@@ -249,7 +249,7 @@ components:
 
   securitySchemes:
     Federation_key:
-      name: X-URANIUM-FEDERATION-KEY
+      name: X-VPNHOUSE-FEDERATION-KEY
       type: apiKey
       in: header
 tags:
