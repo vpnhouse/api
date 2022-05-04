@@ -552,19 +552,19 @@ components:
 
   securitySchemes:
     ManagementKey:
-      name: X-URANIUM-MGMT-KEY
+      name: X-VPNHOUSE-MGMT-KEY
       type: apiKey
       in: header
     DiscoveryKey:
-      name: X-URANIUM-DISCOVERY-KEY
+      name: X-VPNHOUSE-DISCOVERY-KEY
       type: apiKey
       in: header
     AuthorizerKey:
-      name: X-URANIUM-AUTHORIZER-KEY
+      name: X-VPNHOUSE-AUTHORIZER-KEY
       type: apiKey
       in: header
     TunnelKey:
-      name: X-URANIUM-TUNNEL-KEY
+      name: X-VPNHOUSE-TUNNEL-KEY
       type: apiKey
       in: query
 
