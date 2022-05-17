@@ -71,10 +71,11 @@ components:
         example-1:
           value:
             id: 40ae2017-df2b-4828-a450-3b9766a3b001
-            tunnel_type:
-              - wireguard
-            connection_query:
+            connection_addresses:
               - 'https://vpn-node-abc.project.org'
+            connection_ips:
+              - '1.2.3.4'
+              - '2.3.4.5'
       properties:
         id:
           type: string

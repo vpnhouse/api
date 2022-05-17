@@ -52,7 +52,6 @@ paths:
             examples:
               example:
                 value:
-                  type: wireguard
                   info_wireguard:
                     public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
                   identifiers:
