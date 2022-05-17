@@ -40,7 +40,7 @@ components:
             result: INVALID_PEER
             error: invalid peer info
             details: invalid character '\\n' in string literal
-            field: string
+            field: name
       properties:
         result:
           type: string

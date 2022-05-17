@@ -497,7 +497,6 @@ components:
           value:
             id: 42
             label: Home PC
-            type: wireguard
             info_wireguard:
               public_key: ljs1lRH1YtZPlppYl1gQVX+JTNmTQsX57cIDf7oB6Qc=
             ipv4: 10.42.3.33
