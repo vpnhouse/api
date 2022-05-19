@@ -34,7 +34,16 @@ paths:
       security:
         - ManagementKey: []
         - DiscoveryKey: []
-    parameters: []
+    parameters:
+      - name: healthy
+        in: query
+        schema:
+          type: boolean
+      - name: state
+        in: query
+        schema:
+          $ref: '#/components/schemas/NodeState'
+
   '/api/federation/nodes/{id}':
     parameters:
       - schema:
@@ -468,6 +477,11 @@ paths:
               format: binary
 components:
   schemas:
+    NodeState:
+      type: string
+      enum:
+        - enabled
+        - disabled
     Node:
       title: Node
       type: object
@@ -480,10 +494,7 @@ components:
         labels:
           type: object
         state:
-          type: string
-          enum:
-            - enabled
-            - disabled
+          $ref: '#/components/schemas/NodeState'
         healthy:
           type: boolean
           readOnly: true

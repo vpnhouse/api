@@ -42,14 +42,14 @@ type Node struct {
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
 
-// NodeState defines model for Node.State.
-type NodeState string
-
 // NodeRecord defines model for NodeRecord.
 type NodeRecord struct {
 	Id   string `json:"id"`
 	Node Node   `json:"node"`
 }
+
+// NodeState defines model for NodeState.
+type NodeState string
 
 // PublicKey defines model for PublicKey.
 type PublicKey struct {
@@ -68,6 +68,12 @@ type UpdateKeyJSONBody PublicKey
 
 // SetNodeLabelJSONBody defines parameters for SetNodeLabel.
 type SetNodeLabelJSONBody string
+
+// ListNodesParams defines parameters for ListNodes.
+type ListNodesParams struct {
+	Healthy *bool      `json:"healthy,omitempty"`
+	State   *NodeState `json:"state,omitempty"`
+}
 
 // UpdateNodeJSONBody defines parameters for UpdateNode.
 type UpdateNodeJSONBody Node
@@ -201,7 +207,7 @@ type ClientInterface interface {
 	SetNodeLabel(ctx context.Context, id string, label string, body SetNodeLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListNodes request
-	ListNodes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ListNodes(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteNode request
 	DeleteNode(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -356,8 +362,8 @@ func (c *Client) SetNodeLabel(ctx context.Context, id string, label string, body
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListNodes(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListNodesRequest(c.Server)
+func (c *Client) ListNodes(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListNodesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -820,7 +826,7 @@ func NewSetNodeLabelRequestWithBody(server string, id string, label string, cont
 }
 
 // NewListNodesRequest generates requests for ListNodes
-func NewListNodesRequest(server string) (*http.Request, error) {
+func NewListNodesRequest(server string, params *ListNodesParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -837,6 +843,42 @@ func NewListNodesRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if params.Healthy != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "healthy", runtime.ParamLocationQuery, *params.Healthy); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.State != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "state", runtime.ParamLocationQuery, *params.State); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -1242,7 +1284,7 @@ type ClientWithResponsesInterface interface {
 	SetNodeLabelWithResponse(ctx context.Context, id string, label string, body SetNodeLabelJSONRequestBody, reqEditors ...RequestEditorFn) (*SetNodeLabelResponse, error)
 
 	// ListNodes request
-	ListNodesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListNodesResponse, error)
+	ListNodesWithResponse(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*ListNodesResponse, error)
 
 	// DeleteNode request
 	DeleteNodeWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteNodeResponse, error)
@@ -1798,8 +1840,8 @@ func (c *ClientWithResponses) SetNodeLabelWithResponse(ctx context.Context, id s
 }
 
 // ListNodesWithResponse request returning *ListNodesResponse
-func (c *ClientWithResponses) ListNodesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListNodesResponse, error) {
-	rsp, err := c.ListNodes(ctx, reqEditors...)
+func (c *ClientWithResponses) ListNodesWithResponse(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*ListNodesResponse, error) {
+	rsp, err := c.ListNodes(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -36,14 +36,14 @@ type Node struct {
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
 
-// NodeState defines model for Node.State.
-type NodeState string
-
 // NodeRecord defines model for NodeRecord.
 type NodeRecord struct {
 	Id   string `json:"id"`
 	Node Node   `json:"node"`
 }
+
+// NodeState defines model for NodeState.
+type NodeState string
 
 // PublicKey defines model for PublicKey.
 type PublicKey struct {
@@ -62,6 +62,12 @@ type UpdateKeyJSONBody PublicKey
 
 // SetNodeLabelJSONBody defines parameters for SetNodeLabel.
 type SetNodeLabelJSONBody string
+
+// ListNodesParams defines parameters for ListNodes.
+type ListNodesParams struct {
+	Healthy *bool      `json:"healthy,omitempty"`
+	State   *NodeState `json:"state,omitempty"`
+}
 
 // UpdateNodeJSONBody defines parameters for UpdateNode.
 type UpdateNodeJSONBody Node
@@ -121,7 +127,7 @@ type ServerInterface interface {
 	SetNodeLabel(w http.ResponseWriter, r *http.Request, id string, label string)
 	// List nodes
 	// (GET /api/federation/nodes)
-	ListNodes(w http.ResponseWriter, r *http.Request)
+	ListNodes(w http.ResponseWriter, r *http.Request, params ListNodesParams)
 	// Delete node
 	// (DELETE /api/federation/nodes/{id})
 	DeleteNode(w http.ResponseWriter, r *http.Request, id string)
@@ -388,12 +394,39 @@ func (siw *ServerInterfaceWrapper) SetNodeLabel(w http.ResponseWriter, r *http.R
 func (siw *ServerInterfaceWrapper) ListNodes(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
 	ctx = context.WithValue(ctx, ManagementKeyScopes, []string{""})
 
 	ctx = context.WithValue(ctx, DiscoveryKeyScopes, []string{""})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListNodesParams
+
+	// ------------- Optional query parameter "healthy" -------------
+	if paramValue := r.URL.Query().Get("healthy"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "healthy", r.URL.Query(), &params.Healthy)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "healthy", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "state" -------------
+	if paramValue := r.URL.Query().Get("state"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "state", r.URL.Query(), &params.State)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "state", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListNodes(w, r)
+		siw.Handler.ListNodes(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
