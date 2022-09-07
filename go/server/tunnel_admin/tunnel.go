@@ -174,8 +174,14 @@ type PeerRecord struct {
 
 // Holds current staus flags of the service
 type ServiceStatus struct {
+	PeersActive    *int `json:"peers_active,omitempty"`
+	PeersConnected *int `json:"peers_connected,omitempty"`
+	PeersTotal     *int `json:"peers_total,omitempty"`
+
 	// Indicate, whether service requires restart to apply latest settings.
 	RestartRequired bool `json:"restart_required"`
+	TrafficRx       *int `json:"traffic_rx,omitempty"`
+	TrafficTx       *int `json:"traffic_tx,omitempty"`
 }
 
 // Server-side configuration.

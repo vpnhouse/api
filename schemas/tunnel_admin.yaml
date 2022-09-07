@@ -486,6 +486,16 @@ components:
         restart_required:
           type: boolean
           description: 'Indicate, whether service requires restart to apply latest settings.'
+        peers_total:
+          type: integer
+        peers_connected:
+          type: integer
+        peers_active:
+          type: integer
+        traffic_rx:
+          type: integer
+        traffic_tx:
+          type: integer
       required:
         - restart_required
     Peer:
