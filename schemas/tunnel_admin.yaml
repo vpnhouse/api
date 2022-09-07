@@ -494,8 +494,10 @@ components:
           type: integer
         traffic_rx:
           type: integer
+          format: int64
         traffic_tx:
           type: integer
+          format: int64
       required:
         - restart_required
     Peer:

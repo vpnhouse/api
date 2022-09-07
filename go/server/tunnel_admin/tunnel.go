@@ -179,9 +179,9 @@ type ServiceStatus struct {
 	PeersTotal     *int `json:"peers_total,omitempty"`
 
 	// Indicate, whether service requires restart to apply latest settings.
-	RestartRequired bool `json:"restart_required"`
-	TrafficRx       *int `json:"traffic_rx,omitempty"`
-	TrafficTx       *int `json:"traffic_tx,omitempty"`
+	RestartRequired bool   `json:"restart_required"`
+	TrafficRx       *int64 `json:"traffic_rx,omitempty"`
+	TrafficTx       *int64 `json:"traffic_tx,omitempty"`
 }
 
 // Server-side configuration.
