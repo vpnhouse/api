@@ -181,8 +181,8 @@ type ServiceStatus struct {
 
 	// Indicate, whether service requires restart to apply latest settings.
 	RestartRequired bool   `json:"restart_required"`
-	TrafficRx       *int64 `json:"traffic_rx,omitempty"`
-	TrafficTx       *int64 `json:"traffic_tx,omitempty"`
+	TrafficDown     *int64 `json:"traffic_down,omitempty"`
+	TrafficUp       *int64 `json:"traffic_up,omitempty"`
 }
 
 // Server-side configuration.

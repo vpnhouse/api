@@ -494,10 +494,10 @@ components:
           type: integer
         peers_active_1d:
           type: integer
-        traffic_rx:
+        traffic_up:
           type: integer
           format: int64
-        traffic_tx:
+        traffic_down:
           type: integer
           format: int64
       required:
