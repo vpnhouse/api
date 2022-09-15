@@ -174,7 +174,8 @@ type PeerRecord struct {
 
 // Holds current staus flags of the service
 type ServiceStatus struct {
-	PeersActive    *int `json:"peers_active,omitempty"`
+	PeersActive1d  *int `json:"peers_active_1d,omitempty"`
+	PeersActive1h  *int `json:"peers_active_1h,omitempty"`
 	PeersConnected *int `json:"peers_connected,omitempty"`
 	PeersTotal     *int `json:"peers_total,omitempty"`
 
