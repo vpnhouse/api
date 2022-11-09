@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Support API
+  version: '1.0'
+  description: ''
+  contact:
+    name: Sergey Kovalev
+    email: support@vpnhouse.net
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /api/client/support/request:
+    parameters: []
+    post:
+      operationId: submit-user-request
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_id:
+                    type: string
+                    format: uuid
+                required:
+                  - request_id
+        '429':
+          description: Too Many Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                installation_id:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+              required:
+                - name
+                - email
+                - installation_id
+                - message
+        description: ''
+components:
+  schemas: {}
