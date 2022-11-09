@@ -4,7 +4,7 @@ info:
   version: '1.0'
   contact:
     name: Sergey Kovalev
-    email: xray@randoman.ru
+    email: support@vpnhouse.net
   description: 'Authentication API  '
 paths:
   /api/client/signin:

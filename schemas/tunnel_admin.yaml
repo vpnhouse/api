@@ -5,7 +5,7 @@ info:
   description: Internal API for managing peers on vpn core nodes
   contact:
     name: Sergey Kovalev
-    email: xray@randoman.ru
+    email: support@vpnhouse.net
 paths:
   /api/tunnel/admin/peers:
     get:

@@ -5,7 +5,7 @@ info:
   description: Public API for VPN clients
   contact:
     name: Sergey Kovalev
-    email: xray@randoman.ru
+    email: support@vpnhouse.net
 paths:
   /api/client/connect:
     post:
