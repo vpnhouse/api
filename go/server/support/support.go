@@ -13,10 +13,13 @@ import (
 
 // SubmitUserRequestJSONBody defines parameters for SubmitUserRequest.
 type SubmitUserRequestJSONBody struct {
+	Caption        *string             `json:"caption,omitempty"`
 	Email          openapi_types.Email `json:"email"`
 	InstallationId string              `json:"installation_id"`
 	Message        string              `json:"message"`
 	Name           string              `json:"name"`
+	Platform       string              `json:"platform"`
+	Version        string              `json:"version"`
 }
 
 // SubmitUserRequestJSONRequestBody defines body for SubmitUserRequest for application/json ContentType.

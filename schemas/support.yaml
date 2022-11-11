@@ -40,13 +40,21 @@ paths:
                 installation_id:
                   type: string
                   format: uuid
+                caption:
+                  type: string
                 message:
+                  type: string
+                platform:
+                  type: string
+                version:
                   type: string
               required:
                 - name
                 - email
                 - installation_id
                 - message
+                - platform
+                - version
         description: ''
 components:
   schemas: {}
