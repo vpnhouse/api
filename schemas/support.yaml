@@ -6,8 +6,6 @@ info:
   contact:
     name: Sergey Kovalev
     email: support@vpnhouse.net
-servers:
-  - url: 'http://localhost:3000'
 paths:
   /api/client/support/request:
     parameters: []
