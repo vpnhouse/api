@@ -60,6 +60,7 @@ components:
             - "CONFIGURATION_REQUIRED"
             - "FORBIDDEN"
             - "INVALID_CONFIGURATION"
+            - "TOO_LONG"
         error:
           type: string
           description: User-friendly error description.
