@@ -28,7 +28,7 @@ paths:
           description: Too Many Requests
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -48,6 +48,9 @@ paths:
                   type: string
                 version:
                   type: string
+                attachment:
+                  type: string
+                  format: binary
               required:
                 - name
                 - email
@@ -56,5 +59,6 @@ paths:
                 - platform
                 - version
         description: ''
+      summary: ''
 components:
   schemas: {}
