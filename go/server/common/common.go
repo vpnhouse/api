@@ -27,6 +27,8 @@ const (
 
 	ErrorResultSTORAGEERROR ErrorResult = "STORAGE_ERROR"
 
+	ErrorResultTOOLONG ErrorResult = "TOO_LONG"
+
 	ErrorResultTUNNELERROR ErrorResult = "TUNNEL_ERROR"
 
 	ErrorResultUNAUTHORIZED ErrorResult = "UNAUTHORIZED"
