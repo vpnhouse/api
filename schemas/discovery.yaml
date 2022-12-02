@@ -84,7 +84,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
       operationId: get-optimal
-      description: Return optimal credentials to connect for specific country
+      description: Return optimal credentials to connect from specific country
       parameters:
         - schema:
             type: string
