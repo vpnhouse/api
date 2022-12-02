@@ -62,6 +62,36 @@ paths:
           in: query
           name: location
     parameters: []
+  /api/client/optimal:
+    get:
+      summary: Get optimal
+      tags:
+        - client
+        - discovery
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: get-optimal
+      description: Return optimal credentials to connect for specific country
+      parameters:
+        - schema:
+            type: string
+            example: US
+          in: query
+          name: country
+    parameters: [ ]
 components:
   schemas:
     Node:

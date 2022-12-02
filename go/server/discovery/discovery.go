@@ -38,6 +38,11 @@ type GetCredentialsParams struct {
 	Location *string `json:"location,omitempty"`
 }
 
+// GetOptimalParams defines parameters for GetOptimal.
+type GetOptimalParams struct {
+	Country *string `json:"country,omitempty"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get credentials
@@ -46,6 +51,9 @@ type ServerInterface interface {
 	// Get locations
 	// (GET /api/client/locations)
 	GetLocations(w http.ResponseWriter, r *http.Request)
+	// Get optimal credentials
+	// (GET /api/client/optimal)
+	GetOptimal(w http.ResponseWriter, r *http.Request, params GetOptimalParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -98,6 +106,39 @@ func (siw *ServerInterfaceWrapper) GetLocations(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetLocations(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetOptimal operation middleware
+func (siw *ServerInterfaceWrapper) GetOptimal(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetOptimalParams
+
+	// ------------- Optional query parameter "country" -------------
+	if paramValue := r.URL.Query().Get("country"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "country", r.URL.Query(), &params.Country)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "country", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetOptimal(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -225,6 +266,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/locations", wrapper.GetLocations)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/optimal", wrapper.GetOptimal)
 	})
 
 	return r
