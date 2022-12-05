@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	BasicScopes  = "basic.Scopes"
-	BearerScopes = "bearer.Scopes"
+	ServiceKeyScopes = "ServiceKey.Scopes"
+	BasicScopes      = "basic.Scopes"
+	BearerScopes     = "bearer.Scopes"
 )
 
 // AuthRequest defines model for AuthRequest.
@@ -93,9 +94,7 @@ func (siw *ServerInterfaceWrapper) Authenticate(w http.ResponseWriter, r *http.R
 func (siw *ServerInterfaceWrapper) ServiceAuthenticate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	ctx = context.WithValue(ctx, BearerScopes, []string{""})
-
-	ctx = context.WithValue(ctx, BasicScopes, []string{""})
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ServiceAuthenticate(w, r)

@@ -70,8 +70,7 @@ paths:
         - auth
         - service
       security:
-        - bearer: []
-        - basic: []
+        - ServiceKey: [ ]
     parameters: []
 components:
   schemas:
@@ -180,6 +179,10 @@ components:
     basic:
       type: http
       scheme: basic
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
 tags:
   - name: auth
   - name: client
