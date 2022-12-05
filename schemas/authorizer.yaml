@@ -40,6 +40,39 @@ paths:
         - bearer: []
         - basic: []
     parameters: []
+  /api/service/signin:
+    post:
+      summary: Authenticate service
+      operationId: service-authenticate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Authenticate service and provide access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthServiceRequest'
+            examples: {}
+      tags:
+        - auth
+        - service
+      security:
+        - bearer: []
+        - basic: []
+    parameters: []
 components:
   schemas:
     AuthRequest:
@@ -89,6 +122,25 @@ components:
         - device_id
         - auth_type
         - auth_info
+      writeOnly: true
+    AuthServiceRequest:
+      type: object
+      title: AuthServiceRequest
+      x-examples:
+        example:
+          value:
+            project: TestProject
+            service_id: TestService
+      properties:
+        project:
+          type: string
+          example: TestProject
+        service_id:
+          type: string
+          example: TestService
+      required:
+        - project
+        - service_id
       writeOnly: true
     AuthResponse:
       title: AuthResponse

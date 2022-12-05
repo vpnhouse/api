@@ -51,7 +51,7 @@ type ServerInterface interface {
 	// Get locations
 	// (GET /api/client/locations)
 	GetLocations(w http.ResponseWriter, r *http.Request)
-	// Get optimal credentials
+	// Get optimal
 	// (GET /api/client/optimal)
 	GetOptimal(w http.ResponseWriter, r *http.Request, params GetOptimalParams)
 }
