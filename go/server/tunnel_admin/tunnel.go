@@ -114,7 +114,7 @@ type IpPoolAddress struct {
 
 // Peer representation.
 type Peer struct {
-	// The latest date when the peer was consumed.
+	// Last date the peer had traffic activity.
 	Activity *time.Time `json:"activity,omitempty"`
 
 	// JWT information data.

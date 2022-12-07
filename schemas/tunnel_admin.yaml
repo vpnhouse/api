@@ -588,7 +588,7 @@ components:
         activity:
           type: string
           format: date-time
-          description: The latest date when the peer was consumed.
+          description: Last date the peer had traffic activity.
           example: '2021-05-28T13:23:15Z'
         traffic_up:
           type: integer
