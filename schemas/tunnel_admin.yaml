@@ -585,6 +585,11 @@ components:
           format: date-time
           description: The date when the peer was updated last time.
           example: '2021-05-28T13:23:15Z'
+        activity:
+          type: string
+          format: date-time
+          description: The latest date when the peer was consumed.
+          example: '2021-05-28T13:23:15Z'
         traffic_up:
           type: integer
           format: int64
@@ -620,6 +625,7 @@ components:
           expires: '2021-05-28T13:43:10Z'
           created: '2021-05-28T13:23:15Z'
           updated: '2021-05-28T13:23:15Z'
+          activity: '2021-05-28T13:23:15Z'
           traffic_up: 123404321
           traffic_down: 896123404321
           traffic_up_speed: 1234560
