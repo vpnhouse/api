@@ -500,6 +500,14 @@ components:
         traffic_down:
           type: integer
           format: int64
+        traffic_up_speed:
+          type: integer
+          format: int64
+          description: 'Upload speed accross all peers in bytes per second'
+        traffic_down_speed:
+          type: integer
+          format: int64
+          description: 'Download speed accross all peers in bytes per second'
       required:
         - restart_required
     Peer:
@@ -577,6 +585,22 @@ components:
           format: date-time
           description: The date when the peer was updated last time.
           example: '2021-05-28T13:23:15Z'
+        traffic_up:
+          type: integer
+          format: int64
+          description: 'Peer upload traffic in bytes'
+        traffic_down:
+          type: integer
+          format: int64
+          description: 'Peer download traffic in bytes'
+        traffic_up_speed:
+          type: integer
+          format: int64
+          description: 'Peer upload speed in bytes per second'
+        traffic_down_speed:
+          type: integer
+          format: int64
+          description: 'Peer download speed in bytes per second'
     PeerRecord:
       title: Peer repr for a list responses
       type: object
@@ -596,6 +620,10 @@ components:
           expires: '2021-05-28T13:43:10Z'
           created: '2021-05-28T13:23:15Z'
           updated: '2021-05-28T13:23:15Z'
+          traffic_up: 123404321
+          traffic_down: 896123404321
+          traffic_up_speed: 1234560
+          traffic_down_speed: 0
       properties:
         id:
           type: integer

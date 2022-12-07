@@ -143,6 +143,18 @@ type Peer struct {
 	// [!] Bits per Second, must follow SI.
 	RateLimit *int `json:"rate_limit"`
 
+	// Peer download traffic in bytes
+	TrafficDown *int64 `json:"traffic_down,omitempty"`
+
+	// Peer download speed in bytes per second
+	TrafficDownSpeed *int64 `json:"traffic_down_speed,omitempty"`
+
+	// Peer upload traffic in bytes
+	TrafficUp *int64 `json:"traffic_up,omitempty"`
+
+	// Peer upload speed in bytes per second
+	TrafficUpSpeed *int64 `json:"traffic_up_speed,omitempty"`
+
 	// The date when the peer was updated last time.
 	Updated *time.Time `json:"updated,omitempty"`
 }
@@ -153,10 +165,13 @@ type PeerNetAccessPolicy int
 
 // Returns the status of the shared peer.
 // "not_activated" - no configuration has been given, we can
-//   activate it immeadietly.
+//
+//	activate it immeadietly.
+//
 // "activated" - the peer has already been activated,
-//   we must ask a user about a re-activation (previously
-//   issued credentials will be invalidated).
+//
+//	we must ask a user about a re-activation (previously
+//	issued credentials will be invalidated).
 type PeerActivation struct {
 	Status PeerActivationStatus `json:"status"`
 }
@@ -182,7 +197,13 @@ type ServiceStatus struct {
 	// Indicate, whether service requires restart to apply latest settings.
 	RestartRequired bool   `json:"restart_required"`
 	TrafficDown     *int64 `json:"traffic_down,omitempty"`
-	TrafficUp       *int64 `json:"traffic_up,omitempty"`
+
+	// Download speed accross all peers in bytes per second
+	TrafficDownSpeed *int64 `json:"traffic_down_speed,omitempty"`
+	TrafficUp        *int64 `json:"traffic_up,omitempty"`
+
+	// Upload speed accross all peers in bytes per second
+	TrafficUpSpeed *int64 `json:"traffic_up_speed,omitempty"`
 }
 
 // Server-side configuration.
