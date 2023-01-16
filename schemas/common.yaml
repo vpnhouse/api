@@ -61,6 +61,7 @@ components:
             - "FORBIDDEN"
             - "INVALID_CONFIGURATION"
             - "TOO_LONG"
+            - "TOO_EARLY"
         error:
           type: string
           description: User-friendly error description.
