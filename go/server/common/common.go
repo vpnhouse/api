@@ -27,6 +27,8 @@ const (
 
 	ErrorResultSTORAGEERROR ErrorResult = "STORAGE_ERROR"
 
+	ErrorResultTOOEARLY ErrorResult = "TOO_EARLY"
+
 	ErrorResultTOOLONG ErrorResult = "TOO_LONG"
 
 	ErrorResultTUNNELERROR ErrorResult = "TUNNEL_ERROR"

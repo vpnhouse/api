@@ -168,13 +168,10 @@ type PeerNetAccessPolicy int
 
 // Returns the status of the shared peer.
 // "not_activated" - no configuration has been given, we can
-//
-//	activate it immeadietly.
-//
+//   activate it immeadietly.
 // "activated" - the peer has already been activated,
-//
-//	we must ask a user about a re-activation (previously
-//	issued credentials will be invalidated).
+//   we must ask a user about a re-activation (previously
+//   issued credentials will be invalidated).
 type PeerActivation struct {
 	Status PeerActivationStatus `json:"status"`
 }
