@@ -37,8 +37,8 @@ type AuthRequest struct {
 	Project        string `json:"project"`
 }
 
-// AuthResponse defines model for AuthResponse.
-type AuthResponse struct {
+// AuthResp defines model for AuthResp.
+type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
 	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
@@ -96,8 +96,8 @@ type TokenRequest struct {
 	RefreshToken   string `json:"refresh_token"`
 }
 
-// TokenResponse defines model for TokenResponse.
-type TokenResponse struct {
+// TokenResp defines model for TokenResp.
+type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
@@ -929,7 +929,7 @@ type ClientWithResponsesInterface interface {
 type ConfirmResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResponse
+	JSON200      *AuthResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1057,7 +1057,7 @@ func (r SendRestoreLinkResponse) StatusCode() int {
 type AuthenticateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResponse
+	JSON200      *AuthResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1083,7 +1083,7 @@ func (r AuthenticateResponse) StatusCode() int {
 type RegisterResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResponse
+	JSON200      *AuthResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1109,7 +1109,7 @@ func (r RegisterResponse) StatusCode() int {
 type TokenResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *TokenResponse
+	JSON200      *TokenResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1135,7 +1135,7 @@ func (r TokenResponse) StatusCode() int {
 type ServiceAuthenticateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResponse
+	JSON200      *AuthResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1302,7 +1302,7 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResponse
+		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -1558,7 +1558,7 @@ func ParseAuthenticateResponse(rsp *http.Response) (*AuthenticateResponse, error
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResponse
+		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -1612,7 +1612,7 @@ func ParseRegisterResponse(rsp *http.Response) (*RegisterResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResponse
+		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -1666,7 +1666,7 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest TokenResponse
+		var dest TokenResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -1720,7 +1720,7 @@ func ParseServiceAuthenticateResponse(rsp *http.Response) (*ServiceAuthenticateR
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResponse
+		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

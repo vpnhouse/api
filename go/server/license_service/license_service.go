@@ -168,8 +168,8 @@ type PaymentDetailsRequest struct {
 	UserId    *string `json:"user_id,omitempty"`
 }
 
-// PaymentDetailsResponse defines model for PaymentDetailsResponse.
-type PaymentDetailsResponse struct {
+// PaymentDetailsResp defines model for PaymentDetailsResp.
+type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
@@ -389,7 +389,7 @@ type ServerInterface interface {
 	// (PUT /api/license-service/license/{id})
 	UpdateLicense(w http.ResponseWriter, r *http.Request, id string)
 	// Handle payment callback
-	// (GET /api/license-service/payment-callback)
+	// (POST /api/license-service/payment-callback)
 	PaymentCallback(w http.ResponseWriter, r *http.Request)
 	// Get payment details
 	// (GET /api/license-service/payment-details)
@@ -1337,7 +1337,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Put(options.BaseURL+"/api/license-service/license/{id}", wrapper.UpdateLicense)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/license-service/payment-callback", wrapper.PaymentCallback)
+		r.Post(options.BaseURL+"/api/license-service/payment-callback", wrapper.PaymentCallback)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
