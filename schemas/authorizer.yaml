@@ -138,6 +138,38 @@ paths:
       security:
         - ServiceKey: [ ]
     parameters: []
+  /api/service/firebase-user:
+    post:
+      summary: Create user at firebase
+      operationId: create-firebase-user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Create user at firebase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFirebaseUserRequest'
+            examples: { }
+      tags:
+        - auth
+        - service
+      security:
+        - ServiceKey: [ ]
+    parameters: [ ]
 
   /api/client/send-restore-link:
     post:
@@ -245,9 +277,6 @@ paths:
         - product
       operationId: list-product
       description: Receive full list of products
-      security:
-        - ServiceKey: [ ]
-        - ServiceName: [ ]
       responses:
         '200':
           description: OK
@@ -264,24 +293,16 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/client/purchase-by-user:
+  /api/client/license-by-user:
     get:
-      parameters:
-        - schema:
-            type: string
-            format: uuid
-          name: user_id
-          in: query
-          required: true
-      summary: List purchases by user_id
+      summary: List license by user_id
       tags:
-        - find
-        - purchase
-      operationId: list-purchase-by-user
-      description: List purchases by user_id
+        - list
+        - license
+      operationId: list-license-by-user
+      description: List license by user_id
       security:
-        - ServiceKey: [ ]
-        - ServiceName: [ ]
+        - bearer: [ ]
       responses:
         '200':
           description: OK
@@ -290,7 +311,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Purchase'
+                  $ref: '#/components/schemas/License'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -301,6 +322,36 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/payment-details:
+    post:
+      summary: Get payment details
+      tags:
+        - get
+        - payment-details
+      operationId: payment-details
+      description: Get payment details
+      security:
+        - {}
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetailsResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentDetailsRequest'
 
 components:
   schemas:
@@ -407,12 +458,16 @@ components:
             type: string
             format: uri
             example: 'https://discovery.project.io/api/client/locations'
+        created_at:
+          type: string
+          format: date-time
         expires_at:
           type: string
           format: date-time
         entitlements:
           type: object
-
+        email:
+          type: string
       required:
         - access_token
     TokenRequest:
@@ -436,6 +491,9 @@ components:
       properties:
         access_token:
           type: string
+        created_at:
+          type: string
+          format: date-time
         expires_at:
           type: string
           format: date-time
@@ -448,6 +506,7 @@ components:
             format: uri
       required:
         - access_token
+        - created_at
         - expires_at
         - entitlements
     SendRestoreLinkRequest:
@@ -462,6 +521,41 @@ components:
       required:
         - email
         - project_id
+    CreateFirebaseUserRequest:
+      title: CreateFirebaseUserRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - project_id
+        - email
+        - password
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     Product:
       title: Product
       type: object
@@ -489,8 +583,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    Purchase:
-      title: Purchase
+    License:
+      title: License
       type: object
       properties:
         id:
@@ -499,8 +593,6 @@ components:
         project_id:
           type: string
           format: uuid
-        email:
-          type: string
         user_id:
           type: string
           format: uuid
@@ -510,23 +602,44 @@ components:
         end_at:
           type: string
           format: date-time
+        disabled:
+          type: boolean
         purchase_json:
           type: object
         selector_json:
           type: object
         entitlements_json:
           type: object
-        license_id:
-          type: string
-          format: uuid
-        processed:
-          type: boolean
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
+    PaymentDetailsRequest:
+      title: PaymentDetailsRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - project_id
+        - product_id
+    PaymentDetailsResp:
+      title: PaymentDetailsResp
+      type: object
+      properties:
+        payment_url:
+          type: string
+      required:
+        - payment_url
 
   securitySchemes:
     bearer:

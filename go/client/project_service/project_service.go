@@ -49,6 +49,16 @@ type CreateProjectParams struct {
 	Name        *string                 `json:"name"`
 }
 
+// FindAuthMethodParams defines model for FindAuthMethodParams.
+type FindAuthMethodParams struct {
+	CreatedAt *time.Time              `json:"created_at"`
+	Name      *string                 `json:"name,omitempty"`
+	ProjectId *string                 `json:"project_id,omitempty"`
+	Settings  *map[string]interface{} `json:"settings,omitempty"`
+	Type      *string                 `json:"type,omitempty"`
+	UpdatedAt *time.Time              `json:"updated_at"`
+}
+
 // LocationMapping defines model for LocationMapping.
 type LocationMapping struct {
 	Mapping *map[string]interface{} `json:"mapping,omitempty"`
@@ -110,6 +120,9 @@ type PatchAuthMethodJSONBody PatchAuthMethodParams
 // UpdateAuthMethodJSONBody defines parameters for UpdateAuthMethod.
 type UpdateAuthMethodJSONBody UpdateAuthMethodParams
 
+// FindAuthMethodJSONBody defines parameters for FindAuthMethod.
+type FindAuthMethodJSONBody FindAuthMethodParams
+
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
 	Limit  int `json:"limit"`
@@ -133,6 +146,9 @@ type PatchAuthMethodJSONRequestBody PatchAuthMethodJSONBody
 
 // UpdateAuthMethodJSONRequestBody defines body for UpdateAuthMethod for application/json ContentType.
 type UpdateAuthMethodJSONRequestBody UpdateAuthMethodJSONBody
+
+// FindAuthMethodJSONRequestBody defines body for FindAuthMethod for application/json ContentType.
+type FindAuthMethodJSONRequestBody FindAuthMethodJSONBody
 
 // CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
 type CreateProjectJSONRequestBody CreateProjectJSONBody
@@ -239,6 +255,11 @@ type ClientInterface interface {
 	UpdateAuthMethodWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAuthMethod(ctx context.Context, id string, body UpdateAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindAuthMethod request with any body
+	FindAuthMethodWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FindAuthMethod(ctx context.Context, body FindAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetLocationMapping request
 	GetLocationMapping(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -366,6 +387,30 @@ func (c *Client) UpdateAuthMethodWithBody(ctx context.Context, id string, conten
 
 func (c *Client) UpdateAuthMethod(ctx context.Context, id string, body UpdateAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAuthMethodRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindAuthMethodWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindAuthMethodRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindAuthMethod(ctx context.Context, body FindAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindAuthMethodRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -753,6 +798,46 @@ func NewUpdateAuthMethodRequestWithBody(server string, id string, contentType st
 	return req, nil
 }
 
+// NewFindAuthMethodRequest calls the generic FindAuthMethod builder with application/json body
+func NewFindAuthMethodRequest(server string, body FindAuthMethodJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFindAuthMethodRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFindAuthMethodRequestWithBody generates requests for FindAuthMethod with any type of body
+func NewFindAuthMethodRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/project-service/find-auth-method")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetLocationMappingRequest generates requests for GetLocationMapping
 func NewGetLocationMappingRequest(server string) (*http.Request, error) {
 	var err error
@@ -1104,6 +1189,11 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAuthMethodWithResponse(ctx context.Context, id string, body UpdateAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAuthMethodResponse, error)
 
+	// FindAuthMethod request with any body
+	FindAuthMethodWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindAuthMethodResponse, error)
+
+	FindAuthMethodWithResponse(ctx context.Context, body FindAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*FindAuthMethodResponse, error)
+
 	// GetLocationMapping request
 	GetLocationMappingWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLocationMappingResponse, error)
 
@@ -1278,6 +1368,33 @@ func (r UpdateAuthMethodResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateAuthMethodResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FindAuthMethodResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]AuthMethod
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindAuthMethodResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindAuthMethodResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1537,6 +1654,23 @@ func (c *ClientWithResponses) UpdateAuthMethodWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseUpdateAuthMethodResponse(rsp)
+}
+
+// FindAuthMethodWithBodyWithResponse request with arbitrary body returning *FindAuthMethodResponse
+func (c *ClientWithResponses) FindAuthMethodWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindAuthMethodResponse, error) {
+	rsp, err := c.FindAuthMethodWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindAuthMethodResponse(rsp)
+}
+
+func (c *ClientWithResponses) FindAuthMethodWithResponse(ctx context.Context, body FindAuthMethodJSONRequestBody, reqEditors ...RequestEditorFn) (*FindAuthMethodResponse, error) {
+	rsp, err := c.FindAuthMethod(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindAuthMethodResponse(rsp)
 }
 
 // GetLocationMappingWithResponse request returning *GetLocationMappingResponse
@@ -1882,6 +2016,67 @@ func ParseUpdateAuthMethodResponse(rsp *http.Response) (*UpdateAuthMethodRespons
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindAuthMethodResponse parses an HTTP response from a FindAuthMethodWithResponse call
+func ParseFindAuthMethodResponse(rsp *http.Response) (*FindAuthMethodResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindAuthMethodResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []AuthMethod
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
