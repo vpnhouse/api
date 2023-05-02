@@ -64,7 +64,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: user-sessions
+      operationId: daily-user-sessions
       description: Receive list of user sessions on daily basis
       security:
         - ManagementKey: []
@@ -122,7 +122,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      operationId: user-sessions
+      operationId: daily-sessions-summary
       description: Receive list of session summary on daily basis
       security:
         - ManagementKey: []

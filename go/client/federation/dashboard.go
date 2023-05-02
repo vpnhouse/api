@@ -60,8 +60,8 @@ type SessionsSummary struct {
 	Users       *int    `json:"users,omitempty"`
 }
 
-// UserSessionsParams defines parameters for UserSessions.
-type UserSessionsParams struct {
+// DailySessionsSummaryParams defines parameters for DailySessionsSummary.
+type DailySessionsSummaryParams struct {
 	Start   openapi_types.Date `json:"start"`
 	End     openapi_types.Date `json:"end"`
 	Country string             `json:"country"`
@@ -69,8 +69,8 @@ type UserSessionsParams struct {
 	Cursor  *string            `json:"cursor,omitempty"`
 }
 
-// UserSessionsParams defines parameters for UserSessions.
-type UserSessionsParams struct {
+// DailyUserSessionsParams defines parameters for DailyUserSessions.
+type DailyUserSessionsParams struct {
 	Start  openapi_types.Date `json:"start"`
 	End    openapi_types.Date `json:"end"`
 	Limit  *int               `json:"limit,omitempty"`
@@ -150,15 +150,15 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// UserSessions request
-	UserSessions(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DailySessionsSummary request
+	DailySessionsSummary(ctx context.Context, params *DailySessionsSummaryParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UserSessions request
-	UserSessions(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// DailyUserSessions request
+	DailyUserSessions(ctx context.Context, params *DailyUserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) UserSessions(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUserSessionsRequest(c.Server, params)
+func (c *Client) DailySessionsSummary(ctx context.Context, params *DailySessionsSummaryParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDailySessionsSummaryRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -169,8 +169,8 @@ func (c *Client) UserSessions(ctx context.Context, params *UserSessionsParams, r
 	return c.Client.Do(req)
 }
 
-func (c *Client) UserSessions(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUserSessionsRequest(c.Server, params)
+func (c *Client) DailyUserSessions(ctx context.Context, params *DailyUserSessionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDailyUserSessionsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +181,8 @@ func (c *Client) UserSessions(ctx context.Context, params *UserSessionsParams, r
 	return c.Client.Do(req)
 }
 
-// NewUserSessionsRequest generates requests for UserSessions
-func NewUserSessionsRequest(server string, params *UserSessionsParams) (*http.Request, error) {
+// NewDailySessionsSummaryRequest generates requests for DailySessionsSummary
+func NewDailySessionsSummaryRequest(server string, params *DailySessionsSummaryParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -280,8 +280,8 @@ func NewUserSessionsRequest(server string, params *UserSessionsParams) (*http.Re
 	return req, nil
 }
 
-// NewUserSessionsRequest generates requests for UserSessions
-func NewUserSessionsRequest(server string, params *UserSessionsParams) (*http.Request, error) {
+// NewDailyUserSessionsRequest generates requests for DailyUserSessions
+func NewDailyUserSessionsRequest(server string, params *DailyUserSessionsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -410,14 +410,14 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// UserSessions request
-	UserSessionsWithResponse(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*UserSessionsResponse, error)
+	// DailySessionsSummary request
+	DailySessionsSummaryWithResponse(ctx context.Context, params *DailySessionsSummaryParams, reqEditors ...RequestEditorFn) (*DailySessionsSummaryResponse, error)
 
-	// UserSessions request
-	UserSessionsWithResponse(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*UserSessionsResponse, error)
+	// DailyUserSessions request
+	DailyUserSessionsWithResponse(ctx context.Context, params *DailyUserSessionsParams, reqEditors ...RequestEditorFn) (*DailyUserSessionsResponse, error)
 }
 
-type UserSessionsResponse struct {
+type DailySessionsSummaryResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DailySessionsSummary
@@ -427,7 +427,7 @@ type UserSessionsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r UserSessionsResponse) Status() string {
+func (r DailySessionsSummaryResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -435,14 +435,14 @@ func (r UserSessionsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r UserSessionsResponse) StatusCode() int {
+func (r DailySessionsSummaryResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type UserSessionsResponse struct {
+type DailyUserSessionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DailyUserSessions
@@ -452,7 +452,7 @@ type UserSessionsResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r UserSessionsResponse) Status() string {
+func (r DailyUserSessionsResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -460,40 +460,40 @@ func (r UserSessionsResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r UserSessionsResponse) StatusCode() int {
+func (r DailyUserSessionsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// UserSessionsWithResponse request returning *UserSessionsResponse
-func (c *ClientWithResponses) UserSessionsWithResponse(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*UserSessionsResponse, error) {
-	rsp, err := c.UserSessions(ctx, params, reqEditors...)
+// DailySessionsSummaryWithResponse request returning *DailySessionsSummaryResponse
+func (c *ClientWithResponses) DailySessionsSummaryWithResponse(ctx context.Context, params *DailySessionsSummaryParams, reqEditors ...RequestEditorFn) (*DailySessionsSummaryResponse, error) {
+	rsp, err := c.DailySessionsSummary(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUserSessionsResponse(rsp)
+	return ParseDailySessionsSummaryResponse(rsp)
 }
 
-// UserSessionsWithResponse request returning *UserSessionsResponse
-func (c *ClientWithResponses) UserSessionsWithResponse(ctx context.Context, params *UserSessionsParams, reqEditors ...RequestEditorFn) (*UserSessionsResponse, error) {
-	rsp, err := c.UserSessions(ctx, params, reqEditors...)
+// DailyUserSessionsWithResponse request returning *DailyUserSessionsResponse
+func (c *ClientWithResponses) DailyUserSessionsWithResponse(ctx context.Context, params *DailyUserSessionsParams, reqEditors ...RequestEditorFn) (*DailyUserSessionsResponse, error) {
+	rsp, err := c.DailyUserSessions(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUserSessionsResponse(rsp)
+	return ParseDailyUserSessionsResponse(rsp)
 }
 
-// ParseUserSessionsResponse parses an HTTP response from a UserSessionsWithResponse call
-func ParseUserSessionsResponse(rsp *http.Response) (*UserSessionsResponse, error) {
+// ParseDailySessionsSummaryResponse parses an HTTP response from a DailySessionsSummaryWithResponse call
+func ParseDailySessionsSummaryResponse(rsp *http.Response) (*DailySessionsSummaryResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &UserSessionsResponse{
+	response := &DailySessionsSummaryResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -532,15 +532,15 @@ func ParseUserSessionsResponse(rsp *http.Response) (*UserSessionsResponse, error
 	return response, nil
 }
 
-// ParseUserSessionsResponse parses an HTTP response from a UserSessionsWithResponse call
-func ParseUserSessionsResponse(rsp *http.Response) (*UserSessionsResponse, error) {
+// ParseDailyUserSessionsResponse parses an HTTP response from a DailyUserSessionsWithResponse call
+func ParseDailyUserSessionsResponse(rsp *http.Response) (*DailyUserSessionsResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &UserSessionsResponse{
+	response := &DailyUserSessionsResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
