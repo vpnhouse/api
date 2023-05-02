@@ -1,0 +1,217 @@
+openapi: 3.0.3
+
+info:
+  title: dashboard
+  version: '1.0'
+  contact:
+    email: support@vpnhouse.net
+    name: Artem Alemasov
+  description: Dashboard API
+
+servers:
+  - description: Dev
+    url: http://dev.vpnhouse.net:8087
+
+paths:
+  /api/dashboard/daily_user_sessions:
+    parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: '2023-07-01'
+          description: |
+            Start date to return sessions
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: '2023-07-02'
+          description: |
+            End date to return sessions
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          maximum: 1000
+          example: 100
+          description: |
+            Max number od sessions returned in the request
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          description: |
+            Cursor value from the previous request or empty
+    get:
+      summary: User sessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyUserSessions'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: user-sessions
+      description: Receive list of user sessions on daily basis
+      security:
+        - ManagementKey: []
+
+  /api/dashboard/daily_sessions_summary:
+    parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: '2023-07-01'
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+          example: '2023-07-02'
+      - name: country
+        in: query
+        required: true
+        schema:
+          type: string
+          example: 'us,de,uk'
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          maximum: 1000
+          example: 100
+          description: |
+            Max number od sessions returned in the request
+      - name: cursor
+        in: query
+        schema:
+          type: string
+          description: |
+            Cursor value from the previous request or empty
+    get:
+      summary: Summary sessions statistics per countries on daily basis
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailySessionsSummary'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      operationId: user-sessions
+      description: Receive list of session summary on daily basis
+      security:
+        - ManagementKey: []
+
+components:
+  schemas:
+    DailyUserSession:
+      title: DailyUserSession
+      type: object
+      properties:
+        user:
+          type: string
+          example: 'Gxxfrtyiw'
+        date:
+          type: string
+          format: date
+          example: '2023-07-01'
+        sessions:
+          type: integer
+          example: 5
+        received:
+          type: string
+          example: '53 MB'
+        sent:
+          type: string
+          example: '7.8 MB'
+        connection_time:
+          type: string
+          example: '00h22m43s'
+        start_time:
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:00Z'
+        end_time:
+          type: string
+          format: date-time
+          example: '2017-07-21T21:54:43Z'
+        location:
+          type: string
+          example: 'us'
+        user_country:
+          type: string
+          example: 'ir'
+
+    DailyUserSessions:
+      title: DailyUserSessions
+      type: object
+      properties:
+        user_sessions:
+          type: array
+          items:
+             $ref: '#/components/schemas/DailyUserSession'
+        next_cursor:
+          type: string
+
+    SessionsSummary:
+      title: SessionsSummary
+      type: object
+      properties:
+        country:
+            type: string
+            example: 'de'
+        users:
+          type: integer
+          example: 7
+        connections:
+          type: integer
+          example: 23
+
+    DailySummary:
+      title: DailySummary
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2023-07-01'
+        sessions_summary:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionsSummary'
+
+    DailySessionsSummary:
+      title: DailySessionsSummary
+      type: object
+      properties:
+        sessions_summary:
+          type: array
+          items:
+             $ref: '#/components/schemas/DailySummary'
+        next_cursor:
+          type: string
