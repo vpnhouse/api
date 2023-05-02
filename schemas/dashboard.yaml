@@ -67,7 +67,7 @@ paths:
       operationId: daily-user-sessions
       description: Receive list of user sessions on daily basis
       security:
-        - ManagementKey: []
+        - DashboardKey: []
 
   /api/dashboard/daily_sessions_summary:
     parameters:
@@ -125,7 +125,7 @@ paths:
       operationId: daily-sessions-summary
       description: Receive list of session summary on daily basis
       security:
-        - ManagementKey: []
+        - DashboardKey: []
 
 components:
   schemas:
@@ -215,3 +215,9 @@ components:
              $ref: '#/components/schemas/DailySummary'
         next_cursor:
           type: string
+
+  securitySchemes:
+    DashboardKey:
+      name: X-VPNHOUSE-DASHBAORD-KEY
+      type: apiKey
+      in: header
