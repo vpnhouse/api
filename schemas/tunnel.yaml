@@ -46,8 +46,9 @@ paths:
                 location:
                   type: string
                   example: US
+                expire_seconds:
+                  type: integer
               required:
-                - type
                 - identifiers
             examples:
               example:
