@@ -55,7 +55,7 @@ type PeerWireguard struct {
 
 // ClientConnectJSONBody defines parameters for ClientConnect.
 type ClientConnectJSONBody struct {
-	ExipreSeconds *int                               `json:"exipre_seconds,omitempty"`
+	ExpireSeconds *int                               `json:"expire_seconds,omitempty"`
 	Identifiers   externalRef0.ConnectionIdentifiers `json:"identifiers"`
 
 	// Wireguard-specific tunnel information.
