@@ -1939,6 +1939,7 @@ components:
           type: boolean
         peer_id:
           type: integer
+          format: int64
         first_connected_at:
           type: string
           format: date-time
@@ -1973,6 +1974,7 @@ components:
           type: boolean
         peer_id:
           type: integer
+          format: int64
         first_connected_at:
           type: string
           format: date-time
@@ -2008,6 +2010,7 @@ components:
         peer_id:
           type: integer
           nullable: true
+          format: int64
         first_connected_at:
           type: string
           format: date-time
@@ -2051,6 +2054,7 @@ components:
           type: boolean
         peer_id:
           type: integer
+          format: int64
         first_connected_at:
           type: string
           format: date-time
@@ -2175,6 +2179,7 @@ components:
       properties:
         peer_id:
           type: integer
+          format: int64
         peer_label:
           type: string
         query_id:

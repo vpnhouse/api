@@ -93,7 +93,7 @@ type CreatedSession struct {
 	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
 	Label            *string    `json:"label"`
 	Node             *string    `json:"node"`
-	PeerId           *int       `json:"peer_id,omitempty"`
+	PeerId           *int64     `json:"peer_id,omitempty"`
 	ToDelete         *bool      `json:"to_delete,omitempty"`
 	TokenId          *string    `json:"token_id"`
 }
@@ -200,7 +200,7 @@ type PatchedSession struct {
 	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
 	Label            *string    `json:"label,omitempty"`
 	Node             *string    `json:"node,omitempty"`
-	PeerId           *int       `json:"peer_id,omitempty"`
+	PeerId           *int64     `json:"peer_id,omitempty"`
 	ToDelete         *bool      `json:"to_delete,omitempty"`
 	TokenId          *string    `json:"token_id,omitempty"`
 	UpdatedAt        *time.Time `json:"updated_at"`
@@ -217,7 +217,7 @@ type PatchedUser struct {
 // PeerUser defines model for PeerUser.
 type PeerUser struct {
 	Params    map[string]interface{} `json:"params"`
-	PeerId    int                    `json:"peer_id"`
+	PeerId    int64                  `json:"peer_id"`
 	PeerLabel string                 `json:"peer_label"`
 	QueryId   string                 `json:"query_id"`
 }
@@ -241,7 +241,7 @@ type Session struct {
 	Id               *string    `json:"id,omitempty"`
 	Label            *string    `json:"label,omitempty"`
 	Node             *string    `json:"node,omitempty"`
-	PeerId           *int       `json:"peer_id,omitempty"`
+	PeerId           *int64     `json:"peer_id,omitempty"`
 	ToDelete         *bool      `json:"to_delete,omitempty"`
 	TokenId          *string    `json:"token_id,omitempty"`
 	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
@@ -305,7 +305,7 @@ type UpdatedSession struct {
 	FirstConnectedAt *time.Time `json:"first_connected_at"`
 	Label            *string    `json:"label"`
 	Node             *string    `json:"node"`
-	PeerId           *int       `json:"peer_id"`
+	PeerId           *int64     `json:"peer_id"`
 	ToDelete         *bool      `json:"to_delete"`
 	TokenId          *string    `json:"token_id"`
 	UpdatedAt        *time.Time `json:"updated_at"`
