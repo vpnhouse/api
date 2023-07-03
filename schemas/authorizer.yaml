@@ -40,6 +40,39 @@ paths:
         - bearer: []
         - basic: []
     parameters: []
+  /api/client/signup:
+    post:
+      summary: Register user
+      operationId: register
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Register user and provide access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+            examples: {}
+      tags:
+        - register
+        - client
+      security:
+        - bearer: []
+        - basic: []
+    parameters: []
   /api/service/signin:
     post:
       summary: Authenticate service

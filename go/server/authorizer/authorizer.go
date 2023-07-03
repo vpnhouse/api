@@ -43,11 +43,17 @@ type AuthServiceRequest struct {
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
 
+// RegisterJSONBody defines parameters for Register.
+type RegisterJSONBody AuthRequest
+
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
 // AuthenticateJSONRequestBody defines body for Authenticate for application/json ContentType.
 type AuthenticateJSONRequestBody AuthenticateJSONBody
+
+// RegisterJSONRequestBody defines body for Register for application/json ContentType.
+type RegisterJSONRequestBody RegisterJSONBody
 
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
@@ -57,6 +63,9 @@ type ServerInterface interface {
 	// Authenticate user
 	// (POST /api/client/signin)
 	Authenticate(w http.ResponseWriter, r *http.Request)
+	// Register user
+	// (POST /api/client/signup)
+	Register(w http.ResponseWriter, r *http.Request)
 	// Authenticate service
 	// (POST /api/service/signin)
 	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
@@ -81,6 +90,25 @@ func (siw *ServerInterfaceWrapper) Authenticate(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Authenticate(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// Register operation middleware
+func (siw *ServerInterfaceWrapper) Register(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	ctx = context.WithValue(ctx, BasicScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Register(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -222,6 +250,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/signin", wrapper.Authenticate)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/signup", wrapper.Register)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
