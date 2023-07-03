@@ -231,6 +231,14 @@ type Project struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// RegisterUserRequest defines model for RegisterUserRequest.
+type RegisterUserRequest struct {
+	AuthMethodId *string `json:"auth_method_id,omitempty"`
+	Email        *string `json:"email,omitempty"`
+	Identifier   *string `json:"identifier,omitempty"`
+	ProjectId    *string `json:"project_id,omitempty"`
+}
+
 // Session defines model for Session.
 type Session struct {
 	Connected        *bool      `json:"connected,omitempty"`
@@ -414,6 +422,9 @@ type PatchProjectJSONBody PatchedProject
 // UpdateProjectJSONBody defines parameters for UpdateProject.
 type UpdateProjectJSONBody UpdatedProject
 
+// RegisterUserJSONBody defines parameters for RegisterUser.
+type RegisterUserJSONBody RegisterUserRequest
+
 // ListSessionParams defines parameters for ListSession.
 type ListSessionParams struct {
 	Limit  int `json:"limit"`
@@ -506,6 +517,9 @@ type PatchProjectJSONRequestBody PatchProjectJSONBody
 
 // UpdateProjectJSONRequestBody defines body for UpdateProject for application/json ContentType.
 type UpdateProjectJSONRequestBody UpdateProjectJSONBody
+
+// RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
+type RegisterUserJSONRequestBody RegisterUserJSONBody
 
 // CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
 type CreateSessionJSONRequestBody CreateSessionJSONBody
@@ -629,6 +643,9 @@ type ServerInterface interface {
 	// Update project
 	// (PUT /api/user-service/project/{id})
 	UpdateProject(w http.ResponseWriter, r *http.Request, id string)
+	// Register user
+	// (POST /api/user-service/register-user)
+	RegisterUser(w http.ResponseWriter, r *http.Request)
 	// List sessions
 	// (GET /api/user-service/session)
 	ListSession(w http.ResponseWriter, r *http.Request, params ListSessionParams)
@@ -1768,6 +1785,25 @@ func (siw *ServerInterfaceWrapper) UpdateProject(w http.ResponseWriter, r *http.
 	handler(w, r.WithContext(ctx))
 }
 
+// RegisterUser operation middleware
+func (siw *ServerInterfaceWrapper) RegisterUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RegisterUser(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListSession operation middleware
 func (siw *ServerInterfaceWrapper) ListSession(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -2495,6 +2531,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/user-service/project/{id}", wrapper.UpdateProject)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/user-service/register-user", wrapper.RegisterUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/session", wrapper.ListSession)

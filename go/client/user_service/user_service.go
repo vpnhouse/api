@@ -237,6 +237,14 @@ type Project struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// RegisterUserRequest defines model for RegisterUserRequest.
+type RegisterUserRequest struct {
+	AuthMethodId *string `json:"auth_method_id,omitempty"`
+	Email        *string `json:"email,omitempty"`
+	Identifier   *string `json:"identifier,omitempty"`
+	ProjectId    *string `json:"project_id,omitempty"`
+}
+
 // Session defines model for Session.
 type Session struct {
 	Connected        *bool      `json:"connected,omitempty"`
@@ -420,6 +428,9 @@ type PatchProjectJSONBody PatchedProject
 // UpdateProjectJSONBody defines parameters for UpdateProject.
 type UpdateProjectJSONBody UpdatedProject
 
+// RegisterUserJSONBody defines parameters for RegisterUser.
+type RegisterUserJSONBody RegisterUserRequest
+
 // ListSessionParams defines parameters for ListSession.
 type ListSessionParams struct {
 	Limit  int `json:"limit"`
@@ -512,6 +523,9 @@ type PatchProjectJSONRequestBody PatchProjectJSONBody
 
 // UpdateProjectJSONRequestBody defines body for UpdateProject for application/json ContentType.
 type UpdateProjectJSONRequestBody UpdateProjectJSONBody
+
+// RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
+type RegisterUserJSONRequestBody RegisterUserJSONBody
 
 // CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
 type CreateSessionJSONRequestBody CreateSessionJSONBody
@@ -737,6 +751,11 @@ type ClientInterface interface {
 	UpdateProjectWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateProject(ctx context.Context, id string, body UpdateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RegisterUser request with any body
+	RegisterUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RegisterUser(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListSession request
 	ListSession(ctx context.Context, params *ListSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1383,6 +1402,30 @@ func (c *Client) UpdateProjectWithBody(ctx context.Context, id string, contentTy
 
 func (c *Client) UpdateProject(ctx context.Context, id string, body UpdateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateProjectRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegisterUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegisterUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RegisterUser(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRegisterUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3090,6 +3133,46 @@ func NewUpdateProjectRequestWithBody(server string, id string, contentType strin
 	return req, nil
 }
 
+// NewRegisterUserRequest calls the generic RegisterUser builder with application/json body
+func NewRegisterUserRequest(server string, body RegisterUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRegisterUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRegisterUserRequestWithBody generates requests for RegisterUser with any type of body
+func NewRegisterUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/register-user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListSessionRequest generates requests for ListSession
 func NewListSessionRequest(server string, params *ListSessionParams) (*http.Request, error) {
 	var err error
@@ -3946,6 +4029,11 @@ type ClientWithResponsesInterface interface {
 	UpdateProjectWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProjectResponse, error)
 
 	UpdateProjectWithResponse(ctx context.Context, id string, body UpdateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProjectResponse, error)
+
+	// RegisterUser request with any body
+	RegisterUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error)
+
+	RegisterUserWithResponse(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error)
 
 	// ListSession request
 	ListSessionWithResponse(ctx context.Context, params *ListSessionParams, reqEditors ...RequestEditorFn) (*ListSessionResponse, error)
@@ -4866,6 +4954,33 @@ func (r UpdateProjectResponse) StatusCode() int {
 	return 0
 }
 
+type RegisterUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RegisterUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RegisterUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListSessionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -5652,6 +5767,23 @@ func (c *ClientWithResponses) UpdateProjectWithResponse(ctx context.Context, id 
 		return nil, err
 	}
 	return ParseUpdateProjectResponse(rsp)
+}
+
+// RegisterUserWithBodyWithResponse request with arbitrary body returning *RegisterUserResponse
+func (c *ClientWithResponses) RegisterUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error) {
+	rsp, err := c.RegisterUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegisterUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) RegisterUserWithResponse(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error) {
+	rsp, err := c.RegisterUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRegisterUserResponse(rsp)
 }
 
 // ListSessionWithResponse request returning *ListSessionResponse
@@ -7472,6 +7604,67 @@ func ParseUpdateProjectResponse(rsp *http.Response) (*UpdateProjectResponse, err
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRegisterUserResponse parses an HTTP response from a RegisterUserWithResponse call
+func ParseRegisterUserResponse(rsp *http.Response) (*RegisterUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RegisterUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
