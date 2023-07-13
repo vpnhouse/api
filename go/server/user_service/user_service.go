@@ -483,7 +483,7 @@ type ListRemindInviteParams struct {
 
 // UpdatePeersAsConnectedParams defines parameters for UpdatePeersAsConnected.
 type UpdatePeersAsConnectedParams struct {
-	Ids []string `json:"ids"`
+	Ids []int64 `json:"ids"`
 }
 
 // ListUserParams defines parameters for ListUser.

@@ -400,7 +400,8 @@ paths:
         - schema:
             type: array
             items:
-              type: string
+              type: integer
+              format: int64
           name: ids
           in: query
           required: true
