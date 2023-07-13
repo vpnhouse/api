@@ -392,6 +392,9 @@ type ListEmailParams struct {
 	Limit      *int   `json:"limit,omitempty"`
 }
 
+// FindSessionJSONBody defines parameters for FindSession.
+type FindSessionJSONBody PatchedSession
+
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {
 	Limit  int `json:"limit"`
@@ -511,6 +514,9 @@ type PatchAuthJSONRequestBody PatchAuthJSONBody
 
 // UpdateAuthJSONRequestBody defines body for UpdateAuth for application/json ContentType.
 type UpdateAuthJSONRequestBody UpdateAuthJSONBody
+
+// FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
+type FindSessionJSONRequestBody FindSessionJSONBody
 
 // CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
 type CreateInviteJSONRequestBody CreateInviteJSONBody
@@ -692,6 +698,11 @@ type ClientInterface interface {
 
 	// ListEmail request
 	ListEmail(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindSession request with any body
+	FindSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FindSession(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvite request
 	ListInvite(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1064,6 +1075,30 @@ func (c *Client) UpdateAuth(ctx context.Context, id string, body UpdateAuthJSONR
 
 func (c *Client) ListEmail(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEmailRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindSessionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindSession(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindSessionRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2339,6 +2374,46 @@ func NewListEmailRequest(server string, params *ListEmailParams) (*http.Request,
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewFindSessionRequest calls the generic FindSession builder with application/json body
+func NewFindSessionRequest(server string, body FindSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFindSessionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFindSessionRequestWithBody generates requests for FindSession with any type of body
+func NewFindSessionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/find-session")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -4109,6 +4184,11 @@ type ClientWithResponsesInterface interface {
 	// ListEmail request
 	ListEmailWithResponse(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*ListEmailResponse, error)
 
+	// FindSession request with any body
+	FindSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindSessionResponse, error)
+
+	FindSessionWithResponse(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*FindSessionResponse, error)
+
 	// ListInvite request
 	ListInviteWithResponse(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*ListInviteResponse, error)
 
@@ -4585,6 +4665,32 @@ func (r ListEmailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListEmailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FindSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindSessionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5724,6 +5830,23 @@ func (c *ClientWithResponses) ListEmailWithResponse(ctx context.Context, params 
 	return ParseListEmailResponse(rsp)
 }
 
+// FindSessionWithBodyWithResponse request with arbitrary body returning *FindSessionResponse
+func (c *ClientWithResponses) FindSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindSessionResponse, error) {
+	rsp, err := c.FindSessionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) FindSessionWithResponse(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*FindSessionResponse, error) {
+	rsp, err := c.FindSession(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindSessionResponse(rsp)
+}
+
 // ListInviteWithResponse request returning *ListInviteResponse
 func (c *ClientWithResponses) ListInviteWithResponse(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*ListInviteResponse, error) {
 	rsp, err := c.ListInvite(ctx, params, reqEditors...)
@@ -6844,6 +6967,60 @@ func ParseListEmailResponse(rsp *http.Response) (*ListEmailResponse, error) {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindSessionResponse parses an HTTP response from a FindSessionWithResponse call
+func ParseFindSessionResponse(rsp *http.Response) (*FindSessionResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error

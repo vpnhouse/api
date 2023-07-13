@@ -386,6 +386,9 @@ type ListEmailParams struct {
 	Limit      *int   `json:"limit,omitempty"`
 }
 
+// FindSessionJSONBody defines parameters for FindSession.
+type FindSessionJSONBody PatchedSession
+
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {
 	Limit  int `json:"limit"`
@@ -506,6 +509,9 @@ type PatchAuthJSONRequestBody PatchAuthJSONBody
 // UpdateAuthJSONRequestBody defines body for UpdateAuth for application/json ContentType.
 type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
+// FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
+type FindSessionJSONRequestBody FindSessionJSONBody
+
 // CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
 type CreateInviteJSONRequestBody CreateInviteJSONBody
 
@@ -604,6 +610,9 @@ type ServerInterface interface {
 	// List emails
 	// (GET /api/user-service/email)
 	ListEmail(w http.ResponseWriter, r *http.Request, params ListEmailParams)
+	// Find session
+	// (GET /api/user-service/find-session)
+	FindSession(w http.ResponseWriter, r *http.Request)
 	// List invites
 	// (GET /api/user-service/invite)
 	ListInvite(w http.ResponseWriter, r *http.Request, params ListInviteParams)
@@ -1165,6 +1174,25 @@ func (siw *ServerInterfaceWrapper) ListEmail(w http.ResponseWriter, r *http.Requ
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListEmail(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// FindSession operation middleware
+func (siw *ServerInterfaceWrapper) FindSession(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.FindSession(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2536,6 +2564,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/email", wrapper.ListEmail)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/find-session", wrapper.FindSession)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/invite", wrapper.ListInvite)

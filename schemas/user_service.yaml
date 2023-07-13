@@ -1129,6 +1129,37 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSession'
 
+  /api/user-service/find-session:
+    get:
+      summary: Find session
+      tags:
+        - patch
+        - session
+        - find
+      operationId: find-session
+      description: Find session
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSession'
+
   /api/user-service/set-session-to-delete:
     patch:
       summary: Set session to delete
