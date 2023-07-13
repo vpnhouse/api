@@ -1159,6 +1159,36 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SessionToDeleteParams'
+  /api/user-service/set-session-deleted:
+    patch:
+      summary: Set session deleted
+      tags:
+        - patch
+        - session
+        - deleted
+      operationId: set-session-deleted
+      description: Set session deleted
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionDeletedParams'
 
   /api/user-service/mailing:
     get:
@@ -2147,6 +2177,13 @@ components:
           items:
             type: integer
             format: int64
+    SessionDeletedParams:
+      title: SessionDeletedParams
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
     Mailing:
       title: Mailing
       type: object

@@ -261,6 +261,11 @@ type Session struct {
 	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
 }
 
+// SessionDeletedParams defines model for SessionDeletedParams.
+type SessionDeletedParams struct {
+	Id *int64 `json:"id,omitempty"`
+}
+
 // SessionToDeleteParams defines model for SessionToDeleteParams.
 type SessionToDeleteParams struct {
 	Ids   *[]int64 `json:"ids,omitempty"`
@@ -462,6 +467,9 @@ type PatchSessionJSONBody PatchedSession
 // UpdateSessionJSONBody defines parameters for UpdateSession.
 type UpdateSessionJSONBody UpdatedSession
 
+// SetSessionDeletedJSONBody defines parameters for SetSessionDeleted.
+type SetSessionDeletedJSONBody SessionDeletedParams
+
 // SetSessionToDeleteJSONBody defines parameters for SetSessionToDelete.
 type SetSessionToDeleteJSONBody SessionToDeleteParams
 
@@ -545,6 +553,9 @@ type PatchSessionJSONRequestBody PatchSessionJSONBody
 
 // UpdateSessionJSONRequestBody defines body for UpdateSession for application/json ContentType.
 type UpdateSessionJSONRequestBody UpdateSessionJSONBody
+
+// SetSessionDeletedJSONRequestBody defines body for SetSessionDeleted for application/json ContentType.
+type SetSessionDeletedJSONRequestBody SetSessionDeletedJSONBody
 
 // SetSessionToDeleteJSONRequestBody defines body for SetSessionToDelete for application/json ContentType.
 type SetSessionToDeleteJSONRequestBody SetSessionToDeleteJSONBody
@@ -796,6 +807,11 @@ type ClientInterface interface {
 	UpdateSessionWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateSession(ctx context.Context, id string, body UpdateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetSessionDeleted request with any body
+	SetSessionDeletedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SetSessionDeleted(ctx context.Context, body SetSessionDeletedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SetSessionToDelete request with any body
 	SetSessionToDeleteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1564,6 +1580,30 @@ func (c *Client) UpdateSessionWithBody(ctx context.Context, id string, contentTy
 
 func (c *Client) UpdateSession(ctx context.Context, id string, body UpdateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateSessionRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetSessionDeletedWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetSessionDeletedRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SetSessionDeleted(ctx context.Context, body SetSessionDeletedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetSessionDeletedRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3583,6 +3623,46 @@ func NewUpdateSessionRequestWithBody(server string, id string, contentType strin
 	return req, nil
 }
 
+// NewSetSessionDeletedRequest calls the generic SetSessionDeleted builder with application/json body
+func NewSetSessionDeletedRequest(server string, body SetSessionDeletedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetSessionDeletedRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSetSessionDeletedRequestWithBody generates requests for SetSessionDeleted with any type of body
+func NewSetSessionDeletedRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/set-session-deleted")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewSetSessionToDeleteRequest calls the generic SetSessionToDelete builder with application/json body
 func NewSetSessionToDeleteRequest(server string, body SetSessionToDeleteJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -4143,6 +4223,11 @@ type ClientWithResponsesInterface interface {
 	UpdateSessionWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSessionResponse, error)
 
 	UpdateSessionWithResponse(ctx context.Context, id string, body UpdateSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSessionResponse, error)
+
+	// SetSessionDeleted request with any body
+	SetSessionDeletedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetSessionDeletedResponse, error)
+
+	SetSessionDeletedWithResponse(ctx context.Context, body SetSessionDeletedJSONRequestBody, reqEditors ...RequestEditorFn) (*SetSessionDeletedResponse, error)
 
 	// SetSessionToDelete request with any body
 	SetSessionToDeleteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetSessionToDeleteResponse, error)
@@ -5245,6 +5330,32 @@ func (r UpdateSessionResponse) StatusCode() int {
 	return 0
 }
 
+type SetSessionDeletedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SetSessionDeletedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetSessionDeletedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SetSessionToDeleteResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -5984,6 +6095,23 @@ func (c *ClientWithResponses) UpdateSessionWithResponse(ctx context.Context, id 
 		return nil, err
 	}
 	return ParseUpdateSessionResponse(rsp)
+}
+
+// SetSessionDeletedWithBodyWithResponse request with arbitrary body returning *SetSessionDeletedResponse
+func (c *ClientWithResponses) SetSessionDeletedWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetSessionDeletedResponse, error) {
+	rsp, err := c.SetSessionDeletedWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetSessionDeletedResponse(rsp)
+}
+
+func (c *ClientWithResponses) SetSessionDeletedWithResponse(ctx context.Context, body SetSessionDeletedJSONRequestBody, reqEditors ...RequestEditorFn) (*SetSessionDeletedResponse, error) {
+	rsp, err := c.SetSessionDeleted(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetSessionDeletedResponse(rsp)
 }
 
 // SetSessionToDeleteWithBodyWithResponse request with arbitrary body returning *SetSessionToDeleteResponse
@@ -8133,6 +8261,60 @@ func ParseUpdateSessionResponse(rsp *http.Response) (*UpdateSessionResponse, err
 	}
 
 	response := &UpdateSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSetSessionDeletedResponse parses an HTTP response from a SetSessionDeletedWithResponse call
+func ParseSetSessionDeletedResponse(rsp *http.Response) (*SetSessionDeletedResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetSessionDeletedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

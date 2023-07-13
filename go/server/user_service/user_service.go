@@ -255,6 +255,11 @@ type Session struct {
 	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
 }
 
+// SessionDeletedParams defines model for SessionDeletedParams.
+type SessionDeletedParams struct {
+	Id *int64 `json:"id,omitempty"`
+}
+
 // SessionToDeleteParams defines model for SessionToDeleteParams.
 type SessionToDeleteParams struct {
 	Ids   *[]int64 `json:"ids,omitempty"`
@@ -456,6 +461,9 @@ type PatchSessionJSONBody PatchedSession
 // UpdateSessionJSONBody defines parameters for UpdateSession.
 type UpdateSessionJSONBody UpdatedSession
 
+// SetSessionDeletedJSONBody defines parameters for SetSessionDeleted.
+type SetSessionDeletedJSONBody SessionDeletedParams
+
 // SetSessionToDeleteJSONBody defines parameters for SetSessionToDelete.
 type SetSessionToDeleteJSONBody SessionToDeleteParams
 
@@ -539,6 +547,9 @@ type PatchSessionJSONRequestBody PatchSessionJSONBody
 
 // UpdateSessionJSONRequestBody defines body for UpdateSession for application/json ContentType.
 type UpdateSessionJSONRequestBody UpdateSessionJSONBody
+
+// SetSessionDeletedJSONRequestBody defines body for SetSessionDeleted for application/json ContentType.
+type SetSessionDeletedJSONRequestBody SetSessionDeletedJSONBody
 
 // SetSessionToDeleteJSONRequestBody defines body for SetSessionToDelete for application/json ContentType.
 type SetSessionToDeleteJSONRequestBody SetSessionToDeleteJSONBody
@@ -680,6 +691,9 @@ type ServerInterface interface {
 	// Update session
 	// (PUT /api/user-service/session/{id})
 	UpdateSession(w http.ResponseWriter, r *http.Request, id string)
+	// Set session deleted
+	// (PATCH /api/user-service/set-session-deleted)
+	SetSessionDeleted(w http.ResponseWriter, r *http.Request)
 	// Set session to delete
 	// (PATCH /api/user-service/set-session-to-delete)
 	SetSessionToDelete(w http.ResponseWriter, r *http.Request)
@@ -2090,6 +2104,25 @@ func (siw *ServerInterfaceWrapper) UpdateSession(w http.ResponseWriter, r *http.
 	handler(w, r.WithContext(ctx))
 }
 
+// SetSessionDeleted operation middleware
+func (siw *ServerInterfaceWrapper) SetSessionDeleted(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SetSessionDeleted(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // SetSessionToDelete operation middleware
 func (siw *ServerInterfaceWrapper) SetSessionToDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -2590,6 +2623,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/user-service/session/{id}", wrapper.UpdateSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/api/user-service/set-session-deleted", wrapper.SetSessionDeleted)
 	})
 	r.Group(func(r chi.Router) {
 		r.Patch(options.BaseURL+"/api/user-service/set-session-to-delete", wrapper.SetSessionToDelete)
