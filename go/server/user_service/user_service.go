@@ -255,6 +255,13 @@ type Session struct {
 	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
 }
 
+// SessionToDeleteParams defines model for SessionToDeleteParams.
+type SessionToDeleteParams struct {
+	Ids   *[]int64 `json:"ids,omitempty"`
+	Label *string  `json:"label,omitempty"`
+	Node  *string  `json:"node,omitempty"`
+}
+
 // UpdatedAuth defines model for UpdatedAuth.
 type UpdatedAuth struct {
 	AuthMethodId *string                 `json:"auth_method_id"`
@@ -449,6 +456,9 @@ type PatchSessionJSONBody PatchedSession
 // UpdateSessionJSONBody defines parameters for UpdateSession.
 type UpdateSessionJSONBody UpdatedSession
 
+// SetSessionToDeleteJSONBody defines parameters for SetSessionToDelete.
+type SetSessionToDeleteJSONBody SessionToDeleteParams
+
 // ListRemindInviteParams defines parameters for ListRemindInvite.
 type ListRemindInviteParams struct {
 	NowSec      int `json:"now_sec"`
@@ -529,6 +539,9 @@ type PatchSessionJSONRequestBody PatchSessionJSONBody
 
 // UpdateSessionJSONRequestBody defines body for UpdateSession for application/json ContentType.
 type UpdateSessionJSONRequestBody UpdateSessionJSONBody
+
+// SetSessionToDeleteJSONRequestBody defines body for SetSessionToDelete for application/json ContentType.
+type SetSessionToDeleteJSONRequestBody SetSessionToDeleteJSONBody
 
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody CreateUserJSONBody
@@ -667,6 +680,9 @@ type ServerInterface interface {
 	// Update session
 	// (PUT /api/user-service/session/{id})
 	UpdateSession(w http.ResponseWriter, r *http.Request, id string)
+	// Set session to delete
+	// (PATCH /api/user-service/set-session-to-delete)
+	SetSessionToDelete(w http.ResponseWriter, r *http.Request)
 	// List emails
 	// (GET /api/user-service/to-remind)
 	ListRemindInvite(w http.ResponseWriter, r *http.Request, params ListRemindInviteParams)
@@ -2074,6 +2090,25 @@ func (siw *ServerInterfaceWrapper) UpdateSession(w http.ResponseWriter, r *http.
 	handler(w, r.WithContext(ctx))
 }
 
+// SetSessionToDelete operation middleware
+func (siw *ServerInterfaceWrapper) SetSessionToDelete(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SetSessionToDelete(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListRemindInvite operation middleware
 func (siw *ServerInterfaceWrapper) ListRemindInvite(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -2555,6 +2590,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/user-service/session/{id}", wrapper.UpdateSession)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/api/user-service/set-session-to-delete", wrapper.SetSessionToDelete)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/to-remind", wrapper.ListRemindInvite)
