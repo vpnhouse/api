@@ -481,6 +481,11 @@ type ListRemindInviteParams struct {
 	RemindInSec int `json:"remind_in_sec"`
 }
 
+// UpdatePeersAsConnectedParams defines parameters for UpdatePeersAsConnected.
+type UpdatePeersAsConnectedParams struct {
+	Ids []string `json:"ids"`
+}
+
 // ListUserParams defines parameters for ListUser.
 type ListUserParams struct {
 	Limit  int `json:"limit"`
@@ -717,6 +722,9 @@ type ServerInterface interface {
 	// List emails
 	// (GET /api/user-service/to-remind)
 	ListRemindInvite(w http.ResponseWriter, r *http.Request, params ListRemindInviteParams)
+	// Update peers as connected
+	// (GET /api/user-service/update-peers-as-connected)
+	UpdatePeersAsConnected(w http.ResponseWriter, r *http.Request, params UpdatePeersAsConnectedParams)
 	// List users
 	// (GET /api/user-service/user)
 	ListUser(w http.ResponseWriter, r *http.Request, params ListUserParams)
@@ -2268,6 +2276,44 @@ func (siw *ServerInterfaceWrapper) ListRemindInvite(w http.ResponseWriter, r *ht
 	handler(w, r.WithContext(ctx))
 }
 
+// UpdatePeersAsConnected operation middleware
+func (siw *ServerInterfaceWrapper) UpdatePeersAsConnected(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UpdatePeersAsConnectedParams
+
+	// ------------- Required query parameter "ids" -------------
+	if paramValue := r.URL.Query().Get("ids"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "ids"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "ids", r.URL.Query(), &params.Ids)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "ids", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdatePeersAsConnected(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListUser operation middleware
 func (siw *ServerInterfaceWrapper) ListUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -2712,6 +2758,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/to-remind", wrapper.ListRemindInvite)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/update-peers-as-connected", wrapper.UpdatePeersAsConnected)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/user", wrapper.ListUser)

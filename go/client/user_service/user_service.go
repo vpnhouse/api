@@ -487,6 +487,11 @@ type ListRemindInviteParams struct {
 	RemindInSec int `json:"remind_in_sec"`
 }
 
+// UpdatePeersAsConnectedParams defines parameters for UpdatePeersAsConnected.
+type UpdatePeersAsConnectedParams struct {
+	Ids []string `json:"ids"`
+}
+
 // ListUserParams defines parameters for ListUser.
 type ListUserParams struct {
 	Limit  int `json:"limit"`
@@ -839,6 +844,9 @@ type ClientInterface interface {
 
 	// ListRemindInvite request
 	ListRemindInvite(ctx context.Context, params *ListRemindInviteParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdatePeersAsConnected request
+	UpdatePeersAsConnected(ctx context.Context, params *UpdatePeersAsConnectedParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListUser request
 	ListUser(ctx context.Context, params *ListUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1695,6 +1703,18 @@ func (c *Client) SetSessionToDelete(ctx context.Context, body SetSessionToDelete
 
 func (c *Client) ListRemindInvite(ctx context.Context, params *ListRemindInviteParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListRemindInviteRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdatePeersAsConnected(ctx context.Context, params *UpdatePeersAsConnectedParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdatePeersAsConnectedRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3896,6 +3916,49 @@ func NewListRemindInviteRequest(server string, params *ListRemindInviteParams) (
 	return req, nil
 }
 
+// NewUpdatePeersAsConnectedRequest generates requests for UpdatePeersAsConnected
+func NewUpdatePeersAsConnectedRequest(server string, params *UpdatePeersAsConnectedParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/update-peers-as-connected")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "ids", runtime.ParamLocationQuery, params.Ids); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListUserRequest generates requests for ListUser
 func NewListUserRequest(server string, params *ListUserParams) (*http.Request, error) {
 	var err error
@@ -4382,6 +4445,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListRemindInvite request
 	ListRemindInviteWithResponse(ctx context.Context, params *ListRemindInviteParams, reqEditors ...RequestEditorFn) (*ListRemindInviteResponse, error)
+
+	// UpdatePeersAsConnected request
+	UpdatePeersAsConnectedWithResponse(ctx context.Context, params *UpdatePeersAsConnectedParams, reqEditors ...RequestEditorFn) (*UpdatePeersAsConnectedResponse, error)
 
 	// ListUser request
 	ListUserWithResponse(ctx context.Context, params *ListUserParams, reqEditors ...RequestEditorFn) (*ListUserResponse, error)
@@ -5604,6 +5670,30 @@ func (r ListRemindInviteResponse) StatusCode() int {
 	return 0
 }
 
+type UpdatePeersAsConnectedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdatePeersAsConnectedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdatePeersAsConnectedResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -6361,6 +6451,15 @@ func (c *ClientWithResponses) ListRemindInviteWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseListRemindInviteResponse(rsp)
+}
+
+// UpdatePeersAsConnectedWithResponse request returning *UpdatePeersAsConnectedResponse
+func (c *ClientWithResponses) UpdatePeersAsConnectedWithResponse(ctx context.Context, params *UpdatePeersAsConnectedParams, reqEditors ...RequestEditorFn) (*UpdatePeersAsConnectedResponse, error) {
+	rsp, err := c.UpdatePeersAsConnected(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdatePeersAsConnectedResponse(rsp)
 }
 
 // ListUserWithResponse request returning *ListUserResponse
@@ -8759,6 +8858,46 @@ func ParseListRemindInviteResponse(rsp *http.Response) (*ListRemindInviteRespons
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdatePeersAsConnectedResponse parses an HTTP response from a UpdatePeersAsConnectedWithResponse call
+func ParseUpdatePeersAsConnectedResponse(rsp *http.Response) (*UpdatePeersAsConnectedResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdatePeersAsConnectedResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

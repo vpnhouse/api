@@ -394,6 +394,36 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/user-service/update-peers-as-connected:
+    get:
+      parameters:
+        - schema:
+            type: array
+            items:
+              type: string
+          name: ids
+          in: query
+          required: true
+      summary: Update peers as connected
+      tags:
+        - update
+        - peer
+        - connected
+      operationId: update-peers-as-connected
+      description: Update peers as connected
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
   /api/user-service/auth-method:
     get:
       parameters:
