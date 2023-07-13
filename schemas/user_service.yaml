@@ -358,6 +358,42 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUser'
 
+  /api/user-service/list-connected-users:
+    get:
+      parameters:
+        - schema:
+            type: array
+            items:
+              type: string
+          name: ids
+          in: query
+          required: true
+      summary: List connected users
+      tags:
+        - list
+        - user
+        - connected
+      operationId: list-connected-users
+      description: List connected users
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
   /api/user-service/auth-method:
     get:
       parameters:

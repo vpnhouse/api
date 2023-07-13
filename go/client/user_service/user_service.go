@@ -410,6 +410,11 @@ type PatchInviteJSONBody PatchedInvite
 // UpdateInviteJSONBody defines parameters for UpdateInvite.
 type UpdateInviteJSONBody UpdatedInvite
 
+// ListConnectedUsersParams defines parameters for ListConnectedUsers.
+type ListConnectedUsersParams struct {
+	Ids []string `json:"ids"`
+}
+
 // LookupUserJSONBody defines parameters for LookupUser.
 type LookupUserJSONBody LookupUserRequest
 
@@ -730,6 +735,9 @@ type ClientInterface interface {
 	UpdateInviteWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateInvite(ctx context.Context, id string, body UpdateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListConnectedUsers request
+	ListConnectedUsers(ctx context.Context, params *ListConnectedUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// LookupUser request with any body
 	LookupUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1219,6 +1227,18 @@ func (c *Client) UpdateInviteWithBody(ctx context.Context, id string, contentTyp
 
 func (c *Client) UpdateInvite(ctx context.Context, id string, body UpdateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateInviteRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListConnectedUsers(ctx context.Context, params *ListConnectedUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListConnectedUsersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2705,6 +2725,49 @@ func NewUpdateInviteRequestWithBody(server string, id string, contentType string
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListConnectedUsersRequest generates requests for ListConnectedUsers
+func NewListConnectedUsersRequest(server string, params *ListConnectedUsersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/list-connected-users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "ids", runtime.ParamLocationQuery, params.Ids); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -4216,6 +4279,9 @@ type ClientWithResponsesInterface interface {
 
 	UpdateInviteWithResponse(ctx context.Context, id string, body UpdateInviteJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateInviteResponse, error)
 
+	// ListConnectedUsers request
+	ListConnectedUsersWithResponse(ctx context.Context, params *ListConnectedUsersParams, reqEditors ...RequestEditorFn) (*ListConnectedUsersResponse, error)
+
 	// LookupUser request with any body
 	LookupUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*LookupUserResponse, error)
 
@@ -4868,6 +4934,31 @@ func (r UpdateInviteResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateInviteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListConnectedUsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]string
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListConnectedUsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListConnectedUsersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5932,6 +6023,15 @@ func (c *ClientWithResponses) UpdateInviteWithResponse(ctx context.Context, id s
 		return nil, err
 	}
 	return ParseUpdateInviteResponse(rsp)
+}
+
+// ListConnectedUsersWithResponse request returning *ListConnectedUsersResponse
+func (c *ClientWithResponses) ListConnectedUsersWithResponse(ctx context.Context, params *ListConnectedUsersParams, reqEditors ...RequestEditorFn) (*ListConnectedUsersResponse, error) {
+	rsp, err := c.ListConnectedUsers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListConnectedUsersResponse(rsp)
 }
 
 // LookupUserWithBodyWithResponse request with arbitrary body returning *LookupUserResponse
@@ -7364,6 +7464,53 @@ func ParseUpdateInviteResponse(rsp *http.Response) (*UpdateInviteResponse, error
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListConnectedUsersResponse parses an HTTP response from a ListConnectedUsersWithResponse call
+func ParseListConnectedUsersResponse(rsp *http.Response) (*ListConnectedUsersResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListConnectedUsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error

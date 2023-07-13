@@ -404,6 +404,11 @@ type PatchInviteJSONBody PatchedInvite
 // UpdateInviteJSONBody defines parameters for UpdateInvite.
 type UpdateInviteJSONBody UpdatedInvite
 
+// ListConnectedUsersParams defines parameters for ListConnectedUsers.
+type ListConnectedUsersParams struct {
+	Ids []string `json:"ids"`
+}
+
 // LookupUserJSONBody defines parameters for LookupUser.
 type LookupUserJSONBody LookupUserRequest
 
@@ -634,6 +639,9 @@ type ServerInterface interface {
 	// Update invite
 	// (PUT /api/user-service/invite/{id})
 	UpdateInvite(w http.ResponseWriter, r *http.Request, id string)
+	// List connected users
+	// (GET /api/user-service/list-connected-users)
+	ListConnectedUsers(w http.ResponseWriter, r *http.Request, params ListConnectedUsersParams)
 	// Lookup user
 	// (POST /api/user-service/lookup-user)
 	LookupUser(w http.ResponseWriter, r *http.Request)
@@ -1414,6 +1422,44 @@ func (siw *ServerInterfaceWrapper) UpdateInvite(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateInvite(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListConnectedUsers operation middleware
+func (siw *ServerInterfaceWrapper) ListConnectedUsers(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListConnectedUsersParams
+
+	// ------------- Required query parameter "ids" -------------
+	if paramValue := r.URL.Query().Get("ids"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "ids"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "ids", r.URL.Query(), &params.Ids)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "ids", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListConnectedUsers(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2588,6 +2634,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/user-service/invite/{id}", wrapper.UpdateInvite)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/list-connected-users", wrapper.ListConnectedUsers)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/user-service/lookup-user", wrapper.LookupUser)
