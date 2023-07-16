@@ -395,6 +395,9 @@ type ListEmailParams struct {
 // FindSessionJSONBody defines parameters for FindSession.
 type FindSessionJSONBody PatchedSession
 
+// FindUserJSONBody defines parameters for FindUser.
+type FindUserJSONBody PatchedUser
+
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {
 	Limit  int `json:"limit"`
@@ -527,6 +530,9 @@ type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
 // FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
 type FindSessionJSONRequestBody FindSessionJSONBody
+
+// FindUserJSONRequestBody defines body for FindUser for application/json ContentType.
+type FindUserJSONRequestBody FindUserJSONBody
 
 // CreateInviteJSONRequestBody defines body for CreateInvite for application/json ContentType.
 type CreateInviteJSONRequestBody CreateInviteJSONBody
@@ -713,6 +719,11 @@ type ClientInterface interface {
 	FindSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	FindSession(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindUser request with any body
+	FindUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FindUser(ctx context.Context, body FindUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListInvite request
 	ListInvite(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1115,6 +1126,30 @@ func (c *Client) FindSessionWithBody(ctx context.Context, contentType string, bo
 
 func (c *Client) FindSession(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindSessionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindUser(ctx context.Context, body FindUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2439,6 +2474,46 @@ func NewFindSessionRequestWithBody(server string, contentType string, body io.Re
 	}
 
 	operationPath := fmt.Sprintf("/api/user-service/find-session")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFindUserRequest calls the generic FindUser builder with application/json body
+func NewFindUserRequest(server string, body FindUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFindUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFindUserRequestWithBody generates requests for FindUser with any type of body
+func NewFindUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/find-user")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4315,6 +4390,11 @@ type ClientWithResponsesInterface interface {
 
 	FindSessionWithResponse(ctx context.Context, body FindSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*FindSessionResponse, error)
 
+	// FindUser request with any body
+	FindUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindUserResponse, error)
+
+	FindUserWithResponse(ctx context.Context, body FindUserJSONRequestBody, reqEditors ...RequestEditorFn) (*FindUserResponse, error)
+
 	// ListInvite request
 	ListInviteWithResponse(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*ListInviteResponse, error)
 
@@ -4823,6 +4903,32 @@ func (r FindSessionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r FindSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FindUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6028,6 +6134,23 @@ func (c *ClientWithResponses) FindSessionWithResponse(ctx context.Context, body 
 	return ParseFindSessionResponse(rsp)
 }
 
+// FindUserWithBodyWithResponse request with arbitrary body returning *FindUserResponse
+func (c *ClientWithResponses) FindUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindUserResponse, error) {
+	rsp, err := c.FindUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) FindUserWithResponse(ctx context.Context, body FindUserJSONRequestBody, reqEditors ...RequestEditorFn) (*FindUserResponse, error) {
+	rsp, err := c.FindUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindUserResponse(rsp)
+}
+
 // ListInviteWithResponse request returning *ListInviteResponse
 func (c *ClientWithResponses) ListInviteWithResponse(ctx context.Context, params *ListInviteParams, reqEditors ...RequestEditorFn) (*ListInviteResponse, error) {
 	rsp, err := c.ListInvite(ctx, params, reqEditors...)
@@ -7188,6 +7311,60 @@ func ParseFindSessionResponse(rsp *http.Response) (*FindSessionResponse, error) 
 	}
 
 	response := &FindSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindUserResponse parses an HTTP response from a FindUserWithResponse call
+func ParseFindUserResponse(rsp *http.Response) (*FindUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindUserResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
