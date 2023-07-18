@@ -87,7 +87,7 @@ type CreatedProject struct {
 
 // CreatedSession defines model for CreatedSession.
 type CreatedSession struct {
-	Connected        *bool      `json:"connected,omitempty"`
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
 	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
@@ -194,7 +194,7 @@ type PatchedProject struct {
 
 // PatchedSession defines model for PatchedSession.
 type PatchedSession struct {
-	Connected        *bool      `json:"connected,omitempty"`
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
 	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
@@ -241,7 +241,7 @@ type RegisterUserRequest struct {
 
 // Session defines model for Session.
 type Session struct {
-	Connected        *bool      `json:"connected,omitempty"`
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	CreatedAt        *time.Time `json:"created_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
@@ -319,7 +319,7 @@ type UpdatedProject struct {
 
 // UpdatedSession defines model for UpdatedSession.
 type UpdatedSession struct {
-	Connected        *bool      `json:"connected"`
+	ConnectedAt      *time.Time `json:"connected_at"`
 	Deleted          *bool      `json:"deleted"`
 	ExpiresAt        *time.Time `json:"expires_at"`
 	FirstConnectedAt *time.Time `json:"first_connected_at"`
