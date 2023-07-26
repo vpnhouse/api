@@ -46,24 +46,24 @@ type AuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at,omitempty"`
 }
 
-// CreatedAuth defines model for CreatedAuth.
-type CreatedAuth struct {
-	AuthMethodId *string                 `json:"auth_method_id"`
-	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
-	Identifier   *string                 `json:"identifier"`
-	UserId       *string                 `json:"user_id"`
-}
-
-// CreatedAuthMethod defines model for CreatedAuthMethod.
-type CreatedAuthMethod struct {
+// CreateAuthMethodParams defines model for CreateAuthMethodParams.
+type CreateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
 	ProjectId *string                 `json:"project_id"`
 	Settings  *map[string]interface{} `json:"settings,omitempty"`
 	Type      *string                 `json:"type"`
 }
 
-// CreatedInvite defines model for CreatedInvite.
-type CreatedInvite struct {
+// CreateAuthParams defines model for CreateAuthParams.
+type CreateAuthParams struct {
+	AuthMethodId *string                 `json:"auth_method_id"`
+	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
+	Identifier   *string                 `json:"identifier"`
+	UserId       *string                 `json:"user_id"`
+}
+
+// CreateInviteParams defines model for CreateInviteParams.
+type CreateInviteParams struct {
 	Email       *string                 `json:"email"`
 	ExpiresAt   *time.Time              `json:"expires_at,omitempty"`
 	LocationId  *string                 `json:"location_id,omitempty"`
@@ -76,8 +76,8 @@ type CreatedInvite struct {
 	UserId      *string                 `json:"user_id"`
 }
 
-// CreatedMailing defines model for CreatedMailing.
-type CreatedMailing struct {
+// CreateMailingParams defines model for CreateMailingParams.
+type CreateMailingParams struct {
 	AcceptId   *string `json:"accept_id,omitempty"`
 	Accepted   *bool   `json:"accepted,omitempty"`
 	Email      *string `json:"email"`
@@ -85,14 +85,14 @@ type CreatedMailing struct {
 	Status     *string `json:"status,omitempty"`
 }
 
-// CreatedProject defines model for CreatedProject.
-type CreatedProject struct {
+// CreateProjectParams defines model for CreateProjectParams.
+type CreateProjectParams struct {
 	Description *map[string]interface{} `json:"description"`
 	Name        *string                 `json:"name"`
 }
 
-// CreatedSession defines model for CreatedSession.
-type CreatedSession struct {
+// CreateSessionParams defines model for CreateSessionParams.
+type CreateSessionParams struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
@@ -104,8 +104,8 @@ type CreatedSession struct {
 	TokenId          *string    `json:"token_id"`
 }
 
-// CreatedUser defines model for CreatedUser.
-type CreatedUser struct {
+// CreateUserParams defines model for CreateUserParams.
+type CreateUserParams struct {
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Email       *string                 `json:"email,omitempty"`
 	ProjectId   *string                 `json:"project_id"`
@@ -148,17 +148,8 @@ type Mailing struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
-// PatchedAuth defines model for PatchedAuth.
-type PatchedAuth struct {
-	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
-	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
-	Identifier   *string                 `json:"identifier,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
-	UserId       *string                 `json:"user_id,omitempty"`
-}
-
-// PatchedAuthMethod defines model for PatchedAuthMethod.
-type PatchedAuthMethod struct {
+// PatchAuthMethodParams defines model for PatchAuthMethodParams.
+type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
 	ProjectId *string                 `json:"project_id,omitempty"`
 	Settings  *map[string]interface{} `json:"settings,omitempty"`
@@ -166,8 +157,17 @@ type PatchedAuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
-// PatchedInvite defines model for PatchedInvite.
-type PatchedInvite struct {
+// PatchAuthParams defines model for PatchAuthParams.
+type PatchAuthParams struct {
+	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
+	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
+	Identifier   *string                 `json:"identifier,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
+	UserId       *string                 `json:"user_id,omitempty"`
+}
+
+// PatchInviteParams defines model for PatchInviteParams.
+type PatchInviteParams struct {
 	Email       *string                 `json:"email,omitempty"`
 	ExpiresAt   *time.Time              `json:"expires_at,omitempty"`
 	LocationId  *string                 `json:"location_id,omitempty"`
@@ -181,8 +181,8 @@ type PatchedInvite struct {
 	UserId      *string                 `json:"user_id,omitempty"`
 }
 
-// PatchedMailing defines model for PatchedMailing.
-type PatchedMailing struct {
+// PatchMailingParams defines model for PatchMailingParams.
+type PatchMailingParams struct {
 	AcceptId   *string    `json:"accept_id,omitempty"`
 	Accepted   *bool      `json:"accepted,omitempty"`
 	Email      *string    `json:"email,omitempty"`
@@ -191,15 +191,15 @@ type PatchedMailing struct {
 	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
-// PatchedProject defines model for PatchedProject.
-type PatchedProject struct {
+// PatchProjectParams defines model for PatchProjectParams.
+type PatchProjectParams struct {
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Name        *string                 `json:"name,omitempty"`
 	UpdatedAt   *time.Time              `json:"updated_at"`
 }
 
-// PatchedSession defines model for PatchedSession.
-type PatchedSession struct {
+// PatchSessionParams defines model for PatchSessionParams.
+type PatchSessionParams struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
@@ -212,8 +212,8 @@ type PatchedSession struct {
 	UpdatedAt        *time.Time `json:"updated_at"`
 }
 
-// PatchedUser defines model for PatchedUser.
-type PatchedUser struct {
+// PatchUserParams defines model for PatchUserParams.
+type PatchUserParams struct {
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Email       *string                 `json:"email,omitempty"`
 	ProjectId   *string                 `json:"project_id,omitempty"`
@@ -273,17 +273,8 @@ type SessionToDeleteParams struct {
 	Node  *string  `json:"node,omitempty"`
 }
 
-// UpdatedAuth defines model for UpdatedAuth.
-type UpdatedAuth struct {
-	AuthMethodId *string                 `json:"auth_method_id"`
-	ExtendedInfo *map[string]interface{} `json:"extended_info"`
-	Identifier   *string                 `json:"identifier"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
-	UserId       *string                 `json:"user_id"`
-}
-
-// UpdatedAuthMethod defines model for UpdatedAuthMethod.
-type UpdatedAuthMethod struct {
+// UpdateAuthMethodParams defines model for UpdateAuthMethodParams.
+type UpdateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
 	ProjectId *string                 `json:"project_id"`
 	Settings  *map[string]interface{} `json:"settings"`
@@ -291,8 +282,17 @@ type UpdatedAuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
-// UpdatedInvite defines model for UpdatedInvite.
-type UpdatedInvite struct {
+// UpdateAuthParams defines model for UpdateAuthParams.
+type UpdateAuthParams struct {
+	AuthMethodId *string                 `json:"auth_method_id"`
+	ExtendedInfo *map[string]interface{} `json:"extended_info"`
+	Identifier   *string                 `json:"identifier"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
+	UserId       *string                 `json:"user_id"`
+}
+
+// UpdateInviteParams defines model for UpdateInviteParams.
+type UpdateInviteParams struct {
 	Email       *string                 `json:"email"`
 	ExpiresAt   *time.Time              `json:"expires_at"`
 	LocationId  *string                 `json:"location_id"`
@@ -306,8 +306,8 @@ type UpdatedInvite struct {
 	UserId      *string                 `json:"user_id"`
 }
 
-// UpdatedMailing defines model for UpdatedMailing.
-type UpdatedMailing struct {
+// UpdateMailingParams defines model for UpdateMailingParams.
+type UpdateMailingParams struct {
 	AcceptId   *string    `json:"accept_id"`
 	Accepted   *bool      `json:"accepted"`
 	Email      *string    `json:"email"`
@@ -316,15 +316,15 @@ type UpdatedMailing struct {
 	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
-// UpdatedProject defines model for UpdatedProject.
-type UpdatedProject struct {
+// UpdateProjectParams defines model for UpdateProjectParams.
+type UpdateProjectParams struct {
 	Description *map[string]interface{} `json:"description"`
 	Name        *string                 `json:"name"`
 	UpdatedAt   *time.Time              `json:"updated_at"`
 }
 
-// UpdatedSession defines model for UpdatedSession.
-type UpdatedSession struct {
+// UpdateSessionParams defines model for UpdateSessionParams.
+type UpdateSessionParams struct {
 	ConnectedAt      *time.Time `json:"connected_at"`
 	Deleted          *bool      `json:"deleted"`
 	ExpiresAt        *time.Time `json:"expires_at"`
@@ -337,8 +337,8 @@ type UpdatedSession struct {
 	UpdatedAt        *time.Time `json:"updated_at"`
 }
 
-// UpdatedUser defines model for UpdatedUser.
-type UpdatedUser struct {
+// UpdateUserParams defines model for UpdateUserParams.
+type UpdateUserParams struct {
 	Description *map[string]interface{} `json:"description"`
 	Email       *string                 `json:"email"`
 	ProjectId   *string                 `json:"project_id"`
@@ -362,7 +362,7 @@ type ListAuthParams struct {
 }
 
 // CreateAuthJSONBody defines parameters for CreateAuth.
-type CreateAuthJSONBody CreatedAuth
+type CreateAuthJSONBody CreateAuthParams
 
 // ListAuthMethodParams defines parameters for ListAuthMethod.
 type ListAuthMethodParams struct {
@@ -371,19 +371,19 @@ type ListAuthMethodParams struct {
 }
 
 // CreateAuthMethodJSONBody defines parameters for CreateAuthMethod.
-type CreateAuthMethodJSONBody CreatedAuthMethod
+type CreateAuthMethodJSONBody CreateAuthMethodParams
 
 // PatchAuthMethodJSONBody defines parameters for PatchAuthMethod.
-type PatchAuthMethodJSONBody PatchedAuthMethod
+type PatchAuthMethodJSONBody PatchAuthMethodParams
 
 // UpdateAuthMethodJSONBody defines parameters for UpdateAuthMethod.
-type UpdateAuthMethodJSONBody UpdatedAuthMethod
+type UpdateAuthMethodJSONBody UpdateAuthMethodParams
 
 // PatchAuthJSONBody defines parameters for PatchAuth.
-type PatchAuthJSONBody PatchedAuth
+type PatchAuthJSONBody PatchAuthParams
 
 // UpdateAuthJSONBody defines parameters for UpdateAuth.
-type UpdateAuthJSONBody UpdatedAuth
+type UpdateAuthJSONBody UpdateAuthParams
 
 // ListEmailParams defines parameters for ListEmail.
 type ListEmailParams struct {
@@ -393,10 +393,10 @@ type ListEmailParams struct {
 }
 
 // FindSessionJSONBody defines parameters for FindSession.
-type FindSessionJSONBody PatchedSession
+type FindSessionJSONBody PatchSessionParams
 
 // FindUserJSONBody defines parameters for FindUser.
-type FindUserJSONBody PatchedUser
+type FindUserJSONBody PatchUserParams
 
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {
@@ -405,13 +405,13 @@ type ListInviteParams struct {
 }
 
 // CreateInviteJSONBody defines parameters for CreateInvite.
-type CreateInviteJSONBody CreatedInvite
+type CreateInviteJSONBody CreateInviteParams
 
 // PatchInviteJSONBody defines parameters for PatchInvite.
-type PatchInviteJSONBody PatchedInvite
+type PatchInviteJSONBody PatchInviteParams
 
 // UpdateInviteJSONBody defines parameters for UpdateInvite.
-type UpdateInviteJSONBody UpdatedInvite
+type UpdateInviteJSONBody UpdateInviteParams
 
 // ListConnectedUsersParams defines parameters for ListConnectedUsers.
 type ListConnectedUsersParams struct {
@@ -428,13 +428,13 @@ type ListMailingParams struct {
 }
 
 // CreateMailingJSONBody defines parameters for CreateMailing.
-type CreateMailingJSONBody CreatedMailing
+type CreateMailingJSONBody CreateMailingParams
 
 // PatchMailingJSONBody defines parameters for PatchMailing.
-type PatchMailingJSONBody PatchedMailing
+type PatchMailingJSONBody PatchMailingParams
 
 // UpdateMailingJSONBody defines parameters for UpdateMailing.
-type UpdateMailingJSONBody UpdatedMailing
+type UpdateMailingJSONBody UpdateMailingParams
 
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
@@ -443,13 +443,13 @@ type ListProjectParams struct {
 }
 
 // CreateProjectJSONBody defines parameters for CreateProject.
-type CreateProjectJSONBody CreatedProject
+type CreateProjectJSONBody CreateProjectParams
 
 // PatchProjectJSONBody defines parameters for PatchProject.
-type PatchProjectJSONBody PatchedProject
+type PatchProjectJSONBody PatchProjectParams
 
 // UpdateProjectJSONBody defines parameters for UpdateProject.
-type UpdateProjectJSONBody UpdatedProject
+type UpdateProjectJSONBody UpdateProjectParams
 
 // RegisterUserJSONBody defines parameters for RegisterUser.
 type RegisterUserJSONBody RegisterUserRequest
@@ -461,7 +461,7 @@ type ListSessionParams struct {
 }
 
 // CreateSessionJSONBody defines parameters for CreateSession.
-type CreateSessionJSONBody CreatedSession
+type CreateSessionJSONBody CreateSessionParams
 
 // ListSessionFilterParams defines parameters for ListSessionFilter.
 type ListSessionFilterParams struct {
@@ -473,10 +473,10 @@ type ListSessionFilterParams struct {
 }
 
 // PatchSessionJSONBody defines parameters for PatchSession.
-type PatchSessionJSONBody PatchedSession
+type PatchSessionJSONBody PatchSessionParams
 
 // UpdateSessionJSONBody defines parameters for UpdateSession.
-type UpdateSessionJSONBody UpdatedSession
+type UpdateSessionJSONBody UpdateSessionParams
 
 // SetSessionDeletedJSONBody defines parameters for SetSessionDeleted.
 type SetSessionDeletedJSONBody SessionDeletedParams
@@ -502,13 +502,13 @@ type ListUserParams struct {
 }
 
 // CreateUserJSONBody defines parameters for CreateUser.
-type CreateUserJSONBody CreatedUser
+type CreateUserJSONBody CreateUserParams
 
 // PatchUserJSONBody defines parameters for PatchUser.
-type PatchUserJSONBody PatchedUser
+type PatchUserJSONBody PatchUserParams
 
 // UpdateUserJSONBody defines parameters for UpdateUser.
-type UpdateUserJSONBody UpdatedUser
+type UpdateUserJSONBody UpdateUserParams
 
 // CreateAuthJSONRequestBody defines body for CreateAuth for application/json ContentType.
 type CreateAuthJSONRequestBody CreateAuthJSONBody

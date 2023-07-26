@@ -77,7 +77,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedProject'
+              $ref: '#/components/schemas/CreateProjectParams'
   /api/user-service/project/{id}:
     parameters:
       - schema:
@@ -155,7 +155,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedProject'
+              $ref: '#/components/schemas/UpdateProjectParams'
     patch:
       summary: Patch project
       tags:
@@ -183,7 +183,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProject'
+              $ref: '#/components/schemas/PatchProjectParams'
 
   /api/user-service/user:
     get:
@@ -249,7 +249,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedUser'
+              $ref: '#/components/schemas/CreateUserParams'
 
   /api/user-service/user/{id}:
     parameters:
@@ -328,7 +328,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedUser'
+              $ref: '#/components/schemas/UpdateUserParams'
     patch:
       summary: Patch user
       tags:
@@ -356,7 +356,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUser'
+              $ref: '#/components/schemas/PatchUserParams'
   /api/user-service/find-user:
     get:
       summary: Find user
@@ -385,7 +385,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUser'
+              $ref: '#/components/schemas/PatchUserParams'
 
   /api/user-service/list-connected-users:
     get:
@@ -518,7 +518,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedAuthMethod'
+              $ref: '#/components/schemas/CreateAuthMethodParams'
   /api/user-service/auth-method/{id}:
     parameters:
       - schema:
@@ -596,7 +596,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedAuthMethod'
+              $ref: '#/components/schemas/UpdateAuthMethodParams'
     patch:
       summary: Patch auth method
       tags:
@@ -624,7 +624,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedAuthMethod'
+              $ref: '#/components/schemas/PatchAuthMethodParams'
 
   /api/user-service/auth:
     get:
@@ -690,7 +690,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedAuth'
+              $ref: '#/components/schemas/CreateAuthParams'
   /api/user-service/auth/{id}:
     parameters:
       - schema:
@@ -768,7 +768,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedAuth'
+              $ref: '#/components/schemas/UpdateAuthParams'
     patch:
       summary: Patch auth
       tags:
@@ -796,7 +796,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedAuth'
+              $ref: '#/components/schemas/PatchAuthParams'
 
   /api/user-service/invite-by-token-id/{token_id}:
     parameters:
@@ -894,7 +894,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedInvite'
+              $ref: '#/components/schemas/CreateInviteParams'
   /api/user-service/invite/{id}:
     parameters:
       - schema:
@@ -972,7 +972,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedInvite'
+              $ref: '#/components/schemas/UpdateInviteParams'
     patch:
       summary: Patch invite
       tags:
@@ -1000,7 +1000,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedInvite'
+              $ref: '#/components/schemas/PatchInviteParams'
 
   /api/user-service/session-filter:
     parameters:
@@ -1117,7 +1117,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedSession'
+              $ref: '#/components/schemas/CreateSessionParams'
   /api/user-service/session/{id}:
     parameters:
       - schema:
@@ -1195,7 +1195,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedSession'
+              $ref: '#/components/schemas/UpdateSessionParams'
     patch:
       summary: Patch session
       tags:
@@ -1223,7 +1223,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSession'
+              $ref: '#/components/schemas/PatchSessionParams'
 
   /api/user-service/find-session:
     get:
@@ -1254,7 +1254,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSession'
+              $ref: '#/components/schemas/PatchSessionParams'
 
   /api/user-service/set-session-to-delete:
     patch:
@@ -1381,7 +1381,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedMailing'
+              $ref: '#/components/schemas/CreateMailingParams'
   /api/user-service/mailing/{id}:
     parameters:
       - schema:
@@ -1459,7 +1459,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedMailing'
+              $ref: '#/components/schemas/UpdateMailingParams'
     patch:
       summary: Patch mailing
       tags:
@@ -1487,7 +1487,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMailing'
+              $ref: '#/components/schemas/PatchMailingParams'
 
   /api/user-service/lookup-user:
     post:
@@ -1686,8 +1686,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedProject:
-      title: CreatedProject
+    CreateProjectParams:
+      title: CreateProjectParams
       type: object
       properties:
         name:
@@ -1699,8 +1699,8 @@ components:
       required:
         - name
         - description
-    UpdatedProject:
-      title: UpdatedProject
+    UpdateProjectParams:
+      title: UpdateProjectParams
       type: object
       properties:
         name:
@@ -1717,8 +1717,8 @@ components:
         - name
         - description
         - updated_at
-    PatchedProject:
-      title: PatchedProject
+    PatchProjectParams:
+      title: PatchProjectParams
       type: object
       properties:
         name:
@@ -1751,8 +1751,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedUser:
-      title: CreatedUser
+    CreateUserParams:
+      title: CreateUserParams
       type: object
       properties:
         project_id:
@@ -1765,8 +1765,8 @@ components:
           type: object
       required:
         - project_id
-    UpdatedUser:
-      title: UpdatedUser
+    UpdateUserParams:
+      title: UpdateUserParams
       type: object
       properties:
         project_id:
@@ -1788,8 +1788,8 @@ components:
         - email
         - description
         - updated_at
-    PatchedUser:
-      title: PatchedUser
+    PatchUserParams:
+      title: PatchUserParams
       type: object
       properties:
         project_id:
@@ -1827,8 +1827,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedAuthMethod:
-      title: CreatedAuthMethod
+    CreateAuthMethodParams:
+      title: CreateAuthMethodParams
       type: object
       properties:
         name:
@@ -1847,8 +1847,8 @@ components:
         - name
         - type
         - project_id
-    UpdatedAuthMethod:
-      title: UpdatedAuthMethod
+    UpdateAuthMethodParams:
+      title: UpdateAuthMethodParams
       type: object
       properties:
         name:
@@ -1874,8 +1874,8 @@ components:
         - project_id
         - settings
         - updated_at
-    PatchedAuthMethod:
-      title: PatchedAuthMethod
+    PatchAuthMethodParams:
+      title: PatchAuthMethodParams
       type: object
       properties:
         name:
@@ -1916,8 +1916,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedAuth:
-      title: CreatedAuth
+    CreateAuthParams:
+      title: CreateAuthParams
       type: object
       properties:
         user_id:
@@ -1937,8 +1937,8 @@ components:
         - user_id
         - auth_method_id
         - identifier
-    UpdatedAuth:
-      title: UpdatedAuth
+    UpdateAuthParams:
+      title: UpdateAuthParams
       type: object
       properties:
         user_id:
@@ -1965,8 +1965,8 @@ components:
         - identifier
         - extended_info
         - updated_at
-    PatchedAuth:
-      title: PatchedAuth
+    PatchAuthParams:
+      title: PatchAuthParams
       type: object
       properties:
         user_id:
@@ -2021,8 +2021,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedInvite:
-      title: CreatedInvite
+    CreateInviteParams:
+      title: CreateInviteParams
       type: object
       properties:
         user_id:
@@ -2055,8 +2055,8 @@ components:
         - user_id
         - token_id
         - email
-    UpdatedInvite:
-      title: UpdatedInvite
+    UpdateInviteParams:
+      title: UpdateInviteParams
       type: object
       properties:
         user_id:
@@ -2108,8 +2108,8 @@ components:
         - expires_at
         - query_params
         - updated_at
-    PatchedInvite:
-      title: PatchedInvite
+    PatchInviteParams:
+      title: PatchInviteParams
       type: object
       properties:
         user_id:
@@ -2177,8 +2177,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedSession:
-      title: CreatedSession
+    CreateSessionParams:
+      title: CreateSessionParams
       type: object
       properties:
         token_id:
@@ -2211,8 +2211,8 @@ components:
         - token_id
         - node
         - label
-    UpdatedSession:
-      title: UpdatedSession
+    UpdateSessionParams:
+      title: UpdateSessionParams
       type: object
       properties:
         token_id:
@@ -2262,8 +2262,8 @@ components:
         - connected
         - expires_at
         - updated_at
-    PatchedSession:
-      title: PatchedSession
+    PatchSessionParams:
+      title: PatchSessionParams
       type: object
       properties:
         token_id:
@@ -2338,8 +2338,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedMailing:
-      title: CreatedMailing
+    CreateMailingParams:
+      title: CreateMailingParams
       type: object
       properties:
         email:
@@ -2357,8 +2357,8 @@ components:
       required:
         - email
         - mailing_tag
-    UpdatedMailing:
-      title: UpdatedMailing
+    UpdateMailingParams:
+      title: UpdateMailingParams
       type: object
       properties:
         email:
@@ -2387,8 +2387,8 @@ components:
         - accepted
         - accept_id
         - updated_at
-    PatchedMailing:
-      title: PatchedMailing
+    PatchMailingParams:
+      title: PatchMailingParams
       type: object
       properties:
         email:

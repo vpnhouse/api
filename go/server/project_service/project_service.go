@@ -29,16 +29,16 @@ type AuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at,omitempty"`
 }
 
-// CreatedAuthMethod defines model for CreatedAuthMethod.
-type CreatedAuthMethod struct {
+// CreateAuthMethodParams defines model for CreateAuthMethodParams.
+type CreateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
 	ProjectId *string                 `json:"project_id"`
 	Settings  *map[string]interface{} `json:"settings,omitempty"`
 	Type      *string                 `json:"type"`
 }
 
-// CreatedProject defines model for CreatedProject.
-type CreatedProject struct {
+// CreateProjectParams defines model for CreateProjectParams.
+type CreateProjectParams struct {
 	Description *map[string]interface{} `json:"description"`
 	Name        *string                 `json:"name"`
 }
@@ -48,8 +48,8 @@ type LocationMapping struct {
 	Mapping *map[string]interface{} `json:"mapping,omitempty"`
 }
 
-// PatchedAuthMethod defines model for PatchedAuthMethod.
-type PatchedAuthMethod struct {
+// PatchAuthMethodParams defines model for PatchAuthMethodParams.
+type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
 	ProjectId *string                 `json:"project_id,omitempty"`
 	Settings  *map[string]interface{} `json:"settings,omitempty"`
@@ -57,8 +57,8 @@ type PatchedAuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
-// PatchedProject defines model for PatchedProject.
-type PatchedProject struct {
+// PatchProjectParams defines model for PatchProjectParams.
+type PatchProjectParams struct {
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Name        *string                 `json:"name,omitempty"`
 	UpdatedAt   *time.Time              `json:"updated_at"`
@@ -73,8 +73,8 @@ type Project struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
-// UpdatedAuthMethod defines model for UpdatedAuthMethod.
-type UpdatedAuthMethod struct {
+// UpdateAuthMethodParams defines model for UpdateAuthMethodParams.
+type UpdateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
 	ProjectId *string                 `json:"project_id"`
 	Settings  *map[string]interface{} `json:"settings"`
@@ -82,8 +82,8 @@ type UpdatedAuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
-// UpdatedProject defines model for UpdatedProject.
-type UpdatedProject struct {
+// UpdateProjectParams defines model for UpdateProjectParams.
+type UpdateProjectParams struct {
 	Description *map[string]interface{} `json:"description"`
 	Name        *string                 `json:"name"`
 	UpdatedAt   *time.Time              `json:"updated_at"`
@@ -96,13 +96,13 @@ type ListAuthMethodParams struct {
 }
 
 // CreateAuthMethodJSONBody defines parameters for CreateAuthMethod.
-type CreateAuthMethodJSONBody CreatedAuthMethod
+type CreateAuthMethodJSONBody CreateAuthMethodParams
 
 // PatchAuthMethodJSONBody defines parameters for PatchAuthMethod.
-type PatchAuthMethodJSONBody PatchedAuthMethod
+type PatchAuthMethodJSONBody PatchAuthMethodParams
 
 // UpdateAuthMethodJSONBody defines parameters for UpdateAuthMethod.
-type UpdateAuthMethodJSONBody UpdatedAuthMethod
+type UpdateAuthMethodJSONBody UpdateAuthMethodParams
 
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
@@ -111,13 +111,13 @@ type ListProjectParams struct {
 }
 
 // CreateProjectJSONBody defines parameters for CreateProject.
-type CreateProjectJSONBody CreatedProject
+type CreateProjectJSONBody CreateProjectParams
 
 // PatchProjectJSONBody defines parameters for PatchProject.
-type PatchProjectJSONBody PatchedProject
+type PatchProjectJSONBody PatchProjectParams
 
 // UpdateProjectJSONBody defines parameters for UpdateProject.
-type UpdateProjectJSONBody UpdatedProject
+type UpdateProjectJSONBody UpdateProjectParams
 
 // CreateAuthMethodJSONRequestBody defines body for CreateAuthMethod for application/json ContentType.
 type CreateAuthMethodJSONRequestBody CreateAuthMethodJSONBody

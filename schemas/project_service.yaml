@@ -77,7 +77,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedProject'
+              $ref: '#/components/schemas/CreateProjectParams'
   /api/project-service/project/{id}:
     parameters:
       - schema:
@@ -155,7 +155,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedProject'
+              $ref: '#/components/schemas/UpdateProjectParams'
     patch:
       summary: Patch project
       tags:
@@ -183,7 +183,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedProject'
+              $ref: '#/components/schemas/PatchProjectParams'
   /api/project-service/location-mapping:
     get:
       summary: Get location mapping
@@ -273,7 +273,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatedAuthMethod'
+              $ref: '#/components/schemas/CreateAuthMethodParams'
   /api/project-service/auth-method/{id}:
     parameters:
       - schema:
@@ -351,7 +351,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdatedAuthMethod'
+              $ref: '#/components/schemas/UpdateAuthMethodParams'
     patch:
       summary: Patch auth method
       tags:
@@ -379,7 +379,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedAuthMethod'
+              $ref: '#/components/schemas/PatchAuthMethodParams'
 
 components:
   schemas:
@@ -400,8 +400,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedProject:
-      title: CreatedProject
+    CreateProjectParams:
+      title: CreateProjectParams
       type: object
       properties:
         name:
@@ -413,8 +413,8 @@ components:
       required:
         - name
         - description
-    UpdatedProject:
-      title: UpdatedProject
+    UpdateProjectParams:
+      title: UpdateProjectParams
       type: object
       properties:
         name:
@@ -431,8 +431,8 @@ components:
         - name
         - description
         - updated_at
-    PatchedProject:
-      title: PatchedProject
+    PatchProjectParams:
+      title: PatchProjectParams
       type: object
       properties:
         name:
@@ -467,8 +467,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreatedAuthMethod:
-      title: CreatedAuthMethod
+    CreateAuthMethodParams:
+      title: CreateAuthMethodParams
       type: object
       properties:
         name:
@@ -487,8 +487,8 @@ components:
         - name
         - type
         - project_id
-    UpdatedAuthMethod:
-      title: UpdatedAuthMethod
+    UpdateAuthMethodParams:
+      title: UpdateAuthMethodParams
       type: object
       properties:
         name:
@@ -514,8 +514,8 @@ components:
         - project_id
         - settings
         - updated_at
-    PatchedAuthMethod:
-      title: PatchedAuthMethod
+    PatchAuthMethodParams:
+      title: PatchAuthMethodParams
       type: object
       properties:
         name:
