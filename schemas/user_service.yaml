@@ -1791,6 +1791,7 @@ components:
           type: object
       required:
         - project_id
+        - email
     UpdateUserParams:
       title: UpdateUserParams
       type: object
