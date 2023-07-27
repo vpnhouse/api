@@ -105,6 +105,30 @@ type CreateUserParams struct {
 	ProjectId   *string                 `json:"project_id"`
 }
 
+// FindSessionParams defines model for FindSessionParams.
+type FindSessionParams struct {
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
+	CreatedAt        *time.Time `json:"created_at,omitempty"`
+	Deleted          *bool      `json:"deleted,omitempty"`
+	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
+	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
+	Label            *string    `json:"label,omitempty"`
+	Node             *string    `json:"node,omitempty"`
+	PeerId           *int64     `json:"peer_id,omitempty"`
+	ToDelete         *bool      `json:"to_delete,omitempty"`
+	TokenId          *string    `json:"token_id,omitempty"`
+	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
+}
+
+// FindUserParams defines model for FindUserParams.
+type FindUserParams struct {
+	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+	Description *map[string]interface{} `json:"description,omitempty"`
+	Email       *string                 `json:"email,omitempty"`
+	ProjectId   *string                 `json:"project_id,omitempty"`
+	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+}
+
 // Invite defines model for Invite.
 type Invite struct {
 	CreatedAt   *time.Time              `json:"created_at,omitempty"`
@@ -387,10 +411,10 @@ type ListEmailParams struct {
 }
 
 // FindSessionJSONBody defines parameters for FindSession.
-type FindSessionJSONBody PatchSessionParams
+type FindSessionJSONBody FindSessionParams
 
 // FindUserJSONBody defines parameters for FindUser.
-type FindUserJSONBody PatchUserParams
+type FindUserJSONBody FindUserParams
 
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {

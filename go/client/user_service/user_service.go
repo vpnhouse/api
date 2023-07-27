@@ -111,6 +111,30 @@ type CreateUserParams struct {
 	ProjectId   *string                 `json:"project_id"`
 }
 
+// FindSessionParams defines model for FindSessionParams.
+type FindSessionParams struct {
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
+	CreatedAt        *time.Time `json:"created_at,omitempty"`
+	Deleted          *bool      `json:"deleted,omitempty"`
+	ExpiresAt        *time.Time `json:"expires_at,omitempty"`
+	FirstConnectedAt *time.Time `json:"first_connected_at,omitempty"`
+	Label            *string    `json:"label,omitempty"`
+	Node             *string    `json:"node,omitempty"`
+	PeerId           *int64     `json:"peer_id,omitempty"`
+	ToDelete         *bool      `json:"to_delete,omitempty"`
+	TokenId          *string    `json:"token_id,omitempty"`
+	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
+}
+
+// FindUserParams defines model for FindUserParams.
+type FindUserParams struct {
+	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+	Description *map[string]interface{} `json:"description,omitempty"`
+	Email       *string                 `json:"email,omitempty"`
+	ProjectId   *string                 `json:"project_id,omitempty"`
+	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+}
+
 // Invite defines model for Invite.
 type Invite struct {
 	CreatedAt   *time.Time              `json:"created_at,omitempty"`
@@ -393,10 +417,10 @@ type ListEmailParams struct {
 }
 
 // FindSessionJSONBody defines parameters for FindSession.
-type FindSessionJSONBody PatchSessionParams
+type FindSessionJSONBody FindSessionParams
 
 // FindUserJSONBody defines parameters for FindUser.
-type FindUserJSONBody PatchUserParams
+type FindUserJSONBody FindUserParams
 
 // ListInviteParams defines parameters for ListInvite.
 type ListInviteParams struct {
@@ -4886,6 +4910,7 @@ func (r ListEmailResponse) StatusCode() int {
 type FindSessionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]Session
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -4912,6 +4937,7 @@ func (r FindSessionResponse) StatusCode() int {
 type FindUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]User
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -7316,6 +7342,13 @@ func ParseFindSessionResponse(rsp *http.Response) (*FindSessionResponse, error) 
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Session
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -7370,6 +7403,13 @@ func ParseFindUserResponse(rsp *http.Response) (*FindUserResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

@@ -445,6 +445,22 @@ components:
           nullable: true
       required:
         - updated_at
+    FindProjectParams:
+      title: PatchProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
     AuthMethod:
       title: AuthMethod
       type: object
@@ -533,6 +549,27 @@ components:
           nullable: true
       required:
         - updated_at
+    FindAuthMethodParams:
+      title: FindAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
     LocationMapping:
       title: LocationMapping
       type: object

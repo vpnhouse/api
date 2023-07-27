@@ -371,6 +371,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -385,7 +391,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchUserParams'
+              $ref: '#/components/schemas/FindUserParams'
 
   /api/user-service/list-connected-users:
     get:
@@ -1240,6 +1246,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -1254,7 +1266,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchSessionParams'
+              $ref: '#/components/schemas/FindSessionParams'
 
   /api/user-service/set-session-to-delete:
     patch:
@@ -1731,6 +1743,20 @@ components:
           nullable: true
       required:
         - updated_at
+    FindProjectParams:
+      title: FindProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     User:
       title: User
       type: object
@@ -1805,6 +1831,23 @@ components:
           nullable: true
       required:
         - updated_at
+    FindUserParams:
+      title: FindUserParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     AuthMethod:
       title: AuthMethod
       type: object
@@ -1893,6 +1936,25 @@ components:
           nullable: true
       required:
         - updated_at
+    FindAuthMethodParams:
+      title: FindAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     Auth:
       title: Auth
       type: object
@@ -1985,6 +2047,26 @@ components:
           nullable: true
       required:
         - updated_at
+    FindAuthParams:
+      title: FindAuthParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        extended_info:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     Invite:
       title: Invite
       type: object
@@ -2141,6 +2223,39 @@ components:
           nullable: true
       required:
         - updated_at
+    FindInviteParams:
+      title: FindInviteParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     Session:
       title: Session
       type: object
@@ -2295,6 +2410,39 @@ components:
           nullable: true
       required:
         - updated_at
+    FindSessionParams:
+      title: FindSessionParams
+      type: object
+      properties:
+        token_id:
+          type: string
+          format: uuid
+        node:
+          type: string
+        label:
+          type: string
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+        connected_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     SessionToDeleteParams:
       title: SessionToDeleteParams
       type: object
@@ -2407,6 +2555,26 @@ components:
           nullable: true
       required:
         - updated_at
+    FindMailingParams:
+      title: FindMailingParams
+      type: object
+      properties:
+        email:
+          type: string
+        mailing_tag:
+          type: string
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     LookupUserRequest:
       title: LookupUserRequest
       type: object
