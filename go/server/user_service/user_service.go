@@ -101,7 +101,7 @@ type CreateSessionParams struct {
 // CreateUserParams defines model for CreateUserParams.
 type CreateUserParams struct {
 	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       string                  `json:"email"`
+	Email       *string                 `json:"email"`
 	ProjectId   *string                 `json:"project_id"`
 }
 

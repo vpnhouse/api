@@ -1787,6 +1787,7 @@ components:
           nullable: true
         email:
           type: string
+          nullable: true
         description:
           type: object
       required:
