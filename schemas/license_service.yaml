@@ -982,18 +982,23 @@ components:
         project_id:
           type: string
           format: uuid
+          nullable: true
         user_id:
           type: string
           format: uuid
+          nullable: true
         installation_id:
           type: string
           format: uuid
+          nullable: true
         start_at:
           type: string
           format: date-time
+          nullable: true
         end_at:
           type: string
           format: date-time
+          nullable: true
         disabled:
           type: boolean
           nullable: true

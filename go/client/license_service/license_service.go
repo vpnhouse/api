@@ -34,14 +34,14 @@ type ApplyParams struct {
 // CreateLicenseParams defines model for CreateLicenseParams.
 type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
-	EndAt            time.Time               `json:"end_at"`
+	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	InstallationId   string                  `json:"installation_id"`
-	ProjectId        string                  `json:"project_id"`
+	InstallationId   *string                 `json:"installation_id"`
+	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	StartAt          time.Time               `json:"start_at"`
-	UserId           string                  `json:"user_id"`
+	StartAt          *time.Time              `json:"start_at"`
+	UserId           *string                 `json:"user_id"`
 }
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
