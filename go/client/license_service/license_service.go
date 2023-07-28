@@ -33,35 +33,35 @@ type ApplyParams struct {
 
 // CreateLicenseParams defines model for CreateLicenseParams.
 type CreateLicenseParams struct {
-	Disabled         bool                   `json:"disabled"`
-	EndAt            time.Time              `json:"end_at"`
-	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
-	InstallationId   string                 `json:"installation_id"`
-	ProjectId        string                 `json:"project_id"`
-	PurchaseJson     map[string]interface{} `json:"purchase_json"`
-	SelectorJson     map[string]interface{} `json:"selector_json"`
-	StartAt          time.Time              `json:"start_at"`
-	UserId           string                 `json:"user_id"`
+	Disabled         *bool                   `json:"disabled"`
+	EndAt            time.Time               `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	InstallationId   string                  `json:"installation_id"`
+	ProjectId        string                  `json:"project_id"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          time.Time               `json:"start_at"`
+	UserId           string                  `json:"user_id"`
 }
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
 type CreatePurchaseParams struct {
-	Email            string                 `json:"email"`
-	EndAt            time.Time              `json:"end_at"`
-	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
-	PurchaseJson     map[string]interface{} `json:"purchase_json"`
-	SelectorJson     map[string]interface{} `json:"selector_json"`
-	StartAt          time.Time              `json:"start_at"`
+	Email            *string                 `json:"email"`
+	EndAt            *time.Time              `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          *time.Time              `json:"start_at"`
 }
 
 // CreateShipmentParams defines model for CreateShipmentParams.
 type CreateShipmentParams struct {
-	Disabled     bool                   `json:"disabled"`
-	Name         string                 `json:"name"`
-	PaymentJson  map[string]interface{} `json:"payment_json"`
-	Period       string                 `json:"period"`
-	SelectorJson map[string]interface{} `json:"selector_json"`
-	Slug         string                 `json:"slug"`
+	Disabled     *bool                   `json:"disabled"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	Slug         *string                 `json:"slug"`
 }
 
 // FindLicenseParams defines model for FindLicenseParams.
@@ -183,38 +183,38 @@ type Shipment struct {
 
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
-	Disabled         bool                   `json:"disabled"`
-	EndAt            time.Time              `json:"end_at"`
-	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
-	InstallationId   string                 `json:"installation_id"`
-	ProjectId        string                 `json:"project_id"`
-	PurchaseJson     map[string]interface{} `json:"purchase_json"`
-	SelectorJson     map[string]interface{} `json:"selector_json"`
-	StartAt          time.Time              `json:"start_at"`
-	UpdatedAt        *time.Time             `json:"updated_at"`
-	UserId           string                 `json:"user_id"`
+	Disabled         *bool                   `json:"disabled"`
+	EndAt            *time.Time              `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	InstallationId   *string                 `json:"installation_id"`
+	ProjectId        *string                 `json:"project_id"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          *time.Time              `json:"start_at"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
+	UserId           *string                 `json:"user_id"`
 }
 
 // UpdatePurchaseParams defines model for UpdatePurchaseParams.
 type UpdatePurchaseParams struct {
-	Email            string                 `json:"email"`
-	EndAt            time.Time              `json:"end_at"`
-	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
-	PurchaseJson     map[string]interface{} `json:"purchase_json"`
-	SelectorJson     map[string]interface{} `json:"selector_json"`
-	StartAt          time.Time              `json:"start_at"`
-	UpdatedAt        *time.Time             `json:"updated_at"`
+	Email            *string                 `json:"email"`
+	EndAt            *time.Time              `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          *time.Time              `json:"start_at"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
 }
 
 // UpdateShipmentParams defines model for UpdateShipmentParams.
 type UpdateShipmentParams struct {
-	Disabled     bool                   `json:"disabled"`
-	Name         string                 `json:"name"`
-	PaymentJson  map[string]interface{} `json:"payment_json"`
-	Period       string                 `json:"period"`
-	SelectorJson map[string]interface{} `json:"selector_json"`
-	Slug         string                 `json:"slug"`
-	UpdatedAt    *time.Time             `json:"updated_at"`
+	Disabled     *bool                   `json:"disabled"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	Slug         *string                 `json:"slug"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
 }
 
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.

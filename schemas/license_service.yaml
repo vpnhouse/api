@@ -696,16 +696,22 @@ components:
       properties:
         name:
           type: string
+          nullable: true
         slug:
           type: string
+          nullable: true
         payment_json:
           type: object
+          nullable: true
         period:
           type: string
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         disabled:
           type: boolean
+          nullable: true
       required:
         - name
         - slug
@@ -719,16 +725,22 @@ components:
       properties:
         name:
           type: string
+          nullable: true
         slug:
           type: string
+          nullable: true
         payment_json:
           type: object
+          nullable: true
         period:
           type: string
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         disabled:
           type: boolean
+          nullable: true
         updated_at:
           type: string
           format: date-time
@@ -818,18 +830,24 @@ components:
       properties:
         email:
           type: string
+          nullable: true
         start_at:
           type: string
           format: date-time
+          nullable: true
         end_at:
           type: string
           format: date-time
+          nullable: true
         purchase_json:
           type: object
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         entitlements_json:
           type: object
+          nullable: true
       required:
         - email
         - start_at
@@ -843,18 +861,24 @@ components:
       properties:
         email:
           type: string
+          nullable: true
         start_at:
           type: string
           format: date-time
+          nullable: true
         end_at:
           type: string
           format: date-time
+          nullable: true
         purchase_json:
           type: object
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         entitlements_json:
           type: object
+          nullable: true
         updated_at:
           type: string
           format: date-time
@@ -972,12 +996,16 @@ components:
           format: date-time
         disabled:
           type: boolean
+          nullable: true
         purchase_json:
           type: object
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         entitlements_json:
           type: object
+          nullable: true
       required:
         - project_id
         - user_id
@@ -995,26 +1023,35 @@ components:
         project_id:
           type: string
           format: uuid
+          nullable: true
         user_id:
           type: string
           format: uuid
+          nullable: true
         installation_id:
           type: string
           format: uuid
+          nullable: true
         start_at:
           type: string
           format: date-time
+          nullable: true
         end_at:
           type: string
           format: date-time
+          nullable: true
         disabled:
           type: boolean
+          nullable: true
         purchase_json:
           type: object
+          nullable: true
         selector_json:
           type: object
+          nullable: true
         entitlements_json:
           type: object
+          nullable: true
         updated_at:
           type: string
           format: date-time
