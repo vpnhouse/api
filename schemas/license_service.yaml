@@ -1151,6 +1151,9 @@ components:
         project_id:
           type: string
           format: uuid
+        installation_id:
+          type: string
+          format: uuid
 
   securitySchemes:
     ServiceKey:

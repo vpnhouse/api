@@ -26,9 +26,10 @@ const (
 
 // ApplyParams defines model for ApplyParams.
 type ApplyParams struct {
-	Email     *string `json:"email,omitempty"`
-	ProjectId *string `json:"project_id,omitempty"`
-	UserId    *string `json:"user_id,omitempty"`
+	Email          *string `json:"email,omitempty"`
+	InstallationId *string `json:"installation_id,omitempty"`
+	ProjectId      *string `json:"project_id,omitempty"`
+	UserId         *string `json:"user_id,omitempty"`
 }
 
 // CreateLicenseParams defines model for CreateLicenseParams.
