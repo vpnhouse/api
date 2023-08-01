@@ -1970,6 +1970,7 @@ type ClientWithResponsesInterface interface {
 type ApplyForUserByEmailResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *[]License
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -2844,6 +2845,13 @@ func ParseApplyForUserByEmailResponse(rsp *http.Response) (*ApplyForUserByEmailR
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
