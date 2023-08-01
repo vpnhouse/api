@@ -49,6 +49,21 @@ type TokenRequest struct {
 	RefreshToken *string `json:"refresh_token,omitempty"`
 }
 
+// Generic error response.
+type Error struct {
+	// Message, which we can put to application logs.
+	Details *string `json:"details,omitempty"`
+
+	// User-friendly error description.
+	Error *string `json:"error,omitempty"`
+
+	// The name of field, caused error.
+	Field *string `json:"field,omitempty"`
+
+	// Machine-readable error code.
+	Result string `json:"result"`
+}
+
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
 
