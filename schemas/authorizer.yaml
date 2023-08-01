@@ -73,6 +73,39 @@ paths:
         - bearer: []
         - basic: []
     parameters: []
+  /api/client/token:
+    post:
+      summary: Refresh access token
+      operationId: token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Refresh access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+            examples: {}
+      tags:
+        - register
+        - client
+      security:
+        - bearer: []
+        - basic: []
+    parameters: []
   /api/service/signin:
     post:
       summary: Authenticate service
@@ -205,6 +238,13 @@ components:
             example: 'https://discovery.project.io/api/client/locations'
       required:
         - access_token
+    TokenRequest:
+      title: TokenRequest
+      type: object
+      properties:
+        refresh_token:
+          type: string
+
   securitySchemes:
     bearer:
       type: http
