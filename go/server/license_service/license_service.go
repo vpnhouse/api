@@ -39,6 +39,16 @@ type CreateLicenseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
+// CreateProductParams defines model for CreateProductParams.
+type CreateProductParams struct {
+	Disabled     *bool                   `json:"disabled"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	Slug         *string                 `json:"slug"`
+}
+
 // CreatePurchaseParams defines model for CreatePurchaseParams.
 type CreatePurchaseParams struct {
 	Email            *string                 `json:"email"`
@@ -47,16 +57,7 @@ type CreatePurchaseParams struct {
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
 	StartAt          *time.Time              `json:"start_at"`
-}
-
-// CreateShipmentParams defines model for CreateShipmentParams.
-type CreateShipmentParams struct {
-	Disabled     *bool                   `json:"disabled"`
-	Name         *string                 `json:"name"`
-	PaymentJson  *map[string]interface{} `json:"payment_json"`
-	Period       *string                 `json:"period"`
-	SelectorJson *map[string]interface{} `json:"selector_json"`
-	Slug         *string                 `json:"slug"`
+	UserId           *string                 `json:"user_id"`
 }
 
 // FindLicenseParams defines model for FindLicenseParams.
@@ -74,6 +75,18 @@ type FindLicenseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// FindProductParams defines model for FindProductParams.
+type FindProductParams struct {
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
+	Disabled     *bool                   `json:"disabled,omitempty"`
+	Name         *string                 `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
+	Period       *string                 `json:"period,omitempty"`
+	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
+	Slug         *string                 `json:"slug,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+}
+
 // FindPurchaseParams defines model for FindPurchaseParams.
 type FindPurchaseParams struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -84,18 +97,7 @@ type FindPurchaseParams struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// FindShipmentParams defines model for FindShipmentParams.
-type FindShipmentParams struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // License defines model for License.
@@ -128,6 +130,17 @@ type PatchLicenseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// PatchProductParams defines model for PatchProductParams.
+type PatchProductParams struct {
+	Disabled     *bool                   `json:"disabled,omitempty"`
+	Name         *string                 `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
+	Period       *string                 `json:"period,omitempty"`
+	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
+	Slug         *string                 `json:"slug,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
+}
+
 // PatchPurchaseParams defines model for PatchPurchaseParams.
 type PatchPurchaseParams struct {
 	Email            *string                 `json:"email,omitempty"`
@@ -137,17 +150,20 @@ type PatchPurchaseParams struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at"`
+	UserId           *string                 `json:"user_id,omitempty"`
 }
 
-// PatchShipmentParams defines model for PatchShipmentParams.
-type PatchShipmentParams struct {
+// Product defines model for Product.
+type Product struct {
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
 	Disabled     *bool                   `json:"disabled,omitempty"`
+	Id           *string                 `json:"id,omitempty"`
 	Name         *string                 `json:"name,omitempty"`
 	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
 	Period       *string                 `json:"period,omitempty"`
 	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
 	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // Purchase defines model for Purchase.
@@ -161,19 +177,6 @@ type Purchase struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// Shipment defines model for Shipment.
-type Shipment struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	Id           *string                 `json:"id,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // UpdateLicenseParams defines model for UpdateLicenseParams.
@@ -190,19 +193,8 @@ type UpdateLicenseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
-// UpdatePurchaseParams defines model for UpdatePurchaseParams.
-type UpdatePurchaseParams struct {
-	Email            *string                 `json:"email"`
-	EndAt            *time.Time              `json:"end_at"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	StartAt          *time.Time              `json:"start_at"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
-}
-
-// UpdateShipmentParams defines model for UpdateShipmentParams.
-type UpdateShipmentParams struct {
+// UpdateProductParams defines model for UpdateProductParams.
+type UpdateProductParams struct {
 	Disabled     *bool                   `json:"disabled"`
 	Name         *string                 `json:"name"`
 	PaymentJson  *map[string]interface{} `json:"payment_json"`
@@ -212,17 +204,29 @@ type UpdateShipmentParams struct {
 	UpdatedAt    *time.Time              `json:"updated_at"`
 }
 
+// UpdatePurchaseParams defines model for UpdatePurchaseParams.
+type UpdatePurchaseParams struct {
+	Email            *string                 `json:"email"`
+	EndAt            *time.Time              `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          *time.Time              `json:"start_at"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
+	UserId           *string                 `json:"user_id"`
+}
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
 // FindLicenseJSONBody defines parameters for FindLicense.
 type FindLicenseJSONBody FindLicenseParams
 
+// FindProductJSONBody defines parameters for FindProduct.
+type FindProductJSONBody FindProductParams
+
 // FindPurchaseJSONBody defines parameters for FindPurchase.
 type FindPurchaseJSONBody FindPurchaseParams
-
-// FindShipmentJSONBody defines parameters for FindShipment.
-type FindShipmentJSONBody FindShipmentParams
 
 // ListLicenseParams defines parameters for ListLicense.
 type ListLicenseParams struct {
@@ -239,6 +243,21 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// ListProductParams defines parameters for ListProduct.
+type ListProductParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// CreateProductJSONBody defines parameters for CreateProduct.
+type CreateProductJSONBody CreateProductParams
+
+// PatchProductJSONBody defines parameters for PatchProduct.
+type PatchProductJSONBody PatchProductParams
+
+// UpdateProductJSONBody defines parameters for UpdateProduct.
+type UpdateProductJSONBody UpdateProductParams
+
 // ListPurchaseParams defines parameters for ListPurchase.
 type ListPurchaseParams struct {
 	Limit  int `json:"limit"`
@@ -254,32 +273,17 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
-// ListShipmentParams defines parameters for ListShipment.
-type ListShipmentParams struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
-// CreateShipmentJSONBody defines parameters for CreateShipment.
-type CreateShipmentJSONBody CreateShipmentParams
-
-// PatchShipmentJSONBody defines parameters for PatchShipment.
-type PatchShipmentJSONBody PatchShipmentParams
-
-// UpdateShipmentJSONBody defines parameters for UpdateShipment.
-type UpdateShipmentJSONBody UpdateShipmentParams
-
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
 // FindLicenseJSONRequestBody defines body for FindLicense for application/json ContentType.
 type FindLicenseJSONRequestBody FindLicenseJSONBody
 
+// FindProductJSONRequestBody defines body for FindProduct for application/json ContentType.
+type FindProductJSONRequestBody FindProductJSONBody
+
 // FindPurchaseJSONRequestBody defines body for FindPurchase for application/json ContentType.
 type FindPurchaseJSONRequestBody FindPurchaseJSONBody
-
-// FindShipmentJSONRequestBody defines body for FindShipment for application/json ContentType.
-type FindShipmentJSONRequestBody FindShipmentJSONBody
 
 // CreateLicenseJSONRequestBody defines body for CreateLicense for application/json ContentType.
 type CreateLicenseJSONRequestBody CreateLicenseJSONBody
@@ -290,6 +294,15 @@ type PatchLicenseJSONRequestBody PatchLicenseJSONBody
 // UpdateLicenseJSONRequestBody defines body for UpdateLicense for application/json ContentType.
 type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
 
+// CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
+type CreateProductJSONRequestBody CreateProductJSONBody
+
+// PatchProductJSONRequestBody defines body for PatchProduct for application/json ContentType.
+type PatchProductJSONRequestBody PatchProductJSONBody
+
+// UpdateProductJSONRequestBody defines body for UpdateProduct for application/json ContentType.
+type UpdateProductJSONRequestBody UpdateProductJSONBody
+
 // CreatePurchaseJSONRequestBody defines body for CreatePurchase for application/json ContentType.
 type CreatePurchaseJSONRequestBody CreatePurchaseJSONBody
 
@@ -299,15 +312,6 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
 
-// CreateShipmentJSONRequestBody defines body for CreateShipment for application/json ContentType.
-type CreateShipmentJSONRequestBody CreateShipmentJSONBody
-
-// PatchShipmentJSONRequestBody defines body for PatchShipment for application/json ContentType.
-type PatchShipmentJSONRequestBody PatchShipmentJSONBody
-
-// UpdateShipmentJSONRequestBody defines body for UpdateShipment for application/json ContentType.
-type UpdateShipmentJSONRequestBody UpdateShipmentJSONBody
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Copy all purchases find by email and create new licenses for user in given project
@@ -316,12 +320,12 @@ type ServerInterface interface {
 	// Find license
 	// (GET /api/license-service/find-license)
 	FindLicense(w http.ResponseWriter, r *http.Request)
+	// Find product
+	// (GET /api/license-service/find-product)
+	FindProduct(w http.ResponseWriter, r *http.Request)
 	// Find purchase
 	// (GET /api/license-service/find-purchase)
 	FindPurchase(w http.ResponseWriter, r *http.Request)
-	// Find shipment
-	// (GET /api/license-service/find-shipment)
-	FindShipment(w http.ResponseWriter, r *http.Request)
 	// List licenses
 	// (GET /api/license-service/license)
 	ListLicense(w http.ResponseWriter, r *http.Request, params ListLicenseParams)
@@ -340,6 +344,24 @@ type ServerInterface interface {
 	// Update license
 	// (PUT /api/license-service/license/{id})
 	UpdateLicense(w http.ResponseWriter, r *http.Request, id string)
+	// List products
+	// (GET /api/license-service/product)
+	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Create product
+	// (POST /api/license-service/product)
+	CreateProduct(w http.ResponseWriter, r *http.Request)
+	// Delete a product
+	// (DELETE /api/license-service/product/{id})
+	DeleteProduct(w http.ResponseWriter, r *http.Request, id string)
+	// Get product
+	// (GET /api/license-service/product/{id})
+	GetProduct(w http.ResponseWriter, r *http.Request, id string)
+	// Patch product
+	// (PATCH /api/license-service/product/{id})
+	PatchProduct(w http.ResponseWriter, r *http.Request, id string)
+	// Update product
+	// (PUT /api/license-service/product/{id})
+	UpdateProduct(w http.ResponseWriter, r *http.Request, id string)
 	// List purchases
 	// (GET /api/license-service/purchase)
 	ListPurchase(w http.ResponseWriter, r *http.Request, params ListPurchaseParams)
@@ -358,24 +380,6 @@ type ServerInterface interface {
 	// Update purchase
 	// (PUT /api/license-service/purchase/{id})
 	UpdatePurchase(w http.ResponseWriter, r *http.Request, id string)
-	// List shipments
-	// (GET /api/license-service/shipment)
-	ListShipment(w http.ResponseWriter, r *http.Request, params ListShipmentParams)
-	// Create shipment
-	// (POST /api/license-service/shipment)
-	CreateShipment(w http.ResponseWriter, r *http.Request)
-	// Delete a shipment
-	// (DELETE /api/license-service/shipment/{id})
-	DeleteShipment(w http.ResponseWriter, r *http.Request, id string)
-	// Get shipment
-	// (GET /api/license-service/shipment/{id})
-	GetShipment(w http.ResponseWriter, r *http.Request, id string)
-	// Patch shipment
-	// (PATCH /api/license-service/shipment/{id})
-	PatchShipment(w http.ResponseWriter, r *http.Request, id string)
-	// Update shipment
-	// (PUT /api/license-service/shipment/{id})
-	UpdateShipment(w http.ResponseWriter, r *http.Request, id string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -425,6 +429,25 @@ func (siw *ServerInterfaceWrapper) FindLicense(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
+// FindProduct operation middleware
+func (siw *ServerInterfaceWrapper) FindProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.FindProduct(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // FindPurchase operation middleware
 func (siw *ServerInterfaceWrapper) FindPurchase(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -435,25 +458,6 @@ func (siw *ServerInterfaceWrapper) FindPurchase(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.FindPurchase(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// FindShipment operation middleware
-func (siw *ServerInterfaceWrapper) FindShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.FindShipment(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -654,6 +658,197 @@ func (siw *ServerInterfaceWrapper) UpdateLicense(w http.ResponseWriter, r *http.
 	handler(w, r.WithContext(ctx))
 }
 
+// ListProduct operation middleware
+func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListProductParams
+
+	// ------------- Required query parameter "limit" -------------
+	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "offset" -------------
+	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProduct(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateProduct operation middleware
+func (siw *ServerInterfaceWrapper) CreateProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateProduct(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// DeleteProduct operation middleware
+func (siw *ServerInterfaceWrapper) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteProduct(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetProduct operation middleware
+func (siw *ServerInterfaceWrapper) GetProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProduct(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PatchProduct operation middleware
+func (siw *ServerInterfaceWrapper) PatchProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchProduct(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// UpdateProduct operation middleware
+func (siw *ServerInterfaceWrapper) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateProduct(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListPurchase operation middleware
 func (siw *ServerInterfaceWrapper) ListPurchase(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -845,197 +1040,6 @@ func (siw *ServerInterfaceWrapper) UpdatePurchase(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// ListShipment operation middleware
-func (siw *ServerInterfaceWrapper) ListShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ListShipmentParams
-
-	// ------------- Required query parameter "limit" -------------
-	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Required query parameter "offset" -------------
-	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListShipment(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// CreateShipment operation middleware
-func (siw *ServerInterfaceWrapper) CreateShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateShipment(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeleteShipment operation middleware
-func (siw *ServerInterfaceWrapper) DeleteShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteShipment(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetShipment operation middleware
-func (siw *ServerInterfaceWrapper) GetShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetShipment(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// PatchShipment operation middleware
-func (siw *ServerInterfaceWrapper) PatchShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchShipment(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// UpdateShipment operation middleware
-func (siw *ServerInterfaceWrapper) UpdateShipment(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateShipment(w, r, id)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -1156,10 +1160,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/license-service/find-license", wrapper.FindLicense)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/license-service/find-purchase", wrapper.FindPurchase)
+		r.Get(options.BaseURL+"/api/license-service/find-product", wrapper.FindProduct)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/license-service/find-shipment", wrapper.FindShipment)
+		r.Get(options.BaseURL+"/api/license-service/find-purchase", wrapper.FindPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/license", wrapper.ListLicense)
@@ -1180,6 +1184,24 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Put(options.BaseURL+"/api/license-service/license/{id}", wrapper.UpdateLicense)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/product", wrapper.ListProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/product", wrapper.CreateProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/license-service/product/{id}", wrapper.DeleteProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/product/{id}", wrapper.GetProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/api/license-service/product/{id}", wrapper.PatchProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/license-service/product/{id}", wrapper.UpdateProduct)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/purchase", wrapper.ListPurchase)
 	})
 	r.Group(func(r chi.Router) {
@@ -1196,24 +1218,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/license-service/purchase/{id}", wrapper.UpdatePurchase)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/license-service/shipment", wrapper.ListShipment)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/license-service/shipment", wrapper.CreateShipment)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/license-service/shipment/{id}", wrapper.DeleteShipment)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/license-service/shipment/{id}", wrapper.GetShipment)
-	})
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/api/license-service/shipment/{id}", wrapper.PatchShipment)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/license-service/shipment/{id}", wrapper.UpdateShipment)
 	})
 
 	return r

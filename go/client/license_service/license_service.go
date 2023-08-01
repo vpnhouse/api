@@ -45,6 +45,16 @@ type CreateLicenseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
+// CreateProductParams defines model for CreateProductParams.
+type CreateProductParams struct {
+	Disabled     *bool                   `json:"disabled"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	Slug         *string                 `json:"slug"`
+}
+
 // CreatePurchaseParams defines model for CreatePurchaseParams.
 type CreatePurchaseParams struct {
 	Email            *string                 `json:"email"`
@@ -53,16 +63,7 @@ type CreatePurchaseParams struct {
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
 	StartAt          *time.Time              `json:"start_at"`
-}
-
-// CreateShipmentParams defines model for CreateShipmentParams.
-type CreateShipmentParams struct {
-	Disabled     *bool                   `json:"disabled"`
-	Name         *string                 `json:"name"`
-	PaymentJson  *map[string]interface{} `json:"payment_json"`
-	Period       *string                 `json:"period"`
-	SelectorJson *map[string]interface{} `json:"selector_json"`
-	Slug         *string                 `json:"slug"`
+	UserId           *string                 `json:"user_id"`
 }
 
 // FindLicenseParams defines model for FindLicenseParams.
@@ -80,6 +81,18 @@ type FindLicenseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// FindProductParams defines model for FindProductParams.
+type FindProductParams struct {
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
+	Disabled     *bool                   `json:"disabled,omitempty"`
+	Name         *string                 `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
+	Period       *string                 `json:"period,omitempty"`
+	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
+	Slug         *string                 `json:"slug,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+}
+
 // FindPurchaseParams defines model for FindPurchaseParams.
 type FindPurchaseParams struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -90,18 +103,7 @@ type FindPurchaseParams struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// FindShipmentParams defines model for FindShipmentParams.
-type FindShipmentParams struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // License defines model for License.
@@ -134,6 +136,17 @@ type PatchLicenseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// PatchProductParams defines model for PatchProductParams.
+type PatchProductParams struct {
+	Disabled     *bool                   `json:"disabled,omitempty"`
+	Name         *string                 `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
+	Period       *string                 `json:"period,omitempty"`
+	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
+	Slug         *string                 `json:"slug,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
+}
+
 // PatchPurchaseParams defines model for PatchPurchaseParams.
 type PatchPurchaseParams struct {
 	Email            *string                 `json:"email,omitempty"`
@@ -143,17 +156,20 @@ type PatchPurchaseParams struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at"`
+	UserId           *string                 `json:"user_id,omitempty"`
 }
 
-// PatchShipmentParams defines model for PatchShipmentParams.
-type PatchShipmentParams struct {
+// Product defines model for Product.
+type Product struct {
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
 	Disabled     *bool                   `json:"disabled,omitempty"`
+	Id           *string                 `json:"id,omitempty"`
 	Name         *string                 `json:"name,omitempty"`
 	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
 	Period       *string                 `json:"period,omitempty"`
 	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
 	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // Purchase defines model for Purchase.
@@ -167,19 +183,6 @@ type Purchase struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// Shipment defines model for Shipment.
-type Shipment struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	Id           *string                 `json:"id,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	Slug         *string                 `json:"slug,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // UpdateLicenseParams defines model for UpdateLicenseParams.
@@ -196,19 +199,8 @@ type UpdateLicenseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
-// UpdatePurchaseParams defines model for UpdatePurchaseParams.
-type UpdatePurchaseParams struct {
-	Email            *string                 `json:"email"`
-	EndAt            *time.Time              `json:"end_at"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	StartAt          *time.Time              `json:"start_at"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
-}
-
-// UpdateShipmentParams defines model for UpdateShipmentParams.
-type UpdateShipmentParams struct {
+// UpdateProductParams defines model for UpdateProductParams.
+type UpdateProductParams struct {
 	Disabled     *bool                   `json:"disabled"`
 	Name         *string                 `json:"name"`
 	PaymentJson  *map[string]interface{} `json:"payment_json"`
@@ -218,17 +210,29 @@ type UpdateShipmentParams struct {
 	UpdatedAt    *time.Time              `json:"updated_at"`
 }
 
+// UpdatePurchaseParams defines model for UpdatePurchaseParams.
+type UpdatePurchaseParams struct {
+	Email            *string                 `json:"email"`
+	EndAt            *time.Time              `json:"end_at"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	StartAt          *time.Time              `json:"start_at"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
+	UserId           *string                 `json:"user_id"`
+}
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
 // FindLicenseJSONBody defines parameters for FindLicense.
 type FindLicenseJSONBody FindLicenseParams
 
+// FindProductJSONBody defines parameters for FindProduct.
+type FindProductJSONBody FindProductParams
+
 // FindPurchaseJSONBody defines parameters for FindPurchase.
 type FindPurchaseJSONBody FindPurchaseParams
-
-// FindShipmentJSONBody defines parameters for FindShipment.
-type FindShipmentJSONBody FindShipmentParams
 
 // ListLicenseParams defines parameters for ListLicense.
 type ListLicenseParams struct {
@@ -245,6 +249,21 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// ListProductParams defines parameters for ListProduct.
+type ListProductParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// CreateProductJSONBody defines parameters for CreateProduct.
+type CreateProductJSONBody CreateProductParams
+
+// PatchProductJSONBody defines parameters for PatchProduct.
+type PatchProductJSONBody PatchProductParams
+
+// UpdateProductJSONBody defines parameters for UpdateProduct.
+type UpdateProductJSONBody UpdateProductParams
+
 // ListPurchaseParams defines parameters for ListPurchase.
 type ListPurchaseParams struct {
 	Limit  int `json:"limit"`
@@ -260,32 +279,17 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
-// ListShipmentParams defines parameters for ListShipment.
-type ListShipmentParams struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
-// CreateShipmentJSONBody defines parameters for CreateShipment.
-type CreateShipmentJSONBody CreateShipmentParams
-
-// PatchShipmentJSONBody defines parameters for PatchShipment.
-type PatchShipmentJSONBody PatchShipmentParams
-
-// UpdateShipmentJSONBody defines parameters for UpdateShipment.
-type UpdateShipmentJSONBody UpdateShipmentParams
-
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
 // FindLicenseJSONRequestBody defines body for FindLicense for application/json ContentType.
 type FindLicenseJSONRequestBody FindLicenseJSONBody
 
+// FindProductJSONRequestBody defines body for FindProduct for application/json ContentType.
+type FindProductJSONRequestBody FindProductJSONBody
+
 // FindPurchaseJSONRequestBody defines body for FindPurchase for application/json ContentType.
 type FindPurchaseJSONRequestBody FindPurchaseJSONBody
-
-// FindShipmentJSONRequestBody defines body for FindShipment for application/json ContentType.
-type FindShipmentJSONRequestBody FindShipmentJSONBody
 
 // CreateLicenseJSONRequestBody defines body for CreateLicense for application/json ContentType.
 type CreateLicenseJSONRequestBody CreateLicenseJSONBody
@@ -296,6 +300,15 @@ type PatchLicenseJSONRequestBody PatchLicenseJSONBody
 // UpdateLicenseJSONRequestBody defines body for UpdateLicense for application/json ContentType.
 type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
 
+// CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
+type CreateProductJSONRequestBody CreateProductJSONBody
+
+// PatchProductJSONRequestBody defines body for PatchProduct for application/json ContentType.
+type PatchProductJSONRequestBody PatchProductJSONBody
+
+// UpdateProductJSONRequestBody defines body for UpdateProduct for application/json ContentType.
+type UpdateProductJSONRequestBody UpdateProductJSONBody
+
 // CreatePurchaseJSONRequestBody defines body for CreatePurchase for application/json ContentType.
 type CreatePurchaseJSONRequestBody CreatePurchaseJSONBody
 
@@ -304,15 +317,6 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
-
-// CreateShipmentJSONRequestBody defines body for CreateShipment for application/json ContentType.
-type CreateShipmentJSONRequestBody CreateShipmentJSONBody
-
-// PatchShipmentJSONRequestBody defines body for PatchShipment for application/json ContentType.
-type PatchShipmentJSONRequestBody PatchShipmentJSONBody
-
-// UpdateShipmentJSONRequestBody defines body for UpdateShipment for application/json ContentType.
-type UpdateShipmentJSONRequestBody UpdateShipmentJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -397,15 +401,15 @@ type ClientInterface interface {
 
 	FindLicense(ctx context.Context, body FindLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// FindProduct request with any body
+	FindProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FindProduct(ctx context.Context, body FindProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// FindPurchase request with any body
 	FindPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	FindPurchase(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// FindShipment request with any body
-	FindShipmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	FindShipment(ctx context.Context, body FindShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListLicense request
 	ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -431,6 +435,30 @@ type ClientInterface interface {
 
 	UpdateLicense(ctx context.Context, id string, body UpdateLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListProduct request
+	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProduct request with any body
+	CreateProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteProduct request
+	DeleteProduct(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetProduct request
+	GetProduct(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchProduct request with any body
+	PatchProductWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchProduct(ctx context.Context, id string, body PatchProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateProduct request with any body
+	UpdateProductWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateProduct(ctx context.Context, id string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListPurchase request
 	ListPurchase(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -454,30 +482,6 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListShipment request
-	ListShipment(ctx context.Context, params *ListShipmentParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreateShipment request with any body
-	CreateShipmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateShipment(ctx context.Context, body CreateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteShipment request
-	DeleteShipment(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetShipment request
-	GetShipment(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PatchShipment request with any body
-	PatchShipmentWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PatchShipment(ctx context.Context, id string, body PatchShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UpdateShipment request with any body
-	UpdateShipmentWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateShipment(ctx context.Context, id string, body UpdateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -528,6 +532,30 @@ func (c *Client) FindLicense(ctx context.Context, body FindLicenseJSONRequestBod
 	return c.Client.Do(req)
 }
 
+func (c *Client) FindProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindProductRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindProduct(ctx context.Context, body FindProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindProductRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) FindPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindPurchaseRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -542,30 +570,6 @@ func (c *Client) FindPurchaseWithBody(ctx context.Context, contentType string, b
 
 func (c *Client) FindPurchase(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindPurchaseRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) FindShipmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewFindShipmentRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) FindShipment(ctx context.Context, body FindShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewFindShipmentRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -684,6 +688,114 @@ func (c *Client) UpdateLicense(ctx context.Context, id string, body UpdateLicens
 	return c.Client.Do(req)
 }
 
+func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProductRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProductWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProductRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateProduct(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProductRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteProduct(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteProductRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetProduct(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProductRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchProductWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchProductRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchProduct(ctx context.Context, id string, body PatchProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchProductRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateProductWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProductRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateProduct(ctx context.Context, id string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProductRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListPurchase(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListPurchaseRequest(c.Server, params)
 	if err != nil {
@@ -792,114 +904,6 @@ func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurch
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListShipment(ctx context.Context, params *ListShipmentParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListShipmentRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateShipmentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateShipmentRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateShipment(ctx context.Context, body CreateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateShipmentRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteShipment(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteShipmentRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetShipment(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetShipmentRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PatchShipmentWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchShipmentRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PatchShipment(ctx context.Context, id string, body PatchShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchShipmentRequest(c.Server, id, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateShipmentWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateShipmentRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateShipment(ctx context.Context, id string, body UpdateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateShipmentRequest(c.Server, id, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 // NewApplyForUserByEmailRequest calls the generic ApplyForUserByEmail builder with application/json body
 func NewApplyForUserByEmailRequest(server string, body ApplyForUserByEmailJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -980,6 +984,46 @@ func NewFindLicenseRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
+// NewFindProductRequest calls the generic FindProduct builder with application/json body
+func NewFindProductRequest(server string, body FindProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFindProductRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFindProductRequestWithBody generates requests for FindProduct with any type of body
+func NewFindProductRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/find-product")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewFindPurchaseRequest calls the generic FindPurchase builder with application/json body
 func NewFindPurchaseRequest(server string, body FindPurchaseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1001,46 +1045,6 @@ func NewFindPurchaseRequestWithBody(server string, contentType string, body io.R
 	}
 
 	operationPath := fmt.Sprintf("/api/license-service/find-purchase")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewFindShipmentRequest calls the generic FindShipment builder with application/json body
-func NewFindShipmentRequest(server string, body FindShipmentJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewFindShipmentRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewFindShipmentRequestWithBody generates requests for FindShipment with any type of body
-func NewFindShipmentRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/find-shipment")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1317,6 +1321,263 @@ func NewUpdateLicenseRequestWithBody(server string, id string, contentType strin
 	return req, nil
 }
 
+// NewListProductRequest generates requests for ListProduct
+func NewListProductRequest(server string, params *ListProductParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, params.Limit); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, params.Offset); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateProductRequest calls the generic CreateProduct builder with application/json body
+func NewCreateProductRequest(server string, body CreateProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateProductRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateProductRequestWithBody generates requests for CreateProduct with any type of body
+func NewCreateProductRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteProductRequest generates requests for DeleteProduct
+func NewDeleteProductRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetProductRequest generates requests for GetProduct
+func NewGetProductRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchProductRequest calls the generic PatchProduct builder with application/json body
+func NewPatchProductRequest(server string, id string, body PatchProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchProductRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPatchProductRequestWithBody generates requests for PatchProduct with any type of body
+func NewPatchProductRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateProductRequest calls the generic UpdateProduct builder with application/json body
+func NewUpdateProductRequest(server string, id string, body UpdateProductJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateProductRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdateProductRequestWithBody generates requests for UpdateProduct with any type of body
+func NewUpdateProductRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/product/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListPurchaseRequest generates requests for ListPurchase
 func NewListPurchaseRequest(server string, params *ListPurchaseParams) (*http.Request, error) {
 	var err error
@@ -1574,263 +1835,6 @@ func NewUpdatePurchaseRequestWithBody(server string, id string, contentType stri
 	return req, nil
 }
 
-// NewListShipmentRequest generates requests for ListShipment
-func NewListShipmentRequest(server string, params *ListShipmentParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	queryValues := queryURL.Query()
-
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, params.Limit); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
-			}
-		}
-	}
-
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, params.Offset); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
-			}
-		}
-	}
-
-	queryURL.RawQuery = queryValues.Encode()
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreateShipmentRequest calls the generic CreateShipment builder with application/json body
-func NewCreateShipmentRequest(server string, body CreateShipmentJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateShipmentRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateShipmentRequestWithBody generates requests for CreateShipment with any type of body
-func NewCreateShipmentRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewDeleteShipmentRequest generates requests for DeleteShipment
-func NewDeleteShipmentRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetShipmentRequest generates requests for GetShipment
-func NewGetShipmentRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewPatchShipmentRequest calls the generic PatchShipment builder with application/json body
-func NewPatchShipmentRequest(server string, id string, body PatchShipmentJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPatchShipmentRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewPatchShipmentRequestWithBody generates requests for PatchShipment with any type of body
-func NewPatchShipmentRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PATCH", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewUpdateShipmentRequest calls the generic UpdateShipment builder with application/json body
-func NewUpdateShipmentRequest(server string, id string, body UpdateShipmentJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateShipmentRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewUpdateShipmentRequestWithBody generates requests for UpdateShipment with any type of body
-func NewUpdateShipmentRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/license-service/shipment/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -1884,15 +1888,15 @@ type ClientWithResponsesInterface interface {
 
 	FindLicenseWithResponse(ctx context.Context, body FindLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*FindLicenseResponse, error)
 
+	// FindProduct request with any body
+	FindProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindProductResponse, error)
+
+	FindProductWithResponse(ctx context.Context, body FindProductJSONRequestBody, reqEditors ...RequestEditorFn) (*FindProductResponse, error)
+
 	// FindPurchase request with any body
 	FindPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindPurchaseResponse, error)
 
 	FindPurchaseWithResponse(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*FindPurchaseResponse, error)
-
-	// FindShipment request with any body
-	FindShipmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindShipmentResponse, error)
-
-	FindShipmentWithResponse(ctx context.Context, body FindShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*FindShipmentResponse, error)
 
 	// ListLicense request
 	ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error)
@@ -1918,6 +1922,30 @@ type ClientWithResponsesInterface interface {
 
 	UpdateLicenseWithResponse(ctx context.Context, id string, body UpdateLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateLicenseResponse, error)
 
+	// ListProduct request
+	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
+
+	// CreateProduct request with any body
+	CreateProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
+
+	CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error)
+
+	// DeleteProduct request
+	DeleteProductWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteProductResponse, error)
+
+	// GetProduct request
+	GetProductWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetProductResponse, error)
+
+	// PatchProduct request with any body
+	PatchProductWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchProductResponse, error)
+
+	PatchProductWithResponse(ctx context.Context, id string, body PatchProductJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchProductResponse, error)
+
+	// UpdateProduct request with any body
+	UpdateProductWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error)
+
+	UpdateProductWithResponse(ctx context.Context, id string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error)
+
 	// ListPurchase request
 	ListPurchaseWithResponse(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*ListPurchaseResponse, error)
 
@@ -1941,30 +1969,6 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
-
-	// ListShipment request
-	ListShipmentWithResponse(ctx context.Context, params *ListShipmentParams, reqEditors ...RequestEditorFn) (*ListShipmentResponse, error)
-
-	// CreateShipment request with any body
-	CreateShipmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateShipmentResponse, error)
-
-	CreateShipmentWithResponse(ctx context.Context, body CreateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateShipmentResponse, error)
-
-	// DeleteShipment request
-	DeleteShipmentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteShipmentResponse, error)
-
-	// GetShipment request
-	GetShipmentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetShipmentResponse, error)
-
-	// PatchShipment request with any body
-	PatchShipmentWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchShipmentResponse, error)
-
-	PatchShipmentWithResponse(ctx context.Context, id string, body PatchShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchShipmentResponse, error)
-
-	// UpdateShipment request with any body
-	UpdateShipmentWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateShipmentResponse, error)
-
-	UpdateShipmentWithResponse(ctx context.Context, id string, body UpdateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateShipmentResponse, error)
 }
 
 type ApplyForUserByEmailResponse struct {
@@ -2019,6 +2023,33 @@ func (r FindLicenseResponse) StatusCode() int {
 	return 0
 }
 
+type FindProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Product
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type FindPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2040,33 +2071,6 @@ func (r FindPurchaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r FindPurchaseResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type FindShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Shipment
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r FindShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r FindShipmentResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2225,6 +2229,158 @@ func (r UpdateLicenseResponse) StatusCode() int {
 	return 0
 }
 
+type ListProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Product
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Product
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateProductResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateProductResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2377,158 +2533,6 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
-type ListShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Shipment
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r ListShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreateShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Shipment
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r GetShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PatchShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r PatchShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PatchShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type UpdateShipmentResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r UpdateShipmentResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UpdateShipmentResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 // ApplyForUserByEmailWithBodyWithResponse request with arbitrary body returning *ApplyForUserByEmailResponse
 func (c *ClientWithResponses) ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error) {
 	rsp, err := c.ApplyForUserByEmailWithBody(ctx, contentType, body, reqEditors...)
@@ -2563,6 +2567,23 @@ func (c *ClientWithResponses) FindLicenseWithResponse(ctx context.Context, body 
 	return ParseFindLicenseResponse(rsp)
 }
 
+// FindProductWithBodyWithResponse request with arbitrary body returning *FindProductResponse
+func (c *ClientWithResponses) FindProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindProductResponse, error) {
+	rsp, err := c.FindProductWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) FindProductWithResponse(ctx context.Context, body FindProductJSONRequestBody, reqEditors ...RequestEditorFn) (*FindProductResponse, error) {
+	rsp, err := c.FindProduct(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindProductResponse(rsp)
+}
+
 // FindPurchaseWithBodyWithResponse request with arbitrary body returning *FindPurchaseResponse
 func (c *ClientWithResponses) FindPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindPurchaseResponse, error) {
 	rsp, err := c.FindPurchaseWithBody(ctx, contentType, body, reqEditors...)
@@ -2578,23 +2599,6 @@ func (c *ClientWithResponses) FindPurchaseWithResponse(ctx context.Context, body
 		return nil, err
 	}
 	return ParseFindPurchaseResponse(rsp)
-}
-
-// FindShipmentWithBodyWithResponse request with arbitrary body returning *FindShipmentResponse
-func (c *ClientWithResponses) FindShipmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindShipmentResponse, error) {
-	rsp, err := c.FindShipmentWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseFindShipmentResponse(rsp)
-}
-
-func (c *ClientWithResponses) FindShipmentWithResponse(ctx context.Context, body FindShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*FindShipmentResponse, error) {
-	rsp, err := c.FindShipment(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseFindShipmentResponse(rsp)
 }
 
 // ListLicenseWithResponse request returning *ListLicenseResponse
@@ -2675,6 +2679,84 @@ func (c *ClientWithResponses) UpdateLicenseWithResponse(ctx context.Context, id 
 	return ParseUpdateLicenseResponse(rsp)
 }
 
+// ListProductWithResponse request returning *ListProductResponse
+func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error) {
+	rsp, err := c.ListProduct(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProductResponse(rsp)
+}
+
+// CreateProductWithBodyWithResponse request with arbitrary body returning *CreateProductResponse
+func (c *ClientWithResponses) CreateProductWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProductResponse, error) {
+	rsp, err := c.CreateProductWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateProductWithResponse(ctx context.Context, body CreateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProductResponse, error) {
+	rsp, err := c.CreateProduct(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProductResponse(rsp)
+}
+
+// DeleteProductWithResponse request returning *DeleteProductResponse
+func (c *ClientWithResponses) DeleteProductWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteProductResponse, error) {
+	rsp, err := c.DeleteProduct(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteProductResponse(rsp)
+}
+
+// GetProductWithResponse request returning *GetProductResponse
+func (c *ClientWithResponses) GetProductWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetProductResponse, error) {
+	rsp, err := c.GetProduct(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProductResponse(rsp)
+}
+
+// PatchProductWithBodyWithResponse request with arbitrary body returning *PatchProductResponse
+func (c *ClientWithResponses) PatchProductWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchProductResponse, error) {
+	rsp, err := c.PatchProductWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchProductWithResponse(ctx context.Context, id string, body PatchProductJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchProductResponse, error) {
+	rsp, err := c.PatchProduct(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchProductResponse(rsp)
+}
+
+// UpdateProductWithBodyWithResponse request with arbitrary body returning *UpdateProductResponse
+func (c *ClientWithResponses) UpdateProductWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error) {
+	rsp, err := c.UpdateProductWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProductResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateProductWithResponse(ctx context.Context, id string, body UpdateProductJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProductResponse, error) {
+	rsp, err := c.UpdateProduct(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProductResponse(rsp)
+}
+
 // ListPurchaseWithResponse request returning *ListPurchaseResponse
 func (c *ClientWithResponses) ListPurchaseWithResponse(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*ListPurchaseResponse, error) {
 	rsp, err := c.ListPurchase(ctx, params, reqEditors...)
@@ -2751,84 +2833,6 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
-}
-
-// ListShipmentWithResponse request returning *ListShipmentResponse
-func (c *ClientWithResponses) ListShipmentWithResponse(ctx context.Context, params *ListShipmentParams, reqEditors ...RequestEditorFn) (*ListShipmentResponse, error) {
-	rsp, err := c.ListShipment(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListShipmentResponse(rsp)
-}
-
-// CreateShipmentWithBodyWithResponse request with arbitrary body returning *CreateShipmentResponse
-func (c *ClientWithResponses) CreateShipmentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateShipmentResponse, error) {
-	rsp, err := c.CreateShipmentWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateShipmentResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateShipmentWithResponse(ctx context.Context, body CreateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateShipmentResponse, error) {
-	rsp, err := c.CreateShipment(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateShipmentResponse(rsp)
-}
-
-// DeleteShipmentWithResponse request returning *DeleteShipmentResponse
-func (c *ClientWithResponses) DeleteShipmentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteShipmentResponse, error) {
-	rsp, err := c.DeleteShipment(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteShipmentResponse(rsp)
-}
-
-// GetShipmentWithResponse request returning *GetShipmentResponse
-func (c *ClientWithResponses) GetShipmentWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetShipmentResponse, error) {
-	rsp, err := c.GetShipment(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetShipmentResponse(rsp)
-}
-
-// PatchShipmentWithBodyWithResponse request with arbitrary body returning *PatchShipmentResponse
-func (c *ClientWithResponses) PatchShipmentWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchShipmentResponse, error) {
-	rsp, err := c.PatchShipmentWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchShipmentResponse(rsp)
-}
-
-func (c *ClientWithResponses) PatchShipmentWithResponse(ctx context.Context, id string, body PatchShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchShipmentResponse, error) {
-	rsp, err := c.PatchShipment(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchShipmentResponse(rsp)
-}
-
-// UpdateShipmentWithBodyWithResponse request with arbitrary body returning *UpdateShipmentResponse
-func (c *ClientWithResponses) UpdateShipmentWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateShipmentResponse, error) {
-	rsp, err := c.UpdateShipmentWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateShipmentResponse(rsp)
-}
-
-func (c *ClientWithResponses) UpdateShipmentWithResponse(ctx context.Context, id string, body UpdateShipmentJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateShipmentResponse, error) {
-	rsp, err := c.UpdateShipment(ctx, id, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateShipmentResponse(rsp)
 }
 
 // ParseApplyForUserByEmailResponse parses an HTTP response from a ApplyForUserByEmailWithResponse call
@@ -2939,22 +2943,22 @@ func ParseFindLicenseResponse(rsp *http.Response) (*FindLicenseResponse, error) 
 	return response, nil
 }
 
-// ParseFindPurchaseResponse parses an HTTP response from a FindPurchaseWithResponse call
-func ParseFindPurchaseResponse(rsp *http.Response) (*FindPurchaseResponse, error) {
+// ParseFindProductResponse parses an HTTP response from a FindProductWithResponse call
+func ParseFindProductResponse(rsp *http.Response) (*FindProductResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &FindPurchaseResponse{
+	response := &FindProductResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Purchase
+		var dest []Product
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3000,22 +3004,22 @@ func ParseFindPurchaseResponse(rsp *http.Response) (*FindPurchaseResponse, error
 	return response, nil
 }
 
-// ParseFindShipmentResponse parses an HTTP response from a FindShipmentWithResponse call
-func ParseFindShipmentResponse(rsp *http.Response) (*FindShipmentResponse, error) {
+// ParseFindPurchaseResponse parses an HTTP response from a FindPurchaseWithResponse call
+func ParseFindPurchaseResponse(rsp *http.Response) (*FindPurchaseResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &FindShipmentResponse{
+	response := &FindPurchaseResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Shipment
+		var dest []Purchase
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3357,6 +3361,302 @@ func ParseUpdateLicenseResponse(rsp *http.Response) (*UpdateLicenseResponse, err
 	return response, nil
 }
 
+// ParseListProductResponse parses an HTTP response from a ListProductWithResponse call
+func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Product
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateProductResponse parses an HTTP response from a CreateProductWithResponse call
+func ParseCreateProductResponse(rsp *http.Response) (*CreateProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteProductResponse parses an HTTP response from a DeleteProductWithResponse call
+func ParseDeleteProductResponse(rsp *http.Response) (*DeleteProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetProductResponse parses an HTTP response from a GetProductWithResponse call
+func ParseGetProductResponse(rsp *http.Response) (*GetProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Product
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchProductResponse parses an HTTP response from a PatchProductWithResponse call
+func ParsePatchProductResponse(rsp *http.Response) (*PatchProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateProductResponse parses an HTTP response from a UpdateProductWithResponse call
+func ParseUpdateProductResponse(rsp *http.Response) (*UpdateProductResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateProductResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListPurchaseResponse parses an HTTP response from a ListPurchaseWithResponse call
 func ParseListPurchaseResponse(rsp *http.Response) (*ListPurchaseResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -3608,302 +3908,6 @@ func ParseUpdatePurchaseResponse(rsp *http.Response) (*UpdatePurchaseResponse, e
 	}
 
 	response := &UpdatePurchaseResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListShipmentResponse parses an HTTP response from a ListShipmentWithResponse call
-func ParseListShipmentResponse(rsp *http.Response) (*ListShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListShipmentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Shipment
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreateShipmentResponse parses an HTTP response from a CreateShipmentWithResponse call
-func ParseCreateShipmentResponse(rsp *http.Response) (*CreateShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreateShipmentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteShipmentResponse parses an HTTP response from a DeleteShipmentWithResponse call
-func ParseDeleteShipmentResponse(rsp *http.Response) (*DeleteShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteShipmentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetShipmentResponse parses an HTTP response from a GetShipmentWithResponse call
-func ParseGetShipmentResponse(rsp *http.Response) (*GetShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetShipmentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Shipment
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePatchShipmentResponse parses an HTTP response from a PatchShipmentWithResponse call
-func ParsePatchShipmentResponse(rsp *http.Response) (*PatchShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PatchShipmentResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseUpdateShipmentResponse parses an HTTP response from a UpdateShipmentWithResponse call
-func ParseUpdateShipmentResponse(rsp *http.Response) (*UpdateShipmentResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UpdateShipmentResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

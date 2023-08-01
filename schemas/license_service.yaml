@@ -13,7 +13,7 @@ servers:
     url: http://localhost:8585
 
 paths:
-  /api/license-service/shipment:
+  /api/license-service/product:
     get:
       parameters:
         - schema:
@@ -26,12 +26,12 @@ paths:
           name: offset
           in: query
           required: true
-      summary: List shipments
+      summary: List products
       tags:
         - list
-        - shipment
-      operationId: list-shipment
-      description: Receive full list of shipments
+        - product
+      operationId: list-product
+      description: Receive full list of products
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -43,7 +43,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Shipment'
+                  $ref: '#/components/schemas/Product'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -51,12 +51,12 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
     post:
-      summary: Create shipment
+      summary: Create product
       tags:
         - create
-        - shipment
-      operationId: create-shipment
-      description: Create a new shipment
+        - product
+      operationId: create-product
+      description: Create a new product
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -77,9 +77,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateShipmentParams'
+              $ref: '#/components/schemas/CreateProductParams'
 
-  /api/license-service/shipment/{id}:
+  /api/license-service/product/{id}:
     parameters:
       - schema:
           type: string
@@ -88,12 +88,12 @@ paths:
         in: path
         required: true
     get:
-      summary: Get shipment
+      summary: Get product
       tags:
         - get
-        - shipment
-      operationId: get-shipment
-      description: Receive a specific shipment by id
+        - product
+      operationId: get-product
+      description: Receive a specific product by id
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -103,7 +103,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Shipment'
+                $ref: '#/components/schemas/Product'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -111,12 +111,12 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
     delete:
-      summary: Delete a shipment
+      summary: Delete a product
       tags:
         - delete
-        - shipment
-      operationId: delete-shipment
-      description: Delete a specific shipment by id
+        - product
+      operationId: delete-product
+      description: Delete a specific product by id
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -130,12 +130,12 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
     put:
-      summary: Update shipment
+      summary: Update product
       tags:
         - update
-        - shipment
-      operationId: update-shipment
-      description: Update shipment
+        - product
+      operationId: update-product
+      description: Update product
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -156,14 +156,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateShipmentParams'
+              $ref: '#/components/schemas/UpdateProductParams'
     patch:
-      summary: Patch shipment
+      summary: Patch product
       tags:
         - patch
-        - shipment
-      operationId: patch-shipment
-      description: Patch shipment
+        - product
+      operationId: patch-product
+      description: Patch product
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -184,15 +184,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchShipmentParams'
-  /api/license-service/find-shipment:
+              $ref: '#/components/schemas/PatchProductParams'
+  /api/license-service/find-product:
     get:
-      summary: Find shipment
+      summary: Find product
       tags:
         - find
-        - shipment
-      operationId: find-shipment
-      description: Find shipment
+        - product
+      operationId: find-product
+      description: Find product
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -204,7 +204,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Shipment'
+                  $ref: '#/components/schemas/Product'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -219,7 +219,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FindShipmentParams'
+              $ref: '#/components/schemas/FindProductParams'
 
   /api/license-service/purchase:
     get:
@@ -671,8 +671,8 @@ paths:
 
 components:
   schemas:
-    Shipment:
-      title: Shipment
+    Product:
+      title: Product
       type: object
       properties:
         id:
@@ -696,8 +696,8 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreateShipmentParams:
-      title: CreateShipmentParams
+    CreateProductParams:
+      title: CreateProductParams
       type: object
       properties:
         name:
@@ -725,8 +725,8 @@ components:
         - period
         - selector_json
         - disabled
-    UpdateShipmentParams:
-      title: UpdateShipmentParams
+    UpdateProductParams:
+      title: UpdateProductParams
       type: object
       properties:
         name:
@@ -759,8 +759,8 @@ components:
         - selector_json
         - disabled
         - updated_at
-    PatchShipmentParams:
-      title: PatchShipmentParams
+    PatchProductParams:
+      title: PatchProductParams
       type: object
       properties:
         name:
@@ -781,8 +781,8 @@ components:
           nullable: true
       required:
         - updated_at
-    FindShipmentParams:
-      title: FindShipmentParams
+    FindProductParams:
+      title: FindProductParams
       type: object
       properties:
         name:
@@ -837,6 +837,10 @@ components:
         email:
           type: string
           nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
         start_at:
           type: string
           format: date-time
@@ -856,6 +860,7 @@ components:
           nullable: true
       required:
         - email
+        - user_id
         - start_at
         - end_at
         - purchase_json
@@ -867,6 +872,10 @@ components:
       properties:
         email:
           type: string
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
           nullable: true
         start_at:
           type: string
@@ -891,6 +900,7 @@ components:
           nullable: true
       required:
         - email
+        - user_id
         - start_at
         - end_at
         - purchase_json
@@ -903,6 +913,9 @@ components:
       properties:
         email:
           type: string
+        user_id:
+          type: string
+          format: uuid
         start_at:
           type: string
           format: date-time
@@ -927,6 +940,9 @@ components:
       properties:
         email:
           type: string
+        user_id:
+          type: string
+          format: uuid
         start_at:
           type: string
           format: date-time
@@ -1179,6 +1195,6 @@ tags:
   - name: update
   - name: patch
   - name: backend
-  - name: shipment
+  - name: product
   - name: purchase
   - name: license
