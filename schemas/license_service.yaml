@@ -651,6 +651,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
