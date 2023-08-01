@@ -177,6 +177,7 @@ type Purchase struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // UpdateLicenseParams defines model for UpdateLicenseParams.

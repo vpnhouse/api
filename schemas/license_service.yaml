@@ -812,6 +812,9 @@ components:
           format: uuid
         email:
           type: string
+        user_id:
+          type: string
+          format: uuid
         start_at:
           type: string
           format: date-time
