@@ -42,7 +42,7 @@ type AuthServiceRequest struct {
 
 // TokenRequest defines model for TokenRequest.
 type TokenRequest struct {
-	RefreshToken *string `json:"refresh_token,omitempty"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // AuthenticateJSONBody defines parameters for Authenticate.
