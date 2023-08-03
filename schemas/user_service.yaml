@@ -2624,6 +2624,8 @@ components:
         id:
           type: string
           format: uuid
+        email:
+          type: string
         confirmed:
           type: boolean
         created_at:
@@ -2636,15 +2638,22 @@ components:
       title: CreateConfirmationParams
       type: object
       properties:
+        email:
+          type: string
+          nullable: true
         confirmed:
           type: boolean
           nullable: true
       required:
+        - email
         - confirmed
     UpdateConfirmationParams:
       title: UpdateConfirmationParams
       type: object
       properties:
+        email:
+          type: string
+          nullable: true
         confirmed:
           type: boolean
           nullable: true
@@ -2653,12 +2662,15 @@ components:
           format: date-time
           nullable: true
       required:
+        - email
         - confirmed
         - updated_at
     PatchConfirmationParams:
       title: PatchConfirmationParams
       type: object
       properties:
+        email:
+          type: string
         confirmed:
           type: boolean
         updated_at:
@@ -2671,6 +2683,8 @@ components:
       title: FindProjectParams
       type: object
       properties:
+        email:
+          type: string
         confirmed:
           type: boolean
         created_at:
