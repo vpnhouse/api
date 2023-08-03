@@ -680,7 +680,7 @@ components:
           format: uuid
         name:
           type: string
-        slug:
+        license_type:
           type: string
         payment_json:
           type: object
@@ -703,7 +703,7 @@ components:
         name:
           type: string
           nullable: true
-        slug:
+        license_type:
           type: string
           nullable: true
         payment_json:
@@ -720,7 +720,7 @@ components:
           nullable: true
       required:
         - name
-        - slug
+        - license_type
         - payment_json
         - period
         - selector_json
@@ -732,7 +732,7 @@ components:
         name:
           type: string
           nullable: true
-        slug:
+        license_type:
           type: string
           nullable: true
         payment_json:
@@ -753,7 +753,7 @@ components:
           nullable: true
       required:
         - name
-        - slug
+        - license_type
         - payment_json
         - period
         - selector_json
@@ -765,7 +765,7 @@ components:
       properties:
         name:
           type: string
-        slug:
+        license_type:
           type: string
         payment_json:
           type: object
@@ -787,7 +787,7 @@ components:
       properties:
         name:
           type: string
-        slug:
+        license_type:
           type: string
         payment_json:
           type: object
@@ -808,6 +808,9 @@ components:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
+        project_id:
           type: string
           format: uuid
         email:
@@ -837,6 +840,9 @@ components:
       title: CreatePurchaseParams
       type: object
       properties:
+        project_id:
+          type: string
+          format: uuid
         email:
           type: string
           nullable: true
@@ -862,6 +868,7 @@ components:
           type: object
           nullable: true
       required:
+        - project_id
         - email
         - user_id
         - start_at
@@ -873,6 +880,10 @@ components:
       title: UpdatePurchaseParams
       type: object
       properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
         email:
           type: string
           nullable: true
@@ -902,6 +913,7 @@ components:
           format: date-time
           nullable: true
       required:
+        - project_id
         - email
         - user_id
         - start_at
@@ -914,6 +926,9 @@ components:
       title: PatchPurchaseParams
       type: object
       properties:
+        project_id:
+          type: string
+          format: uuid
         email:
           type: string
         user_id:
@@ -941,6 +956,9 @@ components:
       title: FindPurchaseParams
       type: object
       properties:
+        project_id:
+          type: string
+          format: uuid
         email:
           type: string
         user_id:
@@ -977,9 +995,6 @@ components:
         user_id:
           type: string
           format: uuid
-        installation_id:
-          type: string
-          format: uuid
         start_at:
           type: string
           format: date-time
@@ -1012,10 +1027,6 @@ components:
           type: string
           format: uuid
           nullable: true
-        installation_id:
-          type: string
-          format: uuid
-          nullable: true
         start_at:
           type: string
           format: date-time
@@ -1039,7 +1050,6 @@ components:
       required:
         - project_id
         - user_id
-        - installation_id
         - start_at
         - end_at
         - disabled
@@ -1055,10 +1065,6 @@ components:
           format: uuid
           nullable: true
         user_id:
-          type: string
-          format: uuid
-          nullable: true
-        installation_id:
           type: string
           format: uuid
           nullable: true
@@ -1089,7 +1095,6 @@ components:
       required:
         - project_id
         - user_id
-        - installation_id
         - start_at
         - end_at
         - disabled
@@ -1105,9 +1110,6 @@ components:
           type: string
           format: uuid
         user_id:
-          type: string
-          format: uuid
-        installation_id:
           type: string
           format: uuid
         start_at:
@@ -1138,9 +1140,6 @@ components:
           type: string
           format: uuid
         user_id:
-          type: string
-          format: uuid
-        installation_id:
           type: string
           format: uuid
         start_at:
@@ -1174,9 +1173,6 @@ components:
           type: string
           format: uuid
         project_id:
-          type: string
-          format: uuid
-        installation_id:
           type: string
           format: uuid
 
