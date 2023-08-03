@@ -45,12 +45,13 @@ type CreateLicenseParams struct {
 
 // CreateProductParams defines model for CreateProductParams.
 type CreateProductParams struct {
-	Disabled     *bool                   `json:"disabled"`
-	LicenseType  *string                 `json:"license_type"`
-	Name         *string                 `json:"name"`
-	PaymentJson  *map[string]interface{} `json:"payment_json"`
-	Period       *string                 `json:"period"`
-	SelectorJson *map[string]interface{} `json:"selector_json"`
+	Disabled         *bool                   `json:"disabled"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LicenseType      *string                 `json:"license_type"`
+	Name             *string                 `json:"name"`
+	PaymentJson      *map[string]interface{} `json:"payment_json"`
+	Period           *string                 `json:"period"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
 }
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
@@ -81,14 +82,15 @@ type FindLicenseParams struct {
 
 // FindProductParams defines model for FindProductParams.
 type FindProductParams struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	LicenseType  *string                 `json:"license_type,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
 // FindPurchaseParams defines model for FindPurchaseParams.
@@ -135,13 +137,14 @@ type PatchLicenseParams struct {
 
 // PatchProductParams defines model for PatchProductParams.
 type PatchProductParams struct {
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	LicenseType  *string                 `json:"license_type,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
 }
 
 // PatchPurchaseParams defines model for PatchPurchaseParams.
@@ -159,15 +162,16 @@ type PatchPurchaseParams struct {
 
 // Product defines model for Product.
 type Product struct {
-	CreatedAt    *time.Time              `json:"created_at,omitempty"`
-	Disabled     *bool                   `json:"disabled,omitempty"`
-	Id           *string                 `json:"id,omitempty"`
-	LicenseType  *string                 `json:"license_type,omitempty"`
-	Name         *string                 `json:"name,omitempty"`
-	PaymentJson  *map[string]interface{} `json:"payment_json,omitempty"`
-	Period       *string                 `json:"period,omitempty"`
-	SelectorJson *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
 // Purchase defines model for Purchase.
@@ -200,13 +204,14 @@ type UpdateLicenseParams struct {
 
 // UpdateProductParams defines model for UpdateProductParams.
 type UpdateProductParams struct {
-	Disabled     *bool                   `json:"disabled"`
-	LicenseType  *string                 `json:"license_type"`
-	Name         *string                 `json:"name"`
-	PaymentJson  *map[string]interface{} `json:"payment_json"`
-	Period       *string                 `json:"period"`
-	SelectorJson *map[string]interface{} `json:"selector_json"`
-	UpdatedAt    *time.Time              `json:"updated_at"`
+	Disabled         *bool                   `json:"disabled"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LicenseType      *string                 `json:"license_type"`
+	Name             *string                 `json:"name"`
+	PaymentJson      *map[string]interface{} `json:"payment_json"`
+	Period           *string                 `json:"period"`
+	SelectorJson     *map[string]interface{} `json:"selector_json"`
+	UpdatedAt        *time.Time              `json:"updated_at"`
 }
 
 // UpdatePurchaseParams defines model for UpdatePurchaseParams.

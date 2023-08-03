@@ -688,6 +688,8 @@ components:
           type: string
         selector_json:
           type: object
+        entitlements_json:
+          type: object
         disabled:
           type: boolean
         created_at:
@@ -715,6 +717,9 @@ components:
         selector_json:
           type: object
           nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
         disabled:
           type: boolean
           nullable: true
@@ -724,6 +729,7 @@ components:
         - payment_json
         - period
         - selector_json
+        - entitlements_json
         - disabled
     UpdateProductParams:
       title: UpdateProductParams
@@ -744,6 +750,9 @@ components:
         selector_json:
           type: object
           nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
         disabled:
           type: boolean
           nullable: true
@@ -757,6 +766,7 @@ components:
         - payment_json
         - period
         - selector_json
+        - entitlements_json
         - disabled
         - updated_at
     PatchProductParams:
@@ -772,6 +782,8 @@ components:
         period:
           type: string
         selector_json:
+          type: object
+        entitlements_json:
           type: object
         disabled:
           type: boolean
@@ -794,6 +806,8 @@ components:
         period:
           type: string
         selector_json:
+          type: object
+        entitlements_json:
           type: object
         disabled:
           type: boolean
