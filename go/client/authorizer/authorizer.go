@@ -44,24 +44,14 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
-// TokenRequest defines model for TokenRequest.
-type TokenRequest struct {
-	RefreshToken string `json:"refresh_token,omitempty"`
+// SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
+type SendConfirmationLinkRequest struct {
+	Email string `json:"email"`
 }
 
-// Generic error response.
-type Error struct {
-	// Message, which we can put to application logs.
-	Details *string `json:"details,omitempty"`
-
-	// User-friendly error description.
-	Error *string `json:"error,omitempty"`
-
-	// The name of field, caused error.
-	Field *string `json:"field,omitempty"`
-
-	// Machine-readable error code.
-	Result string `json:"result"`
+// TokenRequest defines model for TokenRequest.
+type TokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
 }
 
 // AuthenticateJSONBody defines parameters for Authenticate.
@@ -72,6 +62,9 @@ type RegisterJSONBody AuthRequest
 
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
+
+// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
+type SendConfirmationLinkJSONBody SendConfirmationLinkRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
@@ -84,6 +77,9 @@ type RegisterJSONRequestBody RegisterJSONBody
 
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
+
+// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
+type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
 
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
@@ -176,6 +172,11 @@ type ClientInterface interface {
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SendConfirmationLink request with any body
+	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -244,6 +245,30 @@ func (c *Client) TokenWithBody(ctx context.Context, contentType string, body io.
 
 func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTokenRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendConfirmationLinkRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendConfirmationLinkRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -398,6 +423,46 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
+// NewSendConfirmationLinkRequest calls the generic SendConfirmationLink builder with application/json body
+func NewSendConfirmationLinkRequest(server string, body SendConfirmationLinkJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendConfirmationLinkRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendConfirmationLinkRequestWithBody generates requests for SendConfirmationLink with any type of body
+func NewSendConfirmationLinkRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/service/send-confirmation-link")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewServiceAuthenticateRequest calls the generic ServiceAuthenticate builder with application/json body
 func NewServiceAuthenticateRequest(server string, body ServiceAuthenticateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -496,6 +561,11 @@ type ClientWithResponsesInterface interface {
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
+	// SendConfirmationLink request with any body
+	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+
+	SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 
@@ -580,6 +650,31 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
+type SendConfirmationLinkResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *Error
+	JSON401      *Error
+	JSON403      *Error
+	JSON500      *Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendConfirmationLinkResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendConfirmationLinkResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ServiceAuthenticateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -655,6 +750,23 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 		return nil, err
 	}
 	return ParseTokenResponse(rsp)
+}
+
+// SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
+func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
+	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendConfirmationLinkResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
+	rsp, err := c.SendConfirmationLink(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendConfirmationLinkResponse(rsp)
 }
 
 // ServiceAuthenticateWithBodyWithResponse request with arbitrary body returning *ServiceAuthenticateResponse
@@ -803,6 +915,53 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendConfirmationLinkResponse parses an HTTP response from a SendConfirmationLinkWithResponse call
+func ParseSendConfirmationLinkResponse(rsp *http.Response) (*SendConfirmationLinkResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendConfirmationLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
