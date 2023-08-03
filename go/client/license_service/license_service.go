@@ -59,6 +59,8 @@ type CreatePurchaseParams struct {
 	Email            *string                 `json:"email"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LicenseId        *string                 `json:"license_id"`
+	Processed        *bool                   `json:"processed"`
 	ProjectId        string                  `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -99,6 +101,8 @@ type FindPurchaseParams struct {
 	Email            *string                 `json:"email,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseId        *string                 `json:"license_id,omitempty"`
+	Processed        *bool                   `json:"processed,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -152,6 +156,8 @@ type PatchPurchaseParams struct {
 	Email            *string                 `json:"email,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseId        *string                 `json:"license_id,omitempty"`
+	Processed        *bool                   `json:"processed,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -181,6 +187,8 @@ type Purchase struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	LicenseId        *string                 `json:"license_id,omitempty"`
+	Processed        *bool                   `json:"processed,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -219,6 +227,8 @@ type UpdatePurchaseParams struct {
 	Email            *string                 `json:"email"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LicenseId        *string                 `json:"license_id"`
+	Processed        *bool                   `json:"processed"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`

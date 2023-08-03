@@ -844,6 +844,11 @@ components:
           type: object
         entitlements_json:
           type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
         created_at:
           type: string
           format: date-time
@@ -881,6 +886,13 @@ components:
         entitlements_json:
           type: object
           nullable: true
+        license_id:
+          type: string
+          format: uuid
+          nullable: true
+        processed:
+          type: boolean
+          nullable: true
       required:
         - project_id
         - email
@@ -890,6 +902,8 @@ components:
         - purchase_json
         - selector_json
         - entitlements_json
+        - license_id
+        - processed
     UpdatePurchaseParams:
       title: UpdatePurchaseParams
       type: object
@@ -922,6 +936,13 @@ components:
         entitlements_json:
           type: object
           nullable: true
+        license_id:
+          type: string
+          format: uuid
+          nullable: true
+        processed:
+          type: boolean
+          nullable: true
         updated_at:
           type: string
           format: date-time
@@ -935,6 +956,8 @@ components:
         - purchase_json
         - selector_json
         - entitlements_json
+        - license_id
+        - processed
         - updated_at
     PatchPurchaseParams:
       title: PatchPurchaseParams
@@ -960,6 +983,11 @@ components:
           type: object
         entitlements_json:
           type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
         updated_at:
           type: string
           format: date-time
@@ -990,6 +1018,11 @@ components:
           type: object
         entitlements_json:
           type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
         created_at:
           type: string
           format: date-time
