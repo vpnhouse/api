@@ -55,7 +55,7 @@ type CreatePurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseId        *string                 `json:"license_id"`
 	Processed        *bool                   `json:"processed"`
-	ProjectId        string                  `json:"project_id"`
+	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
 	StartAt          *time.Time              `json:"start_at"`

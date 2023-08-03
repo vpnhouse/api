@@ -862,6 +862,7 @@ components:
         project_id:
           type: string
           format: uuid
+          nullable: true
         email:
           type: string
           nullable: true
