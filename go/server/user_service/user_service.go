@@ -40,6 +40,14 @@ type AuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at,omitempty"`
 }
 
+// Confirmation defines model for Confirmation.
+type Confirmation struct {
+	Confirmed *bool      `json:"confirmed,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
 // CreateAuthMethodParams defines model for CreateAuthMethodParams.
 type CreateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
@@ -54,6 +62,11 @@ type CreateAuthParams struct {
 	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
 	Identifier   *string                 `json:"identifier"`
 	UserId       *string                 `json:"user_id"`
+}
+
+// CreateConfirmationParams defines model for CreateConfirmationParams.
+type CreateConfirmationParams struct {
+	Confirmed *bool `json:"confirmed"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -184,6 +197,12 @@ type PatchAuthParams struct {
 	UserId       *string                 `json:"user_id,omitempty"`
 }
 
+// PatchConfirmationParams defines model for PatchConfirmationParams.
+type PatchConfirmationParams struct {
+	Confirmed *bool      `json:"confirmed,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
 // PatchInviteParams defines model for PatchInviteParams.
 type PatchInviteParams struct {
 	Email       *string                 `json:"email,omitempty"`
@@ -309,6 +328,12 @@ type UpdateAuthParams struct {
 	UserId       *string                 `json:"user_id"`
 }
 
+// UpdateConfirmationParams defines model for UpdateConfirmationParams.
+type UpdateConfirmationParams struct {
+	Confirmed *bool      `json:"confirmed"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
 // UpdateInviteParams defines model for UpdateInviteParams.
 type UpdateInviteParams struct {
 	Email       *string                 `json:"email"`
@@ -402,6 +427,21 @@ type PatchAuthJSONBody PatchAuthParams
 
 // UpdateAuthJSONBody defines parameters for UpdateAuth.
 type UpdateAuthJSONBody UpdateAuthParams
+
+// ListConfirmationParams defines parameters for ListConfirmation.
+type ListConfirmationParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// CreateConfirmationJSONBody defines parameters for CreateConfirmation.
+type CreateConfirmationJSONBody CreateConfirmationParams
+
+// PatchConfirmationJSONBody defines parameters for PatchConfirmation.
+type PatchConfirmationJSONBody PatchConfirmationParams
+
+// UpdateConfirmationJSONBody defines parameters for UpdateConfirmation.
+type UpdateConfirmationJSONBody UpdateConfirmationParams
 
 // ListEmailParams defines parameters for ListEmail.
 type ListEmailParams struct {
@@ -546,6 +586,15 @@ type PatchAuthJSONRequestBody PatchAuthJSONBody
 // UpdateAuthJSONRequestBody defines body for UpdateAuth for application/json ContentType.
 type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
+// CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
+type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
+
+// PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
+type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
+
+// UpdateConfirmationJSONRequestBody defines body for UpdateConfirmation for application/json ContentType.
+type UpdateConfirmationJSONRequestBody UpdateConfirmationJSONBody
+
 // FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
 type FindSessionJSONRequestBody FindSessionJSONBody
 
@@ -647,6 +696,24 @@ type ServerInterface interface {
 	// Update auth
 	// (PUT /api/user-service/auth/{id})
 	UpdateAuth(w http.ResponseWriter, r *http.Request, id string)
+	// List confirmation
+	// (GET /api/user-service/confirmation)
+	ListConfirmation(w http.ResponseWriter, r *http.Request, params ListConfirmationParams)
+	// Create confirmation
+	// (POST /api/user-service/confirmation)
+	CreateConfirmation(w http.ResponseWriter, r *http.Request)
+	// Delete a confirmation
+	// (DELETE /api/user-service/confirmation/{id})
+	DeleteConfirmation(w http.ResponseWriter, r *http.Request, id string)
+	// Get confirmation
+	// (GET /api/user-service/confirmation/{id})
+	GetConfirmation(w http.ResponseWriter, r *http.Request, id string)
+	// Patch confirmation
+	// (PATCH /api/user-service/confirmation/{id})
+	PatchConfirmation(w http.ResponseWriter, r *http.Request, id string)
+	// Update confirmation
+	// (PUT /api/user-service/confirmation/{id})
+	UpdateConfirmation(w http.ResponseWriter, r *http.Request, id string)
 	// List emails
 	// (GET /api/user-service/email)
 	ListEmail(w http.ResponseWriter, r *http.Request, params ListEmailParams)
@@ -1160,6 +1227,197 @@ func (siw *ServerInterfaceWrapper) UpdateAuth(w http.ResponseWriter, r *http.Req
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateAuth(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) ListConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListConfirmationParams
+
+	// ------------- Required query parameter "limit" -------------
+	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "offset" -------------
+	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListConfirmation(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) CreateConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateConfirmation(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// DeleteConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) DeleteConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteConfirmation(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) GetConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetConfirmation(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PatchConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) PatchConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PatchConfirmation(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// UpdateConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) UpdateConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateConfirmation(w, r, id)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2705,6 +2963,24 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/user-service/auth/{id}", wrapper.UpdateAuth)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/confirmation", wrapper.ListConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/user-service/confirmation", wrapper.CreateConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.DeleteConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.GetConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.PatchConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.UpdateConfirmation)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/email", wrapper.ListEmail)

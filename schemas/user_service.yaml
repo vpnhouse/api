@@ -1501,6 +1501,178 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchMailingParams'
 
+  /api/user-service/confirmation:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List confirmation
+      tags:
+        - list
+        - confirmation
+      operationId: list-confirmation
+      description: List confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Confirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create confirmation
+      tags:
+        - create
+        - confirmation
+      operationId: create-confirmation
+      description: Create a new confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConfirmationParams'
+  /api/user-service/confirmation/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get confirmation
+      tags:
+        - get
+        - confirmation
+      operationId: get-confirmation
+      description: Receive a specific confirmation by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Confirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a confirmation
+      tags:
+        - delete
+        - confirmation
+      operationId: delete-confirmation
+      description: Delete a specific confirmation by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update confirmation
+      tags:
+        - update
+        - confirmation
+      operationId: update-confirmation
+      description: Update confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConfirmationParams'
+    patch:
+      summary: Patch confirmation
+      tags:
+        - patch
+        - confirmation
+      operationId: patch-confirmation
+      description: Patch confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchConfirmationParams'
+
   /api/user-service/lookup-user:
     post:
       summary: Lookup user
@@ -2445,6 +2617,68 @@ components:
         updated_at:
           type: string
           format: date-time
+    Confirmation:
+      title: Confirmation
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        confirmed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateConfirmationParams:
+      title: CreateConfirmationParams
+      type: object
+      properties:
+        confirmed:
+          type: boolean
+          nullable: true
+      required:
+        - confirmed
+    UpdateConfirmationParams:
+      title: UpdateConfirmationParams
+      type: object
+      properties:
+        confirmed:
+          type: boolean
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - confirmed
+        - updated_at
+    PatchConfirmationParams:
+      title: PatchConfirmationParams
+      type: object
+      properties:
+        confirmed:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindConfirmationParams:
+      title: FindProjectParams
+      type: object
+      properties:
+        confirmed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     SessionToDeleteParams:
       title: SessionToDeleteParams
       type: object
@@ -2645,3 +2879,4 @@ tags:
   - name: invite
   - name: session
   - name: mailing
+  - name: confirmation

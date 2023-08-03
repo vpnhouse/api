@@ -46,6 +46,14 @@ type AuthMethod struct {
 	UpdatedAt *time.Time              `json:"updated_at,omitempty"`
 }
 
+// Confirmation defines model for Confirmation.
+type Confirmation struct {
+	Confirmed *bool      `json:"confirmed,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Id        *string    `json:"id,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+}
+
 // CreateAuthMethodParams defines model for CreateAuthMethodParams.
 type CreateAuthMethodParams struct {
 	Name      *string                 `json:"name"`
@@ -60,6 +68,11 @@ type CreateAuthParams struct {
 	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
 	Identifier   *string                 `json:"identifier"`
 	UserId       *string                 `json:"user_id"`
+}
+
+// CreateConfirmationParams defines model for CreateConfirmationParams.
+type CreateConfirmationParams struct {
+	Confirmed *bool `json:"confirmed"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -190,6 +203,12 @@ type PatchAuthParams struct {
 	UserId       *string                 `json:"user_id,omitempty"`
 }
 
+// PatchConfirmationParams defines model for PatchConfirmationParams.
+type PatchConfirmationParams struct {
+	Confirmed *bool      `json:"confirmed,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
 // PatchInviteParams defines model for PatchInviteParams.
 type PatchInviteParams struct {
 	Email       *string                 `json:"email,omitempty"`
@@ -315,6 +334,12 @@ type UpdateAuthParams struct {
 	UserId       *string                 `json:"user_id"`
 }
 
+// UpdateConfirmationParams defines model for UpdateConfirmationParams.
+type UpdateConfirmationParams struct {
+	Confirmed *bool      `json:"confirmed"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
 // UpdateInviteParams defines model for UpdateInviteParams.
 type UpdateInviteParams struct {
 	Email       *string                 `json:"email"`
@@ -408,6 +433,21 @@ type PatchAuthJSONBody PatchAuthParams
 
 // UpdateAuthJSONBody defines parameters for UpdateAuth.
 type UpdateAuthJSONBody UpdateAuthParams
+
+// ListConfirmationParams defines parameters for ListConfirmation.
+type ListConfirmationParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// CreateConfirmationJSONBody defines parameters for CreateConfirmation.
+type CreateConfirmationJSONBody CreateConfirmationParams
+
+// PatchConfirmationJSONBody defines parameters for PatchConfirmation.
+type PatchConfirmationJSONBody PatchConfirmationParams
+
+// UpdateConfirmationJSONBody defines parameters for UpdateConfirmation.
+type UpdateConfirmationJSONBody UpdateConfirmationParams
 
 // ListEmailParams defines parameters for ListEmail.
 type ListEmailParams struct {
@@ -551,6 +591,15 @@ type PatchAuthJSONRequestBody PatchAuthJSONBody
 
 // UpdateAuthJSONRequestBody defines body for UpdateAuth for application/json ContentType.
 type UpdateAuthJSONRequestBody UpdateAuthJSONBody
+
+// CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
+type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
+
+// PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
+type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
+
+// UpdateConfirmationJSONRequestBody defines body for UpdateConfirmation for application/json ContentType.
+type UpdateConfirmationJSONRequestBody UpdateConfirmationJSONBody
 
 // FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
 type FindSessionJSONRequestBody FindSessionJSONBody
@@ -735,6 +784,30 @@ type ClientInterface interface {
 	UpdateAuthWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateAuth(ctx context.Context, id string, body UpdateAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListConfirmation request
+	ListConfirmation(ctx context.Context, params *ListConfirmationParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateConfirmation request with any body
+	CreateConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteConfirmation request
+	DeleteConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetConfirmation request
+	GetConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchConfirmation request with any body
+	PatchConfirmationWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchConfirmation(ctx context.Context, id string, body PatchConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateConfirmation request with any body
+	UpdateConfirmationWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateConfirmation(ctx context.Context, id string, body UpdateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEmail request
 	ListEmail(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1114,6 +1187,114 @@ func (c *Client) UpdateAuthWithBody(ctx context.Context, id string, contentType 
 
 func (c *Client) UpdateAuth(ctx context.Context, id string, body UpdateAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateAuthRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListConfirmation(ctx context.Context, params *ListConfirmationParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListConfirmationRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateConfirmationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateConfirmationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteConfirmationRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetConfirmationRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchConfirmationWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchConfirmationRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchConfirmation(ctx context.Context, id string, body PatchConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchConfirmationRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateConfirmationWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateConfirmationRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateConfirmation(ctx context.Context, id string, body UpdateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateConfirmationRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2387,6 +2568,263 @@ func NewUpdateAuthRequestWithBody(server string, id string, contentType string, 
 	}
 
 	operationPath := fmt.Sprintf("/api/user-service/auth/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListConfirmationRequest generates requests for ListConfirmation
+func NewListConfirmationRequest(server string, params *ListConfirmationParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, params.Limit); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, params.Offset); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateConfirmationRequest calls the generic CreateConfirmation builder with application/json body
+func NewCreateConfirmationRequest(server string, body CreateConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateConfirmationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateConfirmationRequestWithBody generates requests for CreateConfirmation with any type of body
+func NewCreateConfirmationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteConfirmationRequest generates requests for DeleteConfirmation
+func NewDeleteConfirmationRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetConfirmationRequest generates requests for GetConfirmation
+func NewGetConfirmationRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPatchConfirmationRequest calls the generic PatchConfirmation builder with application/json body
+func NewPatchConfirmationRequest(server string, id string, body PatchConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchConfirmationRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPatchConfirmationRequestWithBody generates requests for PatchConfirmation with any type of body
+func NewPatchConfirmationRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateConfirmationRequest calls the generic UpdateConfirmation builder with application/json body
+func NewUpdateConfirmationRequest(server string, id string, body UpdateConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateConfirmationRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewUpdateConfirmationRequestWithBody generates requests for UpdateConfirmation with any type of body
+func NewUpdateConfirmationRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4406,6 +4844,30 @@ type ClientWithResponsesInterface interface {
 
 	UpdateAuthWithResponse(ctx context.Context, id string, body UpdateAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAuthResponse, error)
 
+	// ListConfirmation request
+	ListConfirmationWithResponse(ctx context.Context, params *ListConfirmationParams, reqEditors ...RequestEditorFn) (*ListConfirmationResponse, error)
+
+	// CreateConfirmation request with any body
+	CreateConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error)
+
+	CreateConfirmationWithResponse(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error)
+
+	// DeleteConfirmation request
+	DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error)
+
+	// GetConfirmation request
+	GetConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetConfirmationResponse, error)
+
+	// PatchConfirmation request with any body
+	PatchConfirmationWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchConfirmationResponse, error)
+
+	PatchConfirmationWithResponse(ctx context.Context, id string, body PatchConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchConfirmationResponse, error)
+
+	// UpdateConfirmation request with any body
+	UpdateConfirmationWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateConfirmationResponse, error)
+
+	UpdateConfirmationWithResponse(ctx context.Context, id string, body UpdateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateConfirmationResponse, error)
+
 	// ListEmail request
 	ListEmailWithResponse(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*ListEmailResponse, error)
 
@@ -4876,6 +5338,158 @@ func (r UpdateAuthResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateAuthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Confirmation
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Confirmation
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PatchConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PatchConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateConfirmationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6134,6 +6748,84 @@ func (c *ClientWithResponses) UpdateAuthWithResponse(ctx context.Context, id str
 	return ParseUpdateAuthResponse(rsp)
 }
 
+// ListConfirmationWithResponse request returning *ListConfirmationResponse
+func (c *ClientWithResponses) ListConfirmationWithResponse(ctx context.Context, params *ListConfirmationParams, reqEditors ...RequestEditorFn) (*ListConfirmationResponse, error) {
+	rsp, err := c.ListConfirmation(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListConfirmationResponse(rsp)
+}
+
+// CreateConfirmationWithBodyWithResponse request with arbitrary body returning *CreateConfirmationResponse
+func (c *ClientWithResponses) CreateConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error) {
+	rsp, err := c.CreateConfirmationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateConfirmationWithResponse(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error) {
+	rsp, err := c.CreateConfirmation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateConfirmationResponse(rsp)
+}
+
+// DeleteConfirmationWithResponse request returning *DeleteConfirmationResponse
+func (c *ClientWithResponses) DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error) {
+	rsp, err := c.DeleteConfirmation(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteConfirmationResponse(rsp)
+}
+
+// GetConfirmationWithResponse request returning *GetConfirmationResponse
+func (c *ClientWithResponses) GetConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*GetConfirmationResponse, error) {
+	rsp, err := c.GetConfirmation(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetConfirmationResponse(rsp)
+}
+
+// PatchConfirmationWithBodyWithResponse request with arbitrary body returning *PatchConfirmationResponse
+func (c *ClientWithResponses) PatchConfirmationWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchConfirmationResponse, error) {
+	rsp, err := c.PatchConfirmationWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchConfirmationWithResponse(ctx context.Context, id string, body PatchConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchConfirmationResponse, error) {
+	rsp, err := c.PatchConfirmation(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchConfirmationResponse(rsp)
+}
+
+// UpdateConfirmationWithBodyWithResponse request with arbitrary body returning *UpdateConfirmationResponse
+func (c *ClientWithResponses) UpdateConfirmationWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateConfirmationResponse, error) {
+	rsp, err := c.UpdateConfirmationWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateConfirmationWithResponse(ctx context.Context, id string, body UpdateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateConfirmationResponse, error) {
+	rsp, err := c.UpdateConfirmation(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateConfirmationResponse(rsp)
+}
+
 // ListEmailWithResponse request returning *ListEmailResponse
 func (c *ClientWithResponses) ListEmailWithResponse(ctx context.Context, params *ListEmailParams, reqEditors ...RequestEditorFn) (*ListEmailResponse, error) {
 	rsp, err := c.ListEmail(ctx, params, reqEditors...)
@@ -7236,6 +7928,302 @@ func ParseUpdateAuthResponse(rsp *http.Response) (*UpdateAuthResponse, error) {
 	}
 
 	response := &UpdateAuthResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListConfirmationResponse parses an HTTP response from a ListConfirmationWithResponse call
+func ParseListConfirmationResponse(rsp *http.Response) (*ListConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Confirmation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateConfirmationResponse parses an HTTP response from a CreateConfirmationWithResponse call
+func ParseCreateConfirmationResponse(rsp *http.Response) (*CreateConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteConfirmationResponse parses an HTTP response from a DeleteConfirmationWithResponse call
+func ParseDeleteConfirmationResponse(rsp *http.Response) (*DeleteConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetConfirmationResponse parses an HTTP response from a GetConfirmationWithResponse call
+func ParseGetConfirmationResponse(rsp *http.Response) (*GetConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Confirmation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchConfirmationResponse parses an HTTP response from a PatchConfirmationWithResponse call
+func ParsePatchConfirmationResponse(rsp *http.Response) (*PatchConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateConfirmationResponse parses an HTTP response from a UpdateConfirmationWithResponse call
+func ParseUpdateConfirmationResponse(rsp *http.Response) (*UpdateConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateConfirmationResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
