@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -50,6 +51,14 @@ type TokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// ConfirmParams defines parameters for Confirm.
+type ConfirmParams struct {
+	ConfirmationId string `json:"confirmation_id"`
+}
+
+// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
+type SendConfirmationLinkJSONBody SendConfirmationLinkRequest
+
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
 
@@ -59,11 +68,11 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
-type SendConfirmationLinkJSONBody SendConfirmationLinkRequest
-
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
+type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
 
 // AuthenticateJSONRequestBody defines body for Authenticate for application/json ContentType.
 type AuthenticateJSONRequestBody AuthenticateJSONBody
@@ -74,14 +83,17 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
-// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
-type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
-
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Confirm email
+	// (GET /api/client/confirm)
+	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Send confirmation link
+	// (POST /api/client/send-confirmation-link)
+	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
 	// Authenticate user
 	// (POST /api/client/signin)
 	Authenticate(w http.ResponseWriter, r *http.Request)
@@ -91,9 +103,6 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
-	// Send confirmation link
-	// (POST /api/service/send-confirmation-link)
-	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
 	// Authenticate service
 	// (POST /api/service/signin)
 	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
@@ -107,6 +116,55 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// Confirm operation middleware
+func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ConfirmParams
+
+	// ------------- Required query parameter "confirmation_id" -------------
+	if paramValue := r.URL.Query().Get("confirmation_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "confirmation_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "confirmation_id", r.URL.Query(), &params.ConfirmationId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "confirmation_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// SendConfirmationLink operation middleware
+func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendConfirmationLink(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // Authenticate operation middleware
 func (siw *ServerInterfaceWrapper) Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -156,23 +214,6 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Token(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// SendConfirmationLink operation middleware
-func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.SendConfirmationLink(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -313,6 +354,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/signin", wrapper.Authenticate)
 	})
 	r.Group(func(r chi.Router) {
@@ -320,9 +367,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/service/send-confirmation-link", wrapper.SendConfirmationLink)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
