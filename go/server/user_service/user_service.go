@@ -42,11 +42,12 @@ type AuthMethod struct {
 
 // Confirmation defines model for Confirmation.
 type Confirmation struct {
-	Confirmed *bool      `json:"confirmed,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Email     *string    `json:"email,omitempty"`
-	Id        *string    `json:"id,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	Confirmed  *bool      `json:"confirmed,omitempty"`
+	CreatedAt  *time.Time `json:"created_at,omitempty"`
+	Email      *string    `json:"email,omitempty"`
+	FirebaseId *string    `json:"firebase_id,omitempty"`
+	Id         *string    `json:"id,omitempty"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
 // CreateAuthMethodParams defines model for CreateAuthMethodParams.
@@ -67,8 +68,9 @@ type CreateAuthParams struct {
 
 // CreateConfirmationParams defines model for CreateConfirmationParams.
 type CreateConfirmationParams struct {
-	Confirmed *bool   `json:"confirmed"`
-	Email     *string `json:"email"`
+	Confirmed  *bool   `json:"confirmed"`
+	Email      *string `json:"email"`
+	FirebaseId *string `json:"firebase_id"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -201,9 +203,10 @@ type PatchAuthParams struct {
 
 // PatchConfirmationParams defines model for PatchConfirmationParams.
 type PatchConfirmationParams struct {
-	Confirmed *bool      `json:"confirmed,omitempty"`
-	Email     *string    `json:"email,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	Confirmed  *bool      `json:"confirmed,omitempty"`
+	Email      *string    `json:"email,omitempty"`
+	FirebaseId *string    `json:"firebase_id,omitempty"`
+	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
 // PatchInviteParams defines model for PatchInviteParams.
@@ -333,9 +336,10 @@ type UpdateAuthParams struct {
 
 // UpdateConfirmationParams defines model for UpdateConfirmationParams.
 type UpdateConfirmationParams struct {
-	Confirmed *bool      `json:"confirmed"`
-	Email     *string    `json:"email"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	Confirmed  *bool      `json:"confirmed"`
+	Email      *string    `json:"email"`
+	FirebaseId *string    `json:"firebase_id"`
+	UpdatedAt  *time.Time `json:"updated_at"`
 }
 
 // UpdateInviteParams defines model for UpdateInviteParams.

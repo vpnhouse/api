@@ -2626,6 +2626,8 @@ components:
           format: uuid
         email:
           type: string
+        firebase_id:
+          type: string
         confirmed:
           type: boolean
         created_at:
@@ -2641,17 +2643,24 @@ components:
         email:
           type: string
           nullable: true
+        firebase_id:
+          type: string
+          nullable: true
         confirmed:
           type: boolean
           nullable: true
       required:
         - email
+        - firebase_id
         - confirmed
     UpdateConfirmationParams:
       title: UpdateConfirmationParams
       type: object
       properties:
         email:
+          type: string
+          nullable: true
+        firebase_id:
           type: string
           nullable: true
         confirmed:
@@ -2663,6 +2672,7 @@ components:
           nullable: true
       required:
         - email
+        - firebase_id
         - confirmed
         - updated_at
     PatchConfirmationParams:
@@ -2670,6 +2680,8 @@ components:
       type: object
       properties:
         email:
+          type: string
+        firebase_id:
           type: string
         confirmed:
           type: boolean
@@ -2684,6 +2696,8 @@ components:
       type: object
       properties:
         email:
+          type: string
+        firebase_id:
           type: string
         confirmed:
           type: boolean
