@@ -203,6 +203,7 @@ components:
             client_platform: iphone
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             auth_type: firebase
             auth_info: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         example-anonymus:
@@ -211,6 +212,7 @@ components:
             client_platform: iphone
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             auth_type: anonymous
             auth_info: d269c0c4-288e-44d5-b719-ffd9096aa6ff
       properties:
@@ -227,6 +229,10 @@ components:
           type: string
           example: f7df7c7a-3569-401c-b612-f49b775bb19e
           format: uuid
+        installation_id:
+          type: string
+          example: f7df7c7a-3569-401c-b612-f49b775bb19e
+          format: uuid
         auth_type:
           type: string
           example: firebase
@@ -238,6 +244,7 @@ components:
         - client_platform
         - client_version
         - device_id
+        - installation_id
         - auth_type
         - auth_info
       writeOnly: true

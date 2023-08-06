@@ -25,6 +25,7 @@ type AuthRequest struct {
 	ClientPlatform string `json:"client_platform"`
 	ClientVersion  string `json:"client_version"`
 	DeviceId       string `json:"device_id"`
+	InstallationId string `json:"installation_id"`
 	Project        string `json:"project"`
 }
 
