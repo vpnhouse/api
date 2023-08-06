@@ -49,7 +49,8 @@ type SendConfirmationLinkRequest struct {
 
 // TokenRequest defines model for TokenRequest.
 type TokenRequest struct {
-	RefreshToken string `json:"refresh_token"`
+	InstallationId string `json:"installation_id"`
+	RefreshToken   string `json:"refresh_token"`
 }
 
 // ConfirmParams defines parameters for Confirm.

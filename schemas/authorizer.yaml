@@ -302,9 +302,13 @@ components:
       title: TokenRequest
       type: object
       properties:
+        installation_id:
+          type: string
+          format: uuid
         refresh_token:
           type: string
       required:
+        - installation_id
         - refresh_token
     SendConfirmationLinkRequest:
       title: SendConfirmationLinkRequest
