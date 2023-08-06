@@ -106,6 +106,7 @@ paths:
         - bearer: []
         - basic: []
     parameters: []
+
   /api/service/signin:
     post:
       summary: Authenticate service
@@ -190,6 +191,43 @@ paths:
       description: Confirm email
       tags:
         - confirmation
+  /api/client/license:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List licenses
+      tags:
+        - list
+        - license
+      operationId: list-license
+      description: Receive full list of licenses
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
 
 components:
   schemas:
@@ -318,6 +356,39 @@ components:
           type: string
       required:
         - email
+    License:
+      title: License
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 
   securitySchemes:
     bearer:

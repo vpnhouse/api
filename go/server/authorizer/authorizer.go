@@ -7,15 +7,17 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
 
 const (
-	ServiceKeyScopes = "ServiceKey.Scopes"
-	BasicScopes      = "basic.Scopes"
-	BearerScopes     = "bearer.Scopes"
+	ServiceKeyScopes  = "ServiceKey.Scopes"
+	ServiceNameScopes = "ServiceName.Scopes"
+	BasicScopes       = "basic.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // AuthRequest defines model for AuthRequest.
@@ -42,6 +44,21 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
+// License defines model for License.
+type License struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
 // SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
 type SendConfirmationLinkRequest struct {
 	Email string `json:"email"`
@@ -56,6 +73,12 @@ type TokenRequest struct {
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
+}
+
+// ListLicenseParams defines parameters for ListLicense.
+type ListLicenseParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -93,6 +116,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// List licenses
+	// (GET /api/client/license)
+	ListLicense(w http.ResponseWriter, r *http.Request, params ListLicenseParams)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -144,6 +170,58 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListLicense operation middleware
+func (siw *ServerInterfaceWrapper) ListLicense(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListLicenseParams
+
+	// ------------- Required query parameter "limit" -------------
+	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "offset" -------------
+	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLicense(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -357,6 +435,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/license", wrapper.ListLicense)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)

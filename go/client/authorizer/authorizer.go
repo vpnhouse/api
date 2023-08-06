@@ -13,15 +13,17 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	externalRef1 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
-	ServiceKeyScopes = "ServiceKey.Scopes"
-	BasicScopes      = "basic.Scopes"
-	BearerScopes     = "bearer.Scopes"
+	ServiceKeyScopes  = "ServiceKey.Scopes"
+	ServiceNameScopes = "ServiceName.Scopes"
+	BasicScopes       = "basic.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // AuthRequest defines model for AuthRequest.
@@ -48,6 +50,21 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
+// License defines model for License.
+type License struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
 // SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
 type SendConfirmationLinkRequest struct {
 	Email string `json:"email"`
@@ -62,6 +79,12 @@ type TokenRequest struct {
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
+}
+
+// ListLicenseParams defines parameters for ListLicense.
+type ListLicenseParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -170,6 +193,9 @@ type ClientInterface interface {
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListLicense request
+	ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -198,6 +224,18 @@ type ClientInterface interface {
 
 func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewConfirmRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLicenseRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -350,6 +388,61 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	queryValues := queryURL.Query()
 
 	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "confirmation_id", runtime.ParamLocationQuery, params.ConfirmationId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListLicenseRequest generates requests for ListLicense
+func NewListLicenseRequest(server string, params *ListLicenseParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/license")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, params.Limit); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, params.Offset); err != nil {
 		return nil, err
 	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 		return nil, err
@@ -617,6 +710,9 @@ type ClientWithResponsesInterface interface {
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
+	// ListLicense request
+	ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error)
+
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
@@ -662,6 +758,31 @@ func (r ConfirmResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ConfirmResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListLicenseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]License
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListLicenseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListLicenseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -806,6 +927,15 @@ func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *C
 	return ParseConfirmResponse(rsp)
 }
 
+// ListLicenseWithResponse request returning *ListLicenseResponse
+func (c *ClientWithResponses) ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error) {
+	rsp, err := c.ListLicense(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListLicenseResponse(rsp)
+}
+
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
 func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
 	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
@@ -911,6 +1041,53 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListLicenseResponse parses an HTTP response from a ListLicenseWithResponse call
+func ParseListLicenseResponse(rsp *http.Response) (*ListLicenseResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListLicenseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
