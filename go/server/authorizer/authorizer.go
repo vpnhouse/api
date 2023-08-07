@@ -44,19 +44,18 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
-// License defines model for License.
-type License struct {
+// Product defines model for Product.
+type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
@@ -75,8 +74,8 @@ type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
 }
 
-// ListLicenseParams defines parameters for ListLicense.
-type ListLicenseParams struct {
+// ListProductParams defines parameters for ListProduct.
+type ListProductParams struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
 }
@@ -116,9 +115,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
-	// List licenses
-	// (GET /api/client/license)
-	ListLicense(w http.ResponseWriter, r *http.Request, params ListLicenseParams)
+	// List product
+	// (GET /api/client/product)
+	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -179,8 +178,8 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	handler(w, r.WithContext(ctx))
 }
 
-// ListLicense operation middleware
-func (siw *ServerInterfaceWrapper) ListLicense(w http.ResponseWriter, r *http.Request) {
+// ListProduct operation middleware
+func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -190,7 +189,7 @@ func (siw *ServerInterfaceWrapper) ListLicense(w http.ResponseWriter, r *http.Re
 	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ListLicenseParams
+	var params ListProductParams
 
 	// ------------- Required query parameter "limit" -------------
 	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
@@ -221,7 +220,7 @@ func (siw *ServerInterfaceWrapper) ListLicense(w http.ResponseWriter, r *http.Re
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListLicense(w, r, params)
+		siw.Handler.ListProduct(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -437,7 +436,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/client/license", wrapper.ListLicense)
+		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)

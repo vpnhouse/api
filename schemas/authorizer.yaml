@@ -191,7 +191,7 @@ paths:
       description: Confirm email
       tags:
         - confirmation
-  /api/client/license:
+  /api/client/product:
     get:
       parameters:
         - schema:
@@ -204,12 +204,12 @@ paths:
           name: offset
           in: query
           required: true
-      summary: List licenses
+      summary: List product
       tags:
         - list
-        - license
-      operationId: list-license
-      description: Receive full list of licenses
+        - product
+      operationId: list-product
+      description: Receive full list of products
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
@@ -221,7 +221,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/License'
+                  $ref: '#/components/schemas/Product'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -356,33 +356,27 @@ components:
           type: string
       required:
         - email
-    License:
-      title: License
+    Product:
+      title: Product
       type: object
       properties:
         id:
           type: string
           format: uuid
-        project_id:
+        name:
           type: string
-          format: uuid
-        user_id:
+        license_type:
           type: string
-          format: uuid
-        start_at:
-          type: string
-          format: date-time
-        end_at:
-          type: string
-          format: date-time
-        disabled:
-          type: boolean
-        purchase_json:
+        payment_json:
           type: object
+        period:
+          type: string
         selector_json:
           type: object
         entitlements_json:
           type: object
+        disabled:
+          type: boolean
         created_at:
           type: string
           format: date-time

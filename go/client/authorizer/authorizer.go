@@ -50,19 +50,18 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
-// License defines model for License.
-type License struct {
+// Product defines model for Product.
+type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
@@ -81,8 +80,8 @@ type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
 }
 
-// ListLicenseParams defines parameters for ListLicense.
-type ListLicenseParams struct {
+// ListProductParams defines parameters for ListProduct.
+type ListProductParams struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
 }
@@ -193,8 +192,8 @@ type ClientInterface interface {
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListLicense request
-	ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListProduct request
+	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -234,8 +233,8 @@ func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListLicenseRequest(c.Server, params)
+func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProductRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -409,8 +408,8 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	return req, nil
 }
 
-// NewListLicenseRequest generates requests for ListLicense
-func NewListLicenseRequest(server string, params *ListLicenseParams) (*http.Request, error) {
+// NewListProductRequest generates requests for ListProduct
+func NewListProductRequest(server string, params *ListProductParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -418,7 +417,7 @@ func NewListLicenseRequest(server string, params *ListLicenseParams) (*http.Requ
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/client/license")
+	operationPath := fmt.Sprintf("/api/client/product")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -710,8 +709,8 @@ type ClientWithResponsesInterface interface {
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
-	// ListLicense request
-	ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error)
+	// ListProduct request
+	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
@@ -764,17 +763,17 @@ func (r ConfirmResponse) StatusCode() int {
 	return 0
 }
 
-type ListLicenseResponse struct {
+type ListProductResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]License
+	JSON200      *[]Product
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
-func (r ListLicenseResponse) Status() string {
+func (r ListProductResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -782,7 +781,7 @@ func (r ListLicenseResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListLicenseResponse) StatusCode() int {
+func (r ListProductResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -927,13 +926,13 @@ func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *C
 	return ParseConfirmResponse(rsp)
 }
 
-// ListLicenseWithResponse request returning *ListLicenseResponse
-func (c *ClientWithResponses) ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error) {
-	rsp, err := c.ListLicense(ctx, params, reqEditors...)
+// ListProductWithResponse request returning *ListProductResponse
+func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error) {
+	rsp, err := c.ListProduct(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListLicenseResponse(rsp)
+	return ParseListProductResponse(rsp)
 }
 
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
@@ -1068,22 +1067,22 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 	return response, nil
 }
 
-// ParseListLicenseResponse parses an HTTP response from a ListLicenseWithResponse call
-func ParseListLicenseResponse(rsp *http.Response) (*ListLicenseResponse, error) {
+// ParseListProductResponse parses an HTTP response from a ListProductWithResponse call
+func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListLicenseResponse{
+	response := &ListProductResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []License
+		var dest []Product
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
