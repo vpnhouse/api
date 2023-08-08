@@ -39,9 +39,10 @@ type AuthRequest struct {
 
 // AuthResponse defines model for AuthResponse.
 type AuthResponse struct {
-	AccessToken        string    `json:"access_token"`
-	DiscoveryAddresses *[]string `json:"discovery_addresses,omitempty"`
-	RefreshToken       *string   `json:"refresh_token,omitempty"`
+	AccessToken        string     `json:"access_token"`
+	DiscoveryAddresses *[]string  `json:"discovery_addresses,omitempty"`
+	ExpiresAt          *time.Time `json:"expires_at,omitempty"`
+	RefreshToken       *string    `json:"refresh_token,omitempty"`
 }
 
 // AuthServiceRequest defines model for AuthServiceRequest.

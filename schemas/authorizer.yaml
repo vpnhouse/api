@@ -334,6 +334,10 @@ components:
             type: string
             format: uri
             example: 'https://discovery.project.io/api/client/locations'
+        expires_at:
+          type: string
+          format: date-time
+
       required:
         - access_token
     TokenRequest:
