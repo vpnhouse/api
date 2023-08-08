@@ -73,6 +73,7 @@ type SendConfirmationLinkRequest struct {
 // TokenRequest defines model for TokenRequest.
 type TokenRequest struct {
 	InstallationId string `json:"installation_id"`
+	PlatformType   string `json:"platform_type"`
 	RefreshToken   string `json:"refresh_token"`
 }
 

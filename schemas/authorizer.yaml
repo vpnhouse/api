@@ -347,10 +347,13 @@ components:
         installation_id:
           type: string
           format: uuid
+        platform_type:
+          type: string
         refresh_token:
           type: string
       required:
         - installation_id
+        - platform_type
         - refresh_token
     SendConfirmationLinkRequest:
       title: SendConfirmationLinkRequest
