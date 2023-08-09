@@ -383,8 +383,12 @@ components:
       properties:
         email:
           type: string
+        project_id:
+          type: string
+          format: uuid
       required:
         - email
+        - project_id
     Product:
       title: Product
       type: object

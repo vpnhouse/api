@@ -61,7 +61,8 @@ type Product struct {
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
-	Email string `json:"email"`
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
 }
 
 // TokenRequest defines model for TokenRequest.
