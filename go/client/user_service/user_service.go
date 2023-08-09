@@ -51,6 +51,7 @@ type Confirmation struct {
 	Confirmed  *bool      `json:"confirmed,omitempty"`
 	CreatedAt  *time.Time `json:"created_at,omitempty"`
 	Email      *string    `json:"email,omitempty"`
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
 	FirebaseId *string    `json:"firebase_id,omitempty"`
 	Id         *string    `json:"id,omitempty"`
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
@@ -74,9 +75,10 @@ type CreateAuthParams struct {
 
 // CreateConfirmationParams defines model for CreateConfirmationParams.
 type CreateConfirmationParams struct {
-	Confirmed  *bool   `json:"confirmed"`
-	Email      *string `json:"email"`
-	FirebaseId *string `json:"firebase_id"`
+	Confirmed  *bool      `json:"confirmed"`
+	Email      *string    `json:"email"`
+	ExpiresAt  *time.Time `json:"expires_at"`
+	FirebaseId *string    `json:"firebase_id"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -211,6 +213,7 @@ type PatchAuthParams struct {
 type PatchConfirmationParams struct {
 	Confirmed  *bool      `json:"confirmed,omitempty"`
 	Email      *string    `json:"email,omitempty"`
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
 	FirebaseId *string    `json:"firebase_id,omitempty"`
 	UpdatedAt  *time.Time `json:"updated_at"`
 }
@@ -344,6 +347,7 @@ type UpdateAuthParams struct {
 type UpdateConfirmationParams struct {
 	Confirmed  *bool      `json:"confirmed"`
 	Email      *string    `json:"email"`
+	ExpiresAt  *time.Time `json:"expires_at"`
 	FirebaseId *string    `json:"firebase_id"`
 	UpdatedAt  *time.Time `json:"updated_at"`
 }

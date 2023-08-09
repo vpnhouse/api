@@ -2630,6 +2630,9 @@ components:
           type: string
         confirmed:
           type: boolean
+        expires_at:
+          type: string
+          format: date-time
         created_at:
           type: string
           format: date-time
@@ -2649,10 +2652,15 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
       required:
         - email
         - firebase_id
         - confirmed
+        - expires_at
     UpdateConfirmationParams:
       title: UpdateConfirmationParams
       type: object
@@ -2666,6 +2674,10 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
         updated_at:
           type: string
           format: date-time
@@ -2674,6 +2686,7 @@ components:
         - email
         - firebase_id
         - confirmed
+        - expires_at
         - updated_at
     PatchConfirmationParams:
       title: PatchConfirmationParams
@@ -2685,6 +2698,9 @@ components:
           type: string
         confirmed:
           type: boolean
+        expires_at:
+          type: string
+          format: date-time
         updated_at:
           type: string
           format: date-time
@@ -2702,6 +2718,9 @@ components:
         confirmed:
           type: boolean
         created_at:
+          type: string
+          format: date-time
+        expires_at:
           type: string
           format: date-time
         updated_at:
