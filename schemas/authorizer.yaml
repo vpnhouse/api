@@ -140,10 +140,38 @@ paths:
         - ServiceKey: [ ]
     parameters: []
 
+  /api/client/send-restore-link:
+    post:
+      summary: Send restore link
+      operationId: send-restore-link
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Send restore link to restore account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendRestoreLinkRequest'
+            examples: { }
+      tags:
+        - confirmation
+    parameters: [ ]
+
   /api/client/send-confirmation-link:
     post:
       summary: Send confirmation link
       operationId: send-confirmation-link
+      security:
+        - bearer: [ ]
       responses:
         '200':
           description: OK
@@ -156,12 +184,6 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
       description: Send confirmation link for email confirmation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SendConfirmationLinkRequest'
-            examples: { }
       tags:
         - confirmation
     parameters: [ ]
@@ -355,8 +377,8 @@ components:
         - installation_id
         - platform_type
         - refresh_token
-    SendConfirmationLinkRequest:
-      title: SendConfirmationLinkRequest
+    SendRestoreLinkRequest:
+      title: SendRestoreLinkRequest
       type: object
       properties:
         email:

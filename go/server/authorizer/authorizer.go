@@ -59,8 +59,8 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
-// SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
-type SendConfirmationLinkRequest struct {
+// SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
+type SendRestoreLinkRequest struct {
 	Email string `json:"email"`
 }
 
@@ -82,8 +82,8 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
-// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
-type SendConfirmationLinkJSONBody SendConfirmationLinkRequest
+// SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
+type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
@@ -97,8 +97,8 @@ type TokenJSONBody TokenRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
-// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
-type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+// SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
+type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
 
 // AuthenticateJSONRequestBody defines body for Authenticate for application/json ContentType.
 type AuthenticateJSONRequestBody AuthenticateJSONBody
@@ -123,6 +123,9 @@ type ServerInterface interface {
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
+	// Send restore link
+	// (POST /api/client/send-restore-link)
+	SendRestoreLink(w http.ResponseWriter, r *http.Request)
 	// Authenticate user
 	// (POST /api/client/signin)
 	Authenticate(w http.ResponseWriter, r *http.Request)
@@ -236,8 +239,25 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.SendConfirmationLink(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// SendRestoreLink operation middleware
+func (siw *ServerInterfaceWrapper) SendRestoreLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendRestoreLink(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -442,6 +462,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/send-restore-link", wrapper.SendRestoreLink)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/signin", wrapper.Authenticate)

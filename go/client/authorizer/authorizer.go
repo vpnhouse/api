@@ -65,8 +65,8 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
-// SendConfirmationLinkRequest defines model for SendConfirmationLinkRequest.
-type SendConfirmationLinkRequest struct {
+// SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
+type SendRestoreLinkRequest struct {
 	Email string `json:"email"`
 }
 
@@ -88,8 +88,8 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
-// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
-type SendConfirmationLinkJSONBody SendConfirmationLinkRequest
+// SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
+type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
@@ -103,8 +103,8 @@ type TokenJSONBody TokenRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
-// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
-type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+// SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
+type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
 
 // AuthenticateJSONRequestBody defines body for Authenticate for application/json ContentType.
 type AuthenticateJSONRequestBody AuthenticateJSONBody
@@ -197,10 +197,13 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SendConfirmationLink request with any body
-	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SendConfirmationLink request
+	SendConfirmationLink(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SendRestoreLink request with any body
+	SendRestoreLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendRestoreLink(ctx context.Context, body SendRestoreLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Authenticate request with any body
 	AuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -247,8 +250,8 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSendConfirmationLinkRequestWithBody(c.Server, contentType, body)
+func (c *Client) SendConfirmationLink(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendConfirmationLinkRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -259,8 +262,20 @@ func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType s
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSendConfirmationLinkRequest(c.Server, body)
+func (c *Client) SendRestoreLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendRestoreLinkRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendRestoreLink(ctx context.Context, body SendRestoreLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendRestoreLinkRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -465,19 +480,8 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
-// NewSendConfirmationLinkRequest calls the generic SendConfirmationLink builder with application/json body
-func NewSendConfirmationLinkRequest(server string, body SendConfirmationLinkJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSendConfirmationLinkRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewSendConfirmationLinkRequestWithBody generates requests for SendConfirmationLink with any type of body
-func NewSendConfirmationLinkRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewSendConfirmationLinkRequest generates requests for SendConfirmationLink
+func NewSendConfirmationLinkRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -486,6 +490,44 @@ func NewSendConfirmationLinkRequestWithBody(server string, contentType string, b
 	}
 
 	operationPath := fmt.Sprintf("/api/client/send-confirmation-link")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSendRestoreLinkRequest calls the generic SendRestoreLink builder with application/json body
+func NewSendRestoreLinkRequest(server string, body SendRestoreLinkJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendRestoreLinkRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendRestoreLinkRequestWithBody generates requests for SendRestoreLink with any type of body
+func NewSendRestoreLinkRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/send-restore-link")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -714,10 +756,13 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
-	// SendConfirmationLink request with any body
-	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+	// SendConfirmationLink request
+	SendConfirmationLinkWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
-	SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+	// SendRestoreLink request with any body
+	SendRestoreLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error)
+
+	SendRestoreLinkWithResponse(ctx context.Context, body SendRestoreLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error)
 
 	// Authenticate request with any body
 	AuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthenticateResponse, error)
@@ -809,6 +854,31 @@ func (r SendConfirmationLinkResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SendConfirmationLinkResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendRestoreLinkResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendRestoreLinkResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendRestoreLinkResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -937,21 +1007,30 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
-// SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
-func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
-	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
+// SendConfirmationLinkWithResponse request returning *SendConfirmationLinkResponse
+func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
+	rsp, err := c.SendConfirmationLink(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseSendConfirmationLinkResponse(rsp)
 }
 
-func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
-	rsp, err := c.SendConfirmationLink(ctx, body, reqEditors...)
+// SendRestoreLinkWithBodyWithResponse request with arbitrary body returning *SendRestoreLinkResponse
+func (c *ClientWithResponses) SendRestoreLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error) {
+	rsp, err := c.SendRestoreLinkWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseSendConfirmationLinkResponse(rsp)
+	return ParseSendRestoreLinkResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendRestoreLinkWithResponse(ctx context.Context, body SendRestoreLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error) {
+	rsp, err := c.SendRestoreLink(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendRestoreLinkResponse(rsp)
 }
 
 // AuthenticateWithBodyWithResponse request with arbitrary body returning *AuthenticateResponse
@@ -1125,6 +1204,53 @@ func ParseSendConfirmationLinkResponse(rsp *http.Response) (*SendConfirmationLin
 	}
 
 	response := &SendConfirmationLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendRestoreLinkResponse parses an HTTP response from a SendRestoreLinkWithResponse call
+func ParseSendRestoreLinkResponse(rsp *http.Response) (*SendRestoreLinkResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendRestoreLinkResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
