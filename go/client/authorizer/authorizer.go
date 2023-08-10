@@ -30,10 +30,10 @@ const (
 type AuthRequest struct {
 	AuthInfo       string `json:"auth_info"`
 	AuthType       string `json:"auth_type"`
-	ClientPlatform string `json:"client_platform"`
 	ClientVersion  string `json:"client_version"`
 	DeviceId       string `json:"device_id"`
 	InstallationId string `json:"installation_id"`
+	PlatformType   string `json:"platform_type"`
 	Project        string `json:"project"`
 }
 

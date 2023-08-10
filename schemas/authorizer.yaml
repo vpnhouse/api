@@ -260,7 +260,7 @@ components:
         example-paid:
           value:
             project: TestProject
-            client_platform: iphone
+            platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
@@ -269,7 +269,7 @@ components:
         example-anonymus:
           value:
             project: TestProject
-            client_platform: iphone
+            platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
@@ -279,7 +279,7 @@ components:
         project:
           type: string
           example: TestProject
-        client_platform:
+        platform_type:
           type: string
           example: iphone
         client_version:
@@ -301,7 +301,7 @@ components:
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
       required:
         - project
-        - client_platform
+        - platform_type
         - client_version
         - device_id
         - installation_id
