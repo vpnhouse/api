@@ -399,7 +399,6 @@ components:
         - expires_at
         - refresh_token
         - entitlements
-        - discovery_addresses
     SendRestoreLinkRequest:
       title: SendRestoreLinkRequest
       type: object
