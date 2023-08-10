@@ -389,11 +389,17 @@ components:
           type: string
         entitlements:
           type: object
+        discovery_addresses:
+          type: array
+          items:
+            type: string
+            format: uri
       required:
         - access_token
         - expires_at
         - refresh_token
         - entitlements
+        - discovery_addresses
     SendRestoreLinkRequest:
       title: SendRestoreLinkRequest
       type: object

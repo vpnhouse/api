@@ -74,10 +74,11 @@ type TokenRequest struct {
 
 // TokenResponse defines model for TokenResponse.
 type TokenResponse struct {
-	AccessToken  string                 `json:"access_token"`
-	Entitlements map[string]interface{} `json:"entitlements"`
-	ExpiresAt    time.Time              `json:"expires_at"`
-	RefreshToken string                 `json:"refresh_token"`
+	AccessToken        string                 `json:"access_token"`
+	DiscoveryAddresses []string               `json:"discovery_addresses"`
+	Entitlements       map[string]interface{} `json:"entitlements"`
+	ExpiresAt          time.Time              `json:"expires_at"`
+	RefreshToken       string                 `json:"refresh_token"`
 }
 
 // ConfirmParams defines parameters for Confirm.
