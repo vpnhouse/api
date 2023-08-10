@@ -72,6 +72,14 @@ type TokenRequest struct {
 	RefreshToken   string `json:"refresh_token"`
 }
 
+// TokenResponse defines model for TokenResponse.
+type TokenResponse struct {
+	AccessToken  string                 `json:"access_token"`
+	Entitlements map[string]interface{} `json:"entitlements"`
+	ExpiresAt    time.Time              `json:"expires_at"`
+	RefreshToken string                 `json:"refresh_token"`
+}
+
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
@@ -311,8 +319,6 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, BearerScopes, []string{""})
-
-	ctx = context.WithValue(ctx, BasicScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Token(w, r)

@@ -78,6 +78,14 @@ type TokenRequest struct {
 	RefreshToken   string `json:"refresh_token"`
 }
 
+// TokenResponse defines model for TokenResponse.
+type TokenResponse struct {
+	AccessToken  string                 `json:"access_token"`
+	Entitlements map[string]interface{} `json:"entitlements"`
+	ExpiresAt    time.Time              `json:"expires_at"`
+	RefreshToken string                 `json:"refresh_token"`
+}
+
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
@@ -941,7 +949,7 @@ func (r RegisterResponse) StatusCode() int {
 type TokenResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResponse
+	JSON200      *TokenResponse
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1413,7 +1421,7 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResponse
+		var dest TokenResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

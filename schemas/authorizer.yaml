@@ -83,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/TokenResponse'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -100,11 +100,10 @@ paths:
               $ref: '#/components/schemas/TokenRequest'
             examples: {}
       tags:
-        - register
+        - token
         - client
       security:
         - bearer: []
-        - basic: []
     parameters: []
 
   /api/service/signin:
@@ -163,7 +162,7 @@ paths:
               $ref: '#/components/schemas/SendRestoreLinkRequest'
             examples: { }
       tags:
-        - confirmation
+        - restore
     parameters: [ ]
 
   /api/client/send-confirmation-link:
@@ -212,7 +211,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
       description: Confirm email
       tags:
-        - confirmation
+        - confirm
   /api/client/product:
     get:
       parameters:
@@ -377,6 +376,24 @@ components:
         - installation_id
         - platform_type
         - refresh_token
+    TokenResponse:
+      title: TokenResponse
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        refresh_token:
+          type: string
+        entitlements:
+          type: object
+      required:
+        - access_token
+        - expires_at
+        - refresh_token
+        - entitlements
     SendRestoreLinkRequest:
       title: SendRestoreLinkRequest
       type: object
