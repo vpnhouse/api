@@ -258,7 +258,7 @@ components:
       x-examples:
         example-paid:
           value:
-            project: TestProject
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
             platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
@@ -267,7 +267,7 @@ components:
             auth_info: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         example-anonymus:
           value:
-            project: TestProject
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
             platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
@@ -277,7 +277,7 @@ components:
       properties:
         project:
           type: string
-          example: TestProject
+          example: 416d6d45-236b-4b39-a221-ed99abc7a4ff
         platform_type:
           type: string
           example: android
@@ -313,12 +313,12 @@ components:
       x-examples:
         example:
           value:
-            project: TestProject
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
             service_id: TestService
       properties:
         project:
           type: string
-          example: TestProject
+          example: 416d6d45-236b-4b39-a221-ed99abc7a4ff
         service_id:
           type: string
           example: TestService
@@ -358,6 +358,8 @@ components:
         expires_at:
           type: string
           format: date-time
+        entitlements:
+          type: object
 
       required:
         - access_token
