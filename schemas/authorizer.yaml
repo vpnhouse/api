@@ -263,7 +263,7 @@ components:
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
-            auth_type: firebase
+            auth_type: 1744c06e-846b-4212-8154-118760bc9387
             auth_info: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         example-anonymus:
           value:
@@ -272,7 +272,7 @@ components:
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
             installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
-            auth_type: anonymous
+            auth_type: 7e4cfc26-da82-4f04-aaa0-00d03f9de58f
             auth_info: d269c0c4-288e-44d5-b719-ffd9096aa6ff
       properties:
         project:
@@ -280,7 +280,7 @@ components:
           example: TestProject
         platform_type:
           type: string
-          example: iphone
+          example: android
         client_version:
           type: string
           example: 1.0.1
@@ -294,7 +294,7 @@ components:
           format: uuid
         auth_type:
           type: string
-          example: firebase
+          example: 1744c06e-846b-4212-8154-118760bc9387
         auth_info:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
