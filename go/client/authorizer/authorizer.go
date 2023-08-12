@@ -99,6 +99,9 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
+// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
+type SendConfirmationLinkJSONBody AuthRequest
+
 // SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
 type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
@@ -113,6 +116,9 @@ type TokenJSONBody TokenRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
+type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
 
 // SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
 type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
@@ -208,8 +214,10 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// SendConfirmationLink request
-	SendConfirmationLink(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// SendConfirmationLink request with any body
+	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -261,8 +269,20 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) SendConfirmationLink(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSendConfirmationLinkRequest(c.Server)
+func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendConfirmationLinkRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendConfirmationLinkRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -491,8 +511,19 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
-// NewSendConfirmationLinkRequest generates requests for SendConfirmationLink
-func NewSendConfirmationLinkRequest(server string) (*http.Request, error) {
+// NewSendConfirmationLinkRequest calls the generic SendConfirmationLink builder with application/json body
+func NewSendConfirmationLinkRequest(server string, body SendConfirmationLinkJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendConfirmationLinkRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendConfirmationLinkRequestWithBody generates requests for SendConfirmationLink with any type of body
+func NewSendConfirmationLinkRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -510,10 +541,12 @@ func NewSendConfirmationLinkRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -767,8 +800,10 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
-	// SendConfirmationLink request
-	SendConfirmationLinkWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+	// SendConfirmationLink request with any body
+	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+
+	SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error)
@@ -1018,9 +1053,17 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
-// SendConfirmationLinkWithResponse request returning *SendConfirmationLinkResponse
-func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
-	rsp, err := c.SendConfirmationLink(ctx, reqEditors...)
+// SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
+func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
+	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendConfirmationLinkResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
+	rsp, err := c.SendConfirmationLink(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

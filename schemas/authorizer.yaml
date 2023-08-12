@@ -185,6 +185,11 @@ paths:
       description: Send confirmation link for email confirmation
       tags:
         - confirmation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
     parameters: [ ]
 
   /api/client/confirm:

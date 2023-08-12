@@ -93,6 +93,9 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
+// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
+type SendConfirmationLinkJSONBody AuthRequest
+
 // SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
 type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
@@ -107,6 +110,9 @@ type TokenJSONBody TokenRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
+type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
 
 // SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
 type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
