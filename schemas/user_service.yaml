@@ -2626,8 +2626,11 @@ components:
           format: uuid
         email:
           type: string
-        firebase_id:
+        identifier:
           type: string
+        installation_id:
+          type: string
+          format: uuid
         confirmed:
           type: boolean
         expires_at:
@@ -2646,8 +2649,12 @@ components:
         email:
           type: string
           nullable: true
-        firebase_id:
+        identifier:
           type: string
+          nullable: true
+        installation_id:
+          type: string
+          format: uuid
           nullable: true
         confirmed:
           type: boolean
@@ -2668,8 +2675,12 @@ components:
         email:
           type: string
           nullable: true
-        firebase_id:
+        identifier:
           type: string
+          nullable: true
+        installation_id:
+          type: string
+          format: uuid
           nullable: true
         confirmed:
           type: boolean
@@ -2694,8 +2705,11 @@ components:
       properties:
         email:
           type: string
-        firebase_id:
+        identifier:
           type: string
+        installation_id:
+          type: string
+          format: uuid
         confirmed:
           type: boolean
         expires_at:
@@ -2713,8 +2727,11 @@ components:
       properties:
         email:
           type: string
-        firebase_id:
+        identifier:
           type: string
+        installation_id:
+          type: string
+          format: uuid
         confirmed:
           type: boolean
         created_at:
