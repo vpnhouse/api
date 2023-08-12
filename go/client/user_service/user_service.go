@@ -142,6 +142,17 @@ type FindAuthParams struct {
 	UserId       *string                 `json:"user_id,omitempty"`
 }
 
+// FindConfirmationParams defines model for FindConfirmationParams.
+type FindConfirmationParams struct {
+	Confirmed      *bool      `json:"confirmed,omitempty"`
+	CreatedAt      *time.Time `json:"created_at,omitempty"`
+	Email          *string    `json:"email,omitempty"`
+	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
+	Identifier     *string    `json:"identifier,omitempty"`
+	InstallationId *string    `json:"installation_id,omitempty"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+}
+
 // FindSessionParams defines model for FindSessionParams.
 type FindSessionParams struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
@@ -485,6 +496,9 @@ type ListEmailParams struct {
 // FindAuthJSONBody defines parameters for FindAuth.
 type FindAuthJSONBody FindAuthParams
 
+// FindConfirmationJSONBody defines parameters for FindConfirmation.
+type FindConfirmationJSONBody FindConfirmationParams
+
 // FindSessionJSONBody defines parameters for FindSession.
 type FindSessionJSONBody FindSessionParams
 
@@ -632,6 +646,9 @@ type UpdateConfirmationJSONRequestBody UpdateConfirmationJSONBody
 
 // FindAuthJSONRequestBody defines body for FindAuth for application/json ContentType.
 type FindAuthJSONRequestBody FindAuthJSONBody
+
+// FindConfirmationJSONRequestBody defines body for FindConfirmation for application/json ContentType.
+type FindConfirmationJSONRequestBody FindConfirmationJSONBody
 
 // FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
 type FindSessionJSONRequestBody FindSessionJSONBody
@@ -848,6 +865,11 @@ type ClientInterface interface {
 	FindAuthWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	FindAuth(ctx context.Context, body FindAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// FindConfirmation request with any body
+	FindConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	FindConfirmation(ctx context.Context, body FindConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// FindSession request with any body
 	FindSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1368,6 +1390,30 @@ func (c *Client) FindAuthWithBody(ctx context.Context, contentType string, body 
 
 func (c *Client) FindAuth(ctx context.Context, body FindAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindAuthRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindConfirmationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) FindConfirmation(ctx context.Context, body FindConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewFindConfirmationRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2997,6 +3043,46 @@ func NewFindAuthRequestWithBody(server string, contentType string, body io.Reade
 	}
 
 	operationPath := fmt.Sprintf("/api/user-service/find-auth")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewFindConfirmationRequest calls the generic FindConfirmation builder with application/json body
+func NewFindConfirmationRequest(server string, body FindConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewFindConfirmationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewFindConfirmationRequestWithBody generates requests for FindConfirmation with any type of body
+func NewFindConfirmationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/find-confirmation")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -4977,6 +5063,11 @@ type ClientWithResponsesInterface interface {
 
 	FindAuthWithResponse(ctx context.Context, body FindAuthJSONRequestBody, reqEditors ...RequestEditorFn) (*FindAuthResponse, error)
 
+	// FindConfirmation request with any body
+	FindConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindConfirmationResponse, error)
+
+	FindConfirmationWithResponse(ctx context.Context, body FindConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*FindConfirmationResponse, error)
+
 	// FindSession request with any body
 	FindSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindSessionResponse, error)
 
@@ -5648,6 +5739,33 @@ func (r FindAuthResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r FindAuthResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type FindConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]Confirmation
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r FindConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r FindConfirmationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6983,6 +7101,23 @@ func (c *ClientWithResponses) FindAuthWithResponse(ctx context.Context, body Fin
 		return nil, err
 	}
 	return ParseFindAuthResponse(rsp)
+}
+
+// FindConfirmationWithBodyWithResponse request with arbitrary body returning *FindConfirmationResponse
+func (c *ClientWithResponses) FindConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindConfirmationResponse, error) {
+	rsp, err := c.FindConfirmationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) FindConfirmationWithResponse(ctx context.Context, body FindConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*FindConfirmationResponse, error) {
+	rsp, err := c.FindConfirmation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindConfirmationResponse(rsp)
 }
 
 // FindSessionWithBodyWithResponse request with arbitrary body returning *FindSessionResponse
@@ -8482,6 +8617,67 @@ func ParseFindAuthResponse(rsp *http.Response) (*FindAuthResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []Auth
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseFindConfirmationResponse parses an HTTP response from a FindConfirmationWithResponse call
+func ParseFindConfirmationResponse(rsp *http.Response) (*FindConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &FindConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Confirmation
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

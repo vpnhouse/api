@@ -1708,6 +1708,42 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchConfirmationParams'
+  /api/user-service/find-confirmation:
+    get:
+      summary: Find confirmation
+      tags:
+        - patch
+        - confirmation
+        - find
+      operationId: find-confirmation
+      description: Find confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Confirmation'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindConfirmationParams'
 
   /api/user-service/lookup-user:
     post:
