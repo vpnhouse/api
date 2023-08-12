@@ -85,6 +85,7 @@ type TokenResponse struct {
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
+	PlatformType   string `json:"platform_type"`
 }
 
 // ListProductParams defines parameters for ListProduct.
@@ -186,6 +187,20 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	err = runtime.BindQueryParameter("form", true, true, "confirmation_id", r.URL.Query(), &params.ConfirmationId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "confirmation_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "platform_type"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
 		return
 	}
 

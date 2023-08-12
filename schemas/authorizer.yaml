@@ -201,11 +201,20 @@ paths:
           name: confirmation_id
           in: query
           required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: true
       summary: Confirm email
       operationId: confirm
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':

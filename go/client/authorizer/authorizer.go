@@ -91,6 +91,7 @@ type TokenResponse struct {
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
+	PlatformType   string `json:"platform_type"`
 }
 
 // ListProductParams defines parameters for ListProduct.
@@ -435,6 +436,18 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	queryValues := queryURL.Query()
 
 	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "confirmation_id", runtime.ParamLocationQuery, params.ConfirmationId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, params.PlatformType); err != nil {
 		return nil, err
 	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 		return nil, err
@@ -834,6 +847,7 @@ type ClientWithResponsesInterface interface {
 type ConfirmResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *AuthResponse
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -1169,6 +1183,13 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AuthResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
