@@ -126,6 +126,16 @@ type CreateUserParams struct {
 	ProjectId   *string                 `json:"project_id"`
 }
 
+// FindAuthParams defines model for FindAuthParams.
+type FindAuthParams struct {
+	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
+	ExtendedInfo *map[string]interface{} `json:"extended_info,omitempty"`
+	Identifier   *string                 `json:"identifier,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
+	UserId       *string                 `json:"user_id,omitempty"`
+}
+
 // FindSessionParams defines model for FindSessionParams.
 type FindSessionParams struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
@@ -466,6 +476,9 @@ type ListEmailParams struct {
 	Limit      *int   `json:"limit,omitempty"`
 }
 
+// FindAuthJSONBody defines parameters for FindAuth.
+type FindAuthJSONBody FindAuthParams
+
 // FindSessionJSONBody defines parameters for FindSession.
 type FindSessionJSONBody FindSessionParams
 
@@ -611,6 +624,9 @@ type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
 // UpdateConfirmationJSONRequestBody defines body for UpdateConfirmation for application/json ContentType.
 type UpdateConfirmationJSONRequestBody UpdateConfirmationJSONBody
 
+// FindAuthJSONRequestBody defines body for FindAuth for application/json ContentType.
+type FindAuthJSONRequestBody FindAuthJSONBody
+
 // FindSessionJSONRequestBody defines body for FindSession for application/json ContentType.
 type FindSessionJSONRequestBody FindSessionJSONBody
 
@@ -733,6 +749,9 @@ type ServerInterface interface {
 	// List emails
 	// (GET /api/user-service/email)
 	ListEmail(w http.ResponseWriter, r *http.Request, params ListEmailParams)
+	// Find auth
+	// (GET /api/user-service/find-auth)
+	FindAuth(w http.ResponseWriter, r *http.Request)
 	// Find session
 	// (GET /api/user-service/find-session)
 	FindSession(w http.ResponseWriter, r *http.Request)
@@ -1497,6 +1516,25 @@ func (siw *ServerInterfaceWrapper) ListEmail(w http.ResponseWriter, r *http.Requ
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListEmail(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// FindAuth operation middleware
+func (siw *ServerInterfaceWrapper) FindAuth(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.FindAuth(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3000,6 +3038,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/email", wrapper.ListEmail)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/find-auth", wrapper.FindAuth)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/find-session", wrapper.FindSession)

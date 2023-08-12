@@ -803,6 +803,42 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchAuthParams'
+  /api/user-service/find-auth:
+    get:
+      summary: Find auth
+      tags:
+        - patch
+        - auth
+        - find
+      operationId: find-auth
+      description: Find auth
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auth'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindAuthParams'
 
   /api/user-service/invite-by-token-id/{token_id}:
     parameters:
