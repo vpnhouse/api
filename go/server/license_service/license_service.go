@@ -234,6 +234,13 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// GetEntitlementsParams defines parameters for GetEntitlements.
+type GetEntitlementsParams struct {
+	ProjectId    string `json:"project_id"`
+	UserId       string `json:"user_id"`
+	PlatformType string `json:"platform_type"`
+}
+
 // FindLicenseJSONBody defines parameters for FindLicense.
 type FindLicenseJSONBody FindLicenseParams
 
@@ -332,6 +339,9 @@ type ServerInterface interface {
 	// Copy all purchases find by email and create new licenses for user in given project
 	// (GET /api/license-service/apply-for-user-by-email)
 	ApplyForUserByEmail(w http.ResponseWriter, r *http.Request)
+	// Get entitlements
+	// (GET /api/license-service/entitlements)
+	GetEntitlements(w http.ResponseWriter, r *http.Request, params GetEntitlementsParams)
 	// Find license
 	// (GET /api/license-service/find-license)
 	FindLicense(w http.ResponseWriter, r *http.Request)
@@ -416,6 +426,68 @@ func (siw *ServerInterfaceWrapper) ApplyForUserByEmail(w http.ResponseWriter, r 
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyForUserByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetEntitlements operation middleware
+func (siw *ServerInterfaceWrapper) GetEntitlements(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetEntitlementsParams
+
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "user_id" -------------
+	if paramValue := r.URL.Query().Get("user_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "user_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "user_id", r.URL.Query(), &params.UserId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "platform_type"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetEntitlements(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1170,6 +1242,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/apply-for-user-by-email", wrapper.ApplyForUserByEmail)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/entitlements", wrapper.GetEntitlements)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/find-license", wrapper.FindLicense)

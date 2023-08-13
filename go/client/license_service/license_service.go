@@ -240,6 +240,13 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// GetEntitlementsParams defines parameters for GetEntitlements.
+type GetEntitlementsParams struct {
+	ProjectId    string `json:"project_id"`
+	UserId       string `json:"user_id"`
+	PlatformType string `json:"platform_type"`
+}
+
 // FindLicenseJSONBody defines parameters for FindLicense.
 type FindLicenseJSONBody FindLicenseParams
 
@@ -411,6 +418,9 @@ type ClientInterface interface {
 
 	ApplyForUserByEmail(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetEntitlements request
+	GetEntitlements(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// FindLicense request with any body
 	FindLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -513,6 +523,18 @@ func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType st
 
 func (c *Client) ApplyForUserByEmail(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplyForUserByEmailRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetEntitlements(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEntitlementsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -955,6 +977,73 @@ func NewApplyForUserByEmailRequestWithBody(server string, contentType string, bo
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEntitlementsRequest generates requests for GetEntitlements
+func NewGetEntitlementsRequest(server string, params *GetEntitlementsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/entitlements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id", runtime.ParamLocationQuery, params.UserId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, params.PlatformType); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1898,6 +1987,9 @@ type ClientWithResponsesInterface interface {
 
 	ApplyForUserByEmailWithResponse(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error)
 
+	// GetEntitlements request
+	GetEntitlementsWithResponse(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*GetEntitlementsResponse, error)
+
 	// FindLicense request with any body
 	FindLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindLicenseResponse, error)
 
@@ -2005,6 +2097,32 @@ func (r ApplyForUserByEmailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ApplyForUserByEmailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEntitlementsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEntitlementsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEntitlementsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2565,6 +2683,15 @@ func (c *ClientWithResponses) ApplyForUserByEmailWithResponse(ctx context.Contex
 	return ParseApplyForUserByEmailResponse(rsp)
 }
 
+// GetEntitlementsWithResponse request returning *GetEntitlementsResponse
+func (c *ClientWithResponses) GetEntitlementsWithResponse(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*GetEntitlementsResponse, error) {
+	rsp, err := c.GetEntitlements(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEntitlementsResponse(rsp)
+}
+
 // FindLicenseWithBodyWithResponse request with arbitrary body returning *FindLicenseResponse
 func (c *ClientWithResponses) FindLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*FindLicenseResponse, error) {
 	rsp, err := c.FindLicenseWithBody(ctx, contentType, body, reqEditors...)
@@ -2870,6 +2997,60 @@ func ParseApplyForUserByEmailResponse(rsp *http.Response) (*ApplyForUserByEmailR
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEntitlementsResponse parses an HTTP response from a GetEntitlementsWithResponse call
+func ParseGetEntitlementsResponse(rsp *http.Response) (*GetEntitlementsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEntitlementsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
