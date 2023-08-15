@@ -2696,8 +2696,6 @@ components:
         id:
           type: string
           format: uuid
-        email:
-          type: string
         identifier:
           type: string
         installation_id:
@@ -2718,9 +2716,6 @@ components:
       title: CreateConfirmationParams
       type: object
       properties:
-        email:
-          type: string
-          nullable: true
         identifier:
           type: string
           nullable: true
@@ -2744,9 +2739,6 @@ components:
       title: UpdateConfirmationParams
       type: object
       properties:
-        email:
-          type: string
-          nullable: true
         identifier:
           type: string
           nullable: true
@@ -2775,8 +2767,6 @@ components:
       title: PatchConfirmationParams
       type: object
       properties:
-        email:
-          type: string
         identifier:
           type: string
         installation_id:
@@ -2797,8 +2787,6 @@ components:
       title: FindProjectParams
       type: object
       properties:
-        email:
-          type: string
         identifier:
           type: string
         installation_id:

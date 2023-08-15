@@ -44,7 +44,6 @@ type AuthMethod struct {
 type Confirmation struct {
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
-	Email          *string    `json:"email,omitempty"`
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
@@ -71,7 +70,6 @@ type CreateAuthParams struct {
 // CreateConfirmationParams defines model for CreateConfirmationParams.
 type CreateConfirmationParams struct {
 	Confirmed      *bool      `json:"confirmed"`
-	Email          *string    `json:"email"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
@@ -140,7 +138,6 @@ type FindAuthParams struct {
 type FindConfirmationParams struct {
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
-	Email          *string    `json:"email,omitempty"`
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
@@ -229,7 +226,6 @@ type PatchAuthParams struct {
 // PatchConfirmationParams defines model for PatchConfirmationParams.
 type PatchConfirmationParams struct {
 	Confirmed      *bool      `json:"confirmed,omitempty"`
-	Email          *string    `json:"email,omitempty"`
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
@@ -364,7 +360,6 @@ type UpdateAuthParams struct {
 // UpdateConfirmationParams defines model for UpdateConfirmationParams.
 type UpdateConfirmationParams struct {
 	Confirmed      *bool      `json:"confirmed"`
-	Email          *string    `json:"email"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
