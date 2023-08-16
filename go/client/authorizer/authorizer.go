@@ -85,7 +85,6 @@ type TokenResponse struct {
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
 	ExpiresAt          time.Time              `json:"expires_at"`
-	RefreshToken       string                 `json:"refresh_token"`
 }
 
 // ConfirmParams defines parameters for Confirm.
