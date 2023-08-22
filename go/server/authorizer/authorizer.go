@@ -60,6 +60,23 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
+// Purchase defines model for Purchase.
+type Purchase struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Email            *string                 `json:"email,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	LicenseId        *string                 `json:"license_id,omitempty"`
+	Processed        *bool                   `json:"processed,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -91,6 +108,11 @@ type ConfirmParams struct {
 type ListProductParams struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
+}
+
+// ListPurchaseParams defines parameters for ListPurchase.
+type ListPurchaseParams struct {
+	UserId string `json:"user_id"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -137,6 +159,9 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// List purchases by user_id
+	// (GET /api/client/purchases)
+	ListPurchase(w http.ResponseWriter, r *http.Request, params ListPurchaseParams)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -257,6 +282,44 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ListPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListPurchaseParams
+
+	// ------------- Required query parameter "user_id" -------------
+	if paramValue := r.URL.Query().Get("user_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "user_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "user_id", r.URL.Query(), &params.UserId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListPurchase(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -488,6 +551,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/purchases", wrapper.ListPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
