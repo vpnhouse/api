@@ -264,7 +264,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/client/purchases:
+  /api/client/purchase-by-user:
     get:
       parameters:
         - schema:
@@ -277,7 +277,7 @@ paths:
       tags:
         - find
         - purchase
-      operationId: list-purchase
+      operationId: list-purchase-by-user
       description: List purchases by user_id
       security:
         - ServiceKey: [ ]

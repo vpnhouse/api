@@ -110,8 +110,8 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
-// ListPurchaseParams defines parameters for ListPurchase.
-type ListPurchaseParams struct {
+// ListPurchaseByUserParams defines parameters for ListPurchaseByUser.
+type ListPurchaseByUserParams struct {
 	UserId string `json:"user_id"`
 }
 
@@ -160,8 +160,8 @@ type ServerInterface interface {
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
 	// List purchases by user_id
-	// (GET /api/client/purchases)
-	ListPurchase(w http.ResponseWriter, r *http.Request, params ListPurchaseParams)
+	// (GET /api/client/purchase-by-user)
+	ListPurchaseByUser(w http.ResponseWriter, r *http.Request, params ListPurchaseByUserParams)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -291,8 +291,8 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
-// ListPurchase operation middleware
-func (siw *ServerInterfaceWrapper) ListPurchase(w http.ResponseWriter, r *http.Request) {
+// ListPurchaseByUser operation middleware
+func (siw *ServerInterfaceWrapper) ListPurchaseByUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -302,7 +302,7 @@ func (siw *ServerInterfaceWrapper) ListPurchase(w http.ResponseWriter, r *http.R
 	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ListPurchaseParams
+	var params ListPurchaseByUserParams
 
 	// ------------- Required query parameter "user_id" -------------
 	if paramValue := r.URL.Query().Get("user_id"); paramValue != "" {
@@ -319,7 +319,7 @@ func (siw *ServerInterfaceWrapper) ListPurchase(w http.ResponseWriter, r *http.R
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListPurchase(w, r, params)
+		siw.Handler.ListPurchaseByUser(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -553,7 +553,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/client/purchases", wrapper.ListPurchase)
+		r.Get(options.BaseURL+"/api/client/purchase-by-user", wrapper.ListPurchaseByUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)

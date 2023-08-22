@@ -116,8 +116,8 @@ type ListProductParams struct {
 	Offset int `json:"offset"`
 }
 
-// ListPurchaseParams defines parameters for ListPurchase.
-type ListPurchaseParams struct {
+// ListPurchaseByUserParams defines parameters for ListPurchaseByUser.
+type ListPurchaseByUserParams struct {
 	UserId string `json:"user_id"`
 }
 
@@ -236,8 +236,8 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListPurchase request
-	ListPurchase(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListPurchaseByUser request
+	ListPurchaseByUser(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -294,8 +294,8 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListPurchase(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListPurchaseRequest(c.Server, params)
+func (c *Client) ListPurchaseByUser(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListPurchaseByUserRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -560,8 +560,8 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
-// NewListPurchaseRequest generates requests for ListPurchase
-func NewListPurchaseRequest(server string, params *ListPurchaseParams) (*http.Request, error) {
+// NewListPurchaseByUserRequest generates requests for ListPurchaseByUser
+func NewListPurchaseByUserRequest(server string, params *ListPurchaseByUserParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -569,7 +569,7 @@ func NewListPurchaseRequest(server string, params *ListPurchaseParams) (*http.Re
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/client/purchases")
+	operationPath := fmt.Sprintf("/api/client/purchase-by-user")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -892,8 +892,8 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
-	// ListPurchase request
-	ListPurchaseWithResponse(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*ListPurchaseResponse, error)
+	// ListPurchaseByUser request
+	ListPurchaseByUserWithResponse(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*ListPurchaseByUserResponse, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
@@ -977,7 +977,7 @@ func (r ListProductResponse) StatusCode() int {
 	return 0
 }
 
-type ListPurchaseResponse struct {
+type ListPurchaseByUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]Purchase
@@ -989,7 +989,7 @@ type ListPurchaseResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r ListPurchaseResponse) Status() string {
+func (r ListPurchaseByUserResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -997,7 +997,7 @@ func (r ListPurchaseResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListPurchaseResponse) StatusCode() int {
+func (r ListPurchaseByUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1176,13 +1176,13 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
-// ListPurchaseWithResponse request returning *ListPurchaseResponse
-func (c *ClientWithResponses) ListPurchaseWithResponse(ctx context.Context, params *ListPurchaseParams, reqEditors ...RequestEditorFn) (*ListPurchaseResponse, error) {
-	rsp, err := c.ListPurchase(ctx, params, reqEditors...)
+// ListPurchaseByUserWithResponse request returning *ListPurchaseByUserResponse
+func (c *ClientWithResponses) ListPurchaseByUserWithResponse(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*ListPurchaseByUserResponse, error) {
+	rsp, err := c.ListPurchaseByUser(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListPurchaseResponse(rsp)
+	return ParseListPurchaseByUserResponse(rsp)
 }
 
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
@@ -1388,15 +1388,15 @@ func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) 
 	return response, nil
 }
 
-// ParseListPurchaseResponse parses an HTTP response from a ListPurchaseWithResponse call
-func ParseListPurchaseResponse(rsp *http.Response) (*ListPurchaseResponse, error) {
+// ParseListPurchaseByUserResponse parses an HTTP response from a ListPurchaseByUserWithResponse call
+func ParseListPurchaseByUserResponse(rsp *http.Response) (*ListPurchaseByUserResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListPurchaseResponse{
+	response := &ListPurchaseByUserResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
