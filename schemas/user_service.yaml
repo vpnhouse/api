@@ -1,0 +1,3006 @@
+openapi: 3.0.3
+
+info:
+  title: user-service
+  version: '1.0'
+  contact:
+    email: support@vpnhouse.net
+    name: Dmitry Efimov
+  description: user-service API
+
+servers:
+  - description: Local
+    url: http://localhost:8585
+
+paths:
+  /api/user-service/project:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List projects
+      tags:
+        - list
+        - project
+      operationId: list-project
+      description: Receive a full list of projects
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create project
+      tags:
+        - create
+        - project
+      operationId: create-project
+      description: Create a new project
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectParams'
+  /api/user-service/project/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get project
+      tags:
+        - get
+        - project
+      operationId: get-project
+      description: Receive a specific project by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a project
+      tags:
+        - delete
+        - project
+      operationId: delete-project
+      description: Delete a specific project by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update project
+      tags:
+        - update
+        - project
+      operationId: update-project
+      description: Update project
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectParams'
+    patch:
+      summary: Patch project
+      tags:
+        - patch
+        - project
+      operationId: patch-project
+      description: Patch project
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchProjectParams'
+
+  /api/user-service/user:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List users
+      tags:
+        - list
+        - user
+      operationId: list-user
+      description: Receive full list of users
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create user
+      tags:
+        - create
+        - user
+      operationId: create-user
+      description: Create a new user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserParams'
+
+  /api/user-service/user/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get user
+      tags:
+        - get
+        - user
+      operationId: get-user
+      description: Receive a specific user by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a user
+      tags:
+        - delete
+        - user
+      operationId: delete-user
+      description: Delete a specific user by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update user
+      tags:
+        - update
+        - user
+      operationId: update-user
+      description: Update user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserParams'
+    patch:
+      summary: Patch user
+      tags:
+        - patch
+        - user
+      operationId: patch-user
+      description: Patch user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUserParams'
+  /api/user-service/find-user:
+    get:
+      summary: Find user
+      tags:
+        - find
+        - user
+      operationId: find-user
+      description: Find user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindUserParams'
+
+  /api/user-service/list-connected-users:
+    get:
+      parameters:
+        - schema:
+            type: array
+            items:
+              type: string
+          name: ids
+          in: query
+          required: true
+      summary: List connected users
+      tags:
+        - list
+        - user
+        - connected
+      operationId: list-connected-users
+      description: List connected users
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/update-peers-as-connected:
+    get:
+      parameters:
+        - schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+          name: ids
+          in: query
+          required: true
+      summary: Update peers as connected
+      tags:
+        - update
+        - peer
+        - connected
+      operationId: update-peers-as-connected
+      description: Update peers as connected
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/auth-method:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List auth methods
+      tags:
+        - list
+        - auth-method
+      operationId: list-auth-method
+      description: Receive full list of auth methods
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthMethod'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Add auth method
+      tags:
+        - create
+        - auth-method
+      operationId: create-auth-method
+      description: Create a new auth method
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthMethodParams'
+  /api/user-service/auth-method/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get auth method
+      tags:
+        - get
+        - auth-method
+      operationId: get-auth-method
+      description: Receive a specific auth method by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthMethod'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a auth method
+      tags:
+        - delete
+        - auth-method
+      operationId: delete-auth-method
+      description: Delete a specific auth method by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update auth method
+      tags:
+        - update
+        - auth-method
+      operationId: update-auth-method
+      description: Update auth method
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAuthMethodParams'
+    patch:
+      summary: Patch auth method
+      tags:
+        - patch
+        - auth-method
+      operationId: patch-auth-method
+      description: Patch auth method
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAuthMethodParams'
+
+  /api/user-service/auth:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List authorisations
+      tags:
+        - list
+        - auth
+      operationId: list-auth
+      description: Receive full list of authorisation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auth'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create an authorisation
+      tags:
+        - create
+        - auth
+      operationId: create-auth
+      description: Create a new authorisation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthParams'
+  /api/user-service/auth/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get a authorisation
+      tags:
+        - get
+        - auth
+      operationId: get-auth
+      description: Get a specific authorisation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a auth
+      tags:
+        - delete
+        - auth
+      operationId: delete-auth
+      description: Delete a specific auth by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update auth
+      tags:
+        - update
+        - auth
+      operationId: update-auth
+      description: Update auth
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAuthParams'
+    patch:
+      summary: Patch auth
+      tags:
+        - patch
+        - auth
+      operationId: patch-auth
+      description: Patch auth
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAuthParams'
+  /api/user-service/find-auth:
+    get:
+      summary: Find auth
+      tags:
+        - patch
+        - auth
+        - find
+      operationId: find-auth
+      description: Find auth
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auth'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindAuthParams'
+
+  /api/user-service/invite-by-token-id/{token_id}:
+    parameters:
+      - schema:
+          type: string
+        name: token_id
+        in: path
+        required: true
+    get:
+      summary: List invites
+      tags:
+        - get
+        - token-id
+        - invite
+      operationId: get-invite-by-token-id
+      description: Receive a specific invite by token_id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/invite:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List invites
+      tags:
+        - list
+        - invite
+      operationId: list-invite
+      description: Receive a list of invites
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create an invite
+      tags:
+        - create
+        - invite
+      operationId: create-invite
+      description: Create a new invite
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInviteParams'
+  /api/user-service/invite/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get an invite
+      tags:
+        - get
+        - invite
+      operationId: get-invite
+      description: Get a specific invite by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a invite
+      tags:
+        - delete
+        - invite
+      operationId: delete-invite
+      description: Delete a specific invite by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update invite
+      tags:
+        - update
+        - invite
+      operationId: update-invite
+      description: Update invite
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInviteParams'
+    patch:
+      summary: Patch invite
+      tags:
+        - patch
+        - invite
+      operationId: patch-invite
+      description: Patch invite
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchInviteParams'
+
+  /api/user-service/session-filter:
+    parameters:
+      - schema:
+          type: string
+        name: token_id
+        in: query
+      - schema:
+          type: string
+        name: label
+        in: query
+      - schema:
+          type: boolean
+        name: deleted
+        in: query
+      - schema:
+          type: string
+        name: node
+        in: query
+      - schema:
+          type: array
+          items:
+            type: string
+        name: peer_ids
+        in: query
+    get:
+      summary: List sessions with filter
+      tags:
+        - list
+        - session
+        - filter
+      operationId: list-session-filter
+      description: Receive a list of filtered sessions
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/session:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List sessions
+      tags:
+        - list
+        - session
+      operationId: list-session
+      description: Receive a list of sessions
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create a session
+      tags:
+        - create
+        - session
+      operationId: create-session
+      description: Create a session
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionParams'
+  /api/user-service/session/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get a session
+      tags:
+        - get
+        - session
+      operationId: get-session
+      description: Get a specific session by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a session
+      tags:
+        - delete
+        - session
+      operationId: delete-session
+      description: Delete a specific session by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update session
+      tags:
+        - update
+        - session
+      operationId: update-session
+      description: Update session
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSessionParams'
+    patch:
+      summary: Patch session
+      tags:
+        - patch
+        - session
+      operationId: patch-session
+      description: Patch session data
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchSessionParams'
+
+  /api/user-service/find-session:
+    get:
+      summary: Find session
+      tags:
+        - patch
+        - session
+        - find
+      operationId: find-session
+      description: Find session
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindSessionParams'
+
+  /api/user-service/set-session-to-delete:
+    patch:
+      summary: Set session to delete
+      tags:
+        - patch
+        - session
+        - to-delete
+      operationId: set-session-to-delete
+      description: Set session to delete
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionToDeleteParams'
+  /api/user-service/set-session-deleted:
+    patch:
+      summary: Set session deleted
+      tags:
+        - patch
+        - session
+        - deleted
+      operationId: set-session-deleted
+      description: Set session deleted
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionDeletedParams'
+
+  /api/user-service/mailing:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List mailing
+      tags:
+        - list
+        - mailing
+      operationId: list-mailing
+      description: List mailing
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mailing'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create mailing
+      tags:
+        - create
+        - mailing
+      operationId: create-mailing
+      description: Create a new mailing
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMailingParams'
+  /api/user-service/mailing/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get mailing
+      tags:
+        - get
+        - mailing
+      operationId: get-mailing
+      description: Receive a specific mailing by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mailing'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a mailing
+      tags:
+        - delete
+        - mailing
+      operationId: delete-mailing
+      description: Delete a specific mailing by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update mailing
+      tags:
+        - update
+        - mailing
+      operationId: update-mailing
+      description: Update mailing
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMailingParams'
+    patch:
+      summary: Patch mailing
+      tags:
+        - patch
+        - mailing
+      operationId: patch-mailing
+      description: Patch mailing
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchMailingParams'
+
+  /api/user-service/confirmation:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List confirmation
+      tags:
+        - list
+        - confirmation
+      operationId: list-confirmation
+      description: List confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Confirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create confirmation
+      tags:
+        - create
+        - confirmation
+      operationId: create-confirmation
+      description: Create a new confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConfirmationParams'
+  /api/user-service/confirmation/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get confirmation
+      tags:
+        - get
+        - confirmation
+      operationId: get-confirmation
+      description: Receive a specific confirmation by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Confirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a confirmation
+      tags:
+        - delete
+        - confirmation
+      operationId: delete-confirmation
+      description: Delete a specific confirmation by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update confirmation
+      tags:
+        - update
+        - confirmation
+      operationId: update-confirmation
+      description: Update confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConfirmationParams'
+    patch:
+      summary: Patch confirmation
+      tags:
+        - patch
+        - confirmation
+      operationId: patch-confirmation
+      description: Patch confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchConfirmationParams'
+  /api/user-service/find-confirmation:
+    get:
+      summary: Find confirmation
+      tags:
+        - patch
+        - confirmation
+        - find
+      operationId: find-confirmation
+      description: Find confirmation
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Confirmation'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindConfirmationParams'
+
+  /api/user-service/lookup-user:
+    post:
+      summary: Lookup user
+      tags:
+        - lookup
+        - user
+      operationId: lookup-user
+      description: Lookup user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LookupUserRequest'
+
+  /api/user-service/register-user:
+    post:
+      summary: Register user
+      tags:
+        - register
+        - user
+      operationId: register-user
+      description: Register user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+
+  /api/user-service/email:
+    parameters:
+      - schema:
+          type: string
+        name: user_filter
+        in: query
+        required: true
+      - schema:
+          type: string
+        name: mailing_tag
+        in: query
+        required: true
+      - schema:
+          type: integer
+        name: limit
+        in: query
+    get:
+      summary: List emails
+      tags:
+        - list
+        - email
+      operationId: list-email
+      description: Receive a list of users' emails
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/to-remind:
+    parameters:
+      - schema:
+          type: integer
+        name: now_sec
+        in: query
+        required: true
+      - schema:
+          type: integer
+        name: remind_in_sec
+        in: query
+        required: true
+    get:
+      summary: List emails
+      tags:
+        - list
+        - remind
+        - invite
+      operationId: list-remind-invite
+      description: Receive a list of invites which should be reminded
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/user-service/node-with-not-connected-peer-users:
+    get:
+      summary: List nodes
+      tags:
+        - list
+        - node
+      operationId: list-node-with-not-connected-peer-users
+      description: Receive a list of nodes with not connected peer users
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PeerUser'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+components:
+  schemas:
+    Project:
+      title: Project
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateProjectParams:
+      title: CreateProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: object
+          nullable: true
+      required:
+        - name
+        - description
+    UpdateProjectParams:
+      title: UpdateProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - name
+        - description
+        - updated_at
+    PatchProjectParams:
+      title: PatchProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindProjectParams:
+      title: FindProjectParams
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateUserParams:
+      title: CreateUserParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        description:
+          type: object
+      required:
+        - project_id
+        - email
+    UpdateUserParams:
+      title: UpdateUserParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        description:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - project_id
+        - email
+        - description
+        - updated_at
+    PatchUserParams:
+      title: PatchUserParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindUserParams:
+      title: FindUserParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AuthMethod:
+      title: AuthMethod
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateAuthMethodParams:
+      title: CreateAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        settings:
+          type: object
+      required:
+        - name
+        - type
+        - project_id
+    UpdateAuthMethodParams:
+      title: UpdateAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        settings:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - name
+        - type
+        - project_id
+        - settings
+        - updated_at
+    PatchAuthMethodParams:
+      title: PatchAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindAuthMethodParams:
+      title: FindAuthMethodParams
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Auth:
+      title: Auth
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        extended_info:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateAuthParams:
+      title: CreateAuthParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        auth_method_id:
+          type: string
+          format: uuid
+          nullable: true
+        identifier:
+          type: string
+          nullable: true
+        extended_info:
+          type: object
+      required:
+        - user_id
+        - auth_method_id
+        - identifier
+    UpdateAuthParams:
+      title: UpdateAuthParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        auth_method_id:
+          type: string
+          format: uuid
+          nullable: true
+        identifier:
+          type: string
+          nullable: true
+        extended_info:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - user_id
+        - auth_method_id
+        - identifier
+        - extended_info
+        - updated_at
+    PatchAuthParams:
+      title: PatchAuthParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        extended_info:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindAuthParams:
+      title: FindAuthParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        extended_info:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Invite:
+      title: Invite
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateInviteParams:
+      title: CreateInviteParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        token_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+      required:
+        - user_id
+        - token_id
+        - email
+    UpdateInviteParams:
+      title: UpdateInviteParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        token_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        telegram:
+          type: string
+          nullable: true
+        reminded:
+          type: boolean
+          nullable: true
+        query_id:
+          type: string
+          nullable: true
+        location_id:
+          type: string
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        query_params:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - user_id
+        - token_id
+        - email
+        - name
+        - telegram
+        - reminded
+        - query_id
+        - location_id
+        - expires_at
+        - query_params
+        - updated_at
+    PatchInviteParams:
+      title: PatchInviteParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindInviteParams:
+      title: FindInviteParams
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Session:
+      title: Session
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        node:
+          type: string
+        label:
+          type: string
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+        connected_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateSessionParams:
+      title: CreateSessionParams
+      type: object
+      properties:
+        token_id:
+          type: string
+          format: uuid
+          nullable: true
+        node:
+          type: string
+          nullable: true
+        label:
+          type: string
+          nullable: true
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+        connected_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+      required:
+        - token_id
+        - node
+        - label
+    UpdateSessionParams:
+      title: UpdateSessionParams
+      type: object
+      properties:
+        token_id:
+          type: string
+          format: uuid
+          nullable: true
+        node:
+          type: string
+          nullable: true
+        label:
+          type: string
+          nullable: true
+        deleted:
+          type: boolean
+          nullable: true
+        to_delete:
+          type: boolean
+          nullable: true
+        peer_id:
+          type: integer
+          nullable: true
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+          nullable: true
+        connected_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - token_id
+        - node
+        - label
+        - deleted
+        - to_delete
+        - peer_id
+        - first_connected_at
+        - connected
+        - expires_at
+        - updated_at
+    PatchSessionParams:
+      title: PatchSessionParams
+      type: object
+      properties:
+        token_id:
+          type: string
+          format: uuid
+        node:
+          type: string
+        label:
+          type: string
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+        connected_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindSessionParams:
+      title: FindSessionParams
+      type: object
+      properties:
+        token_id:
+          type: string
+          format: uuid
+        node:
+          type: string
+        label:
+          type: string
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+          format: int64
+        first_connected_at:
+          type: string
+          format: date-time
+        connected_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Confirmation:
+      title: Confirmation
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        installation_id:
+          type: string
+          format: uuid
+        confirmed:
+          type: boolean
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateConfirmationParams:
+      title: CreateConfirmationParams
+      type: object
+      properties:
+        identifier:
+          type: string
+          nullable: true
+        installation_id:
+          type: string
+          format: uuid
+          nullable: true
+        confirmed:
+          type: boolean
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - email
+        - firebase_id
+        - confirmed
+        - expires_at
+    UpdateConfirmationParams:
+      title: UpdateConfirmationParams
+      type: object
+      properties:
+        identifier:
+          type: string
+          nullable: true
+        installation_id:
+          type: string
+          format: uuid
+          nullable: true
+        confirmed:
+          type: boolean
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - email
+        - firebase_id
+        - confirmed
+        - expires_at
+        - updated_at
+    PatchConfirmationParams:
+      title: PatchConfirmationParams
+      type: object
+      properties:
+        identifier:
+          type: string
+        installation_id:
+          type: string
+          format: uuid
+        confirmed:
+          type: boolean
+        expires_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindConfirmationParams:
+      title: FindProjectParams
+      type: object
+      properties:
+        identifier:
+          type: string
+        installation_id:
+          type: string
+          format: uuid
+        confirmed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    SessionToDeleteParams:
+      title: SessionToDeleteParams
+      type: object
+      properties:
+        node:
+          type: string
+        label:
+          type: string
+        ids:
+          type: array
+          items:
+            type: integer
+            format: int64
+    SessionDeletedParams:
+      title: SessionDeletedParams
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+    Mailing:
+      title: Mailing
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        mailing_tag:
+          type: string
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateMailingParams:
+      title: CreateMailingParams
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        mailing_tag:
+          type: string
+          nullable: true
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+      required:
+        - email
+        - mailing_tag
+    UpdateMailingParams:
+      title: UpdateMailingParams
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        mailing_tag:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        accepted:
+          type: boolean
+          nullable: true
+        accept_id:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - email
+        - mailing_tag
+        - status
+        - accepted
+        - accept_id
+        - updated_at
+    PatchMailingParams:
+      title: PatchMailingParams
+      type: object
+      properties:
+        email:
+          type: string
+        mailing_tag:
+          type: string
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindMailingParams:
+      title: FindMailingParams
+      type: object
+      properties:
+        email:
+          type: string
+        mailing_tag:
+          type: string
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    LookupUserRequest:
+      title: LookupUserRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+        auth_method_id:
+          type: string
+        identifier:
+          type: string
+        extended_info:
+          type: object
+    RegisterUserRequest:
+      title: RegisterUserRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+        auth_method_id:
+          type: string
+        identifier:
+          type: string
+        email:
+          type: string
+    PeerUser:
+      title: PeerUser
+      type: object
+      properties:
+        peer_id:
+          type: integer
+          format: int64
+        peer_label:
+          type: string
+        query_id:
+          type: string
+        params:
+          type: object
+      required:
+        - peer_id
+        - peer_label
+        - query_id
+        - params
+
+  securitySchemes:
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    ServiceName:
+      name: X-VPNHOUSE-SERVICE
+      type: apiKey
+      in: header
+
+tags:
+  - name: get
+  - name: list
+  - name: add
+  - name: delete
+  - name: update
+  - name: patch
+  - name: backend
+  - name: project
+  - name: user
+  - name: auth
+  - name: auth-method
+  - name: invite
+  - name: session
+  - name: mailing
+  - name: confirmation

@@ -1,0 +1,1368 @@
+openapi: 3.0.3
+
+info:
+  title: license-service
+  version: '1.0'
+  contact:
+    email: support@vpnhouse.net
+    name: Dmitry Efimov
+  description: license-service API
+
+servers:
+  - description: Local
+    url: http://localhost:8585
+
+paths:
+  /api/license-service/product:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List products
+      tags:
+        - list
+        - product
+      operationId: list-product
+      description: Receive full list of products
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create product
+      tags:
+        - create
+        - product
+      operationId: create-product
+      description: Create a new product
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductParams'
+
+  /api/license-service/product/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get product
+      tags:
+        - get
+        - product
+      operationId: get-product
+      description: Receive a specific product by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a product
+      tags:
+        - delete
+        - product
+      operationId: delete-product
+      description: Delete a specific product by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update product
+      tags:
+        - update
+        - product
+      operationId: update-product
+      description: Update product
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductParams'
+    patch:
+      summary: Patch product
+      tags:
+        - patch
+        - product
+      operationId: patch-product
+      description: Patch product
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchProductParams'
+  /api/license-service/find-product:
+    get:
+      summary: Find product
+      tags:
+        - find
+        - product
+      operationId: find-product
+      description: Find product
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindProductParams'
+
+  /api/license-service/purchase:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List purchases
+      tags:
+        - list
+        - purchase
+      operationId: list-purchase
+      description: Receive full list of purchases
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Purchase'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create purchase
+      tags:
+        - create
+        - purchase
+      operationId: create-purchase
+      description: Create a new purchase
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePurchaseParams'
+
+  /api/license-service/purchase/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get purchase
+      tags:
+        - get
+        - purchase
+      operationId: get-purchase
+      description: Receive a specific purchase by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a purchase
+      tags:
+        - delete
+        - purchase
+      operationId: delete-purchase
+      description: Delete a specific purchase by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update purchase
+      tags:
+        - update
+        - purchase
+      operationId: update-purchase
+      description: Update purchase
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePurchaseParams'
+    patch:
+      summary: Patch purchase
+      tags:
+        - patch
+        - purchase
+      operationId: patch-purchase
+      description: Patch purchase
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPurchaseParams'
+  /api/license-service/find-purchase:
+    get:
+      summary: Find purchase
+      tags:
+        - find
+        - purchase
+      operationId: find-purchase
+      description: Find purchase
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Purchase'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindPurchaseParams'
+
+  /api/license-service/license:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List licenses
+      tags:
+        - list
+        - license
+      operationId: list-license
+      description: Receive full list of licenses
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    post:
+      summary: Create license
+      tags:
+        - create
+        - license
+      operationId: create-license
+      description: Create a new license
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLicenseParams'
+
+  /api/license-service/license/{id}:
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get license
+      tags:
+        - get
+        - license
+      operationId: get-license
+      description: Receive a specific license by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    delete:
+      summary: Delete a license
+      tags:
+        - delete
+        - license
+      operationId: delete-license
+      description: Delete a specific license by id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+    put:
+      summary: Update license
+      tags:
+        - update
+        - license
+      operationId: update-license
+      description: Update license
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicenseParams'
+    patch:
+      summary: Patch license
+      tags:
+        - patch
+        - license
+      operationId: patch-license
+      description: Patch license
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchLicenseParams'
+  /api/license-service/find-license:
+    get:
+      summary: Find license
+      tags:
+        - find
+        - license
+      operationId: find-license
+      description: Find license
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindLicenseParams'
+
+  /api/license-service/apply-for-user-by-email:
+    get:
+      summary: Copy all purchases find by email and create new licenses for user in given project
+      tags:
+        - apply
+        - user
+      operationId: apply-for-user-by-email
+      description: Apply for user by email
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyParams'
+
+  /api/license-service/entitlements:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: project_id
+          in: query
+          required: true
+        - schema:
+            type: string
+            format: uuid
+          name: user_id
+          in: query
+          required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: true
+      summary: Get entitlements
+      operationId: get-entitlements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Get entitlements
+      tags:
+        - entitlements
+        - get
+
+  /api/license-service/payment-details:
+    get:
+      summary: Get payment details
+      tags:
+        - get
+        - payment-details
+      operationId: payment-details
+      description: Get payment details
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDetailsResponse'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentDetailsRequest'
+
+  /api/license-service/payment-callback:
+    get:
+      summary: Handle payment callback
+      tags:
+        - post
+        - payment-callback
+      operationId: payment-callback
+      description: Handle payment callback
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+components:
+  schemas:
+    Product:
+      title: Product
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        license_type:
+          type: string
+        payment_json:
+          type: object
+        period:
+          type: string
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        disabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateProductParams:
+      title: CreateProductParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        license_type:
+          type: string
+          nullable: true
+        payment_json:
+          type: object
+          nullable: true
+        period:
+          type: string
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+        disabled:
+          type: boolean
+          nullable: true
+      required:
+        - name
+        - license_type
+        - payment_json
+        - period
+        - selector_json
+        - entitlements_json
+        - disabled
+    UpdateProductParams:
+      title: UpdateProductParams
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        license_type:
+          type: string
+          nullable: true
+        payment_json:
+          type: object
+          nullable: true
+        period:
+          type: string
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+        disabled:
+          type: boolean
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - name
+        - license_type
+        - payment_json
+        - period
+        - selector_json
+        - entitlements_json
+        - disabled
+        - updated_at
+    PatchProductParams:
+      title: PatchProductParams
+      type: object
+      properties:
+        name:
+          type: string
+        license_type:
+          type: string
+        payment_json:
+          type: object
+        period:
+          type: string
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        disabled:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindProductParams:
+      title: FindProductParams
+      type: object
+      properties:
+        name:
+          type: string
+        license_type:
+          type: string
+        payment_json:
+          type: object
+        period:
+          type: string
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        disabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Purchase:
+      title: Purchase
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreatePurchaseParams:
+      title: CreatePurchaseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        start_at:
+          type: string
+          format: date-time
+          nullable: true
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        purchase_json:
+          type: object
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+        license_id:
+          type: string
+          format: uuid
+          nullable: true
+        processed:
+          type: boolean
+          nullable: true
+      required:
+        - project_id
+        - email
+        - user_id
+        - start_at
+        - end_at
+        - purchase_json
+        - selector_json
+        - entitlements_json
+        - license_id
+        - processed
+    UpdatePurchaseParams:
+      title: UpdatePurchaseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        start_at:
+          type: string
+          format: date-time
+          nullable: true
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        purchase_json:
+          type: object
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+        license_id:
+          type: string
+          format: uuid
+          nullable: true
+        processed:
+          type: boolean
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - project_id
+        - email
+        - user_id
+        - start_at
+        - end_at
+        - purchase_json
+        - selector_json
+        - entitlements_json
+        - license_id
+        - processed
+        - updated_at
+    PatchPurchaseParams:
+      title: PatchPurchaseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindPurchaseParams:
+      title: FindPurchaseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    License:
+      title: License
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateLicenseParams:
+      title: CreateLicenseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        start_at:
+          type: string
+          format: date-time
+          nullable: true
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        disabled:
+          type: boolean
+          nullable: true
+        purchase_json:
+          type: object
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+      required:
+        - project_id
+        - user_id
+        - start_at
+        - end_at
+        - disabled
+        - purchase_json
+        - selector_json
+        - entitlements_json
+    UpdateLicenseParams:
+      title: UpdateLicenseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        start_at:
+          type: string
+          format: date-time
+          nullable: true
+        end_at:
+          type: string
+          format: date-time
+          nullable: true
+        disabled:
+          type: boolean
+          nullable: true
+        purchase_json:
+          type: object
+          nullable: true
+        selector_json:
+          type: object
+          nullable: true
+        entitlements_json:
+          type: object
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - project_id
+        - user_id
+        - start_at
+        - end_at
+        - disabled
+        - purchase_json
+        - selector_json
+        - entitlements_json
+        - updated_at
+    PatchLicenseParams:
+      title: PatchLicenseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - updated_at
+    FindLicenseParams:
+      title: FindLicenseParams
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        disabled:
+          type: boolean
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ApplyParams:
+      title: ApplyParams
+      type: object
+      properties:
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+    PaymentDetailsRequest:
+      title: PaymentDetailsRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - project_id
+        - product_id
+    PaymentDetailsResponse:
+      title: PaymentDetailsResponse
+      type: object
+      properties:
+        payment_url:
+          type: string
+      required:
+        - payment_url
+
+  securitySchemes:
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    ServiceName:
+      name: X-VPNHOUSE-SERVICE
+      type: apiKey
+      in: header
+
+tags:
+  - name: get
+  - name: list
+  - name: add
+  - name: delete
+  - name: update
+  - name: patch
+  - name: backend
+  - name: product
+  - name: purchase
+  - name: license

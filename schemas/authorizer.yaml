@@ -40,6 +40,72 @@ paths:
         - bearer: []
         - basic: []
     parameters: []
+  /api/client/signup:
+    post:
+      summary: Register user
+      operationId: register
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Register user and provide access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+            examples: {}
+      tags:
+        - register
+        - client
+      security:
+        - bearer: []
+        - basic: []
+    parameters: []
+  /api/client/token:
+    post:
+      summary: Refresh access token
+      operationId: token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Refresh access token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+            examples: {}
+      tags:
+        - token
+        - client
+      security:
+        - bearer: []
+    parameters: []
+
   /api/service/signin:
     post:
       summary: Authenticate service
@@ -72,6 +138,170 @@ paths:
       security:
         - ServiceKey: [ ]
     parameters: []
+
+  /api/client/send-restore-link:
+    post:
+      summary: Send restore link
+      operationId: send-restore-link
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Send restore link to restore account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendRestoreLinkRequest'
+            examples: { }
+      tags:
+        - restore
+    parameters: [ ]
+
+  /api/client/send-confirmation-link:
+    post:
+      summary: Send confirmation link
+      operationId: send-confirmation-link
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Send confirmation link for email confirmation
+      tags:
+        - confirmation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+    parameters: [ ]
+
+  /api/client/confirm:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: confirmation_id
+          in: query
+          required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: true
+      summary: Confirm email
+      operationId: confirm
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Confirm email
+      tags:
+        - confirm
+  /api/client/product:
+    get:
+      parameters:
+        - schema:
+            type: integer
+          name: limit
+          in: query
+          required: true
+        - schema:
+            type: integer
+          name: offset
+          in: query
+          required: true
+      summary: List product
+      tags:
+        - list
+        - product
+      operationId: list-product
+      description: Receive full list of products
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/purchase-by-user:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: user_id
+          in: query
+          required: true
+      summary: List purchases by user_id
+      tags:
+        - find
+        - purchase
+      operationId: list-purchase-by-user
+      description: List purchases by user_id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Purchase'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
 components:
   schemas:
     AuthRequest:
@@ -80,27 +310,29 @@ components:
       x-examples:
         example-paid:
           value:
-            project: TestProject
-            client_platform: iphone
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
+            platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
-            auth_type: firebase
+            installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            auth_type: 1744c06e-846b-4212-8154-118760bc9387
             auth_info: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
         example-anonymus:
           value:
-            project: TestProject
-            client_platform: iphone
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
+            platform_type: windows
             client_version: 1.0.1
             device_id: f7df7c7a-3569-401c-b612-f49b775bb19e
-            auth_type: anonymous
+            installation_id: f7df7c7a-3569-401c-b612-f49b775bb19e
+            auth_type: 7e4cfc26-da82-4f04-aaa0-00d03f9de58f
             auth_info: d269c0c4-288e-44d5-b719-ffd9096aa6ff
       properties:
         project:
           type: string
-          example: TestProject
-        client_platform:
+          example: 416d6d45-236b-4b39-a221-ed99abc7a4ff
+        platform_type:
           type: string
-          example: iphone
+          example: android
         client_version:
           type: string
           example: 1.0.1
@@ -108,17 +340,22 @@ components:
           type: string
           example: f7df7c7a-3569-401c-b612-f49b775bb19e
           format: uuid
+        installation_id:
+          type: string
+          example: f7df7c7a-3569-401c-b612-f49b775bb19e
+          format: uuid
         auth_type:
           type: string
-          example: firebase
+          example: 1744c06e-846b-4212-8154-118760bc9387
         auth_info:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
       required:
         - project
-        - client_platform
+        - platform_type
         - client_version
         - device_id
+        - installation_id
         - auth_type
         - auth_info
       writeOnly: true
@@ -128,12 +365,12 @@ components:
       x-examples:
         example:
           value:
-            project: TestProject
+            project: 416d6d45-236b-4b39-a221-ed99abc7a4ff
             service_id: TestService
       properties:
         project:
           type: string
-          example: TestProject
+          example: 416d6d45-236b-4b39-a221-ed99abc7a4ff
         service_id:
           type: string
           example: TestService
@@ -170,8 +407,127 @@ components:
             type: string
             format: uri
             example: 'https://discovery.project.io/api/client/locations'
+        expires_at:
+          type: string
+          format: date-time
+        entitlements:
+          type: object
+
       required:
         - access_token
+    TokenRequest:
+      title: TokenRequest
+      type: object
+      properties:
+        installation_id:
+          type: string
+          format: uuid
+        platform_type:
+          type: string
+        refresh_token:
+          type: string
+      required:
+        - installation_id
+        - platform_type
+        - refresh_token
+    TokenResponse:
+      title: TokenResponse
+      type: object
+      properties:
+        access_token:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        entitlements:
+          type: object
+        discovery_addresses:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+        - access_token
+        - expires_at
+        - entitlements
+    SendRestoreLinkRequest:
+      title: SendRestoreLinkRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - project_id
+    Product:
+      title: Product
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        license_type:
+          type: string
+        payment_json:
+          type: object
+        period:
+          type: string
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        disabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Purchase:
+      title: Purchase
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        purchase_json:
+          type: object
+        selector_json:
+          type: object
+        entitlements_json:
+          type: object
+        license_id:
+          type: string
+          format: uuid
+        processed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
   securitySchemes:
     bearer:
       type: http
