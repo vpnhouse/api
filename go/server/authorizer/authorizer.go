@@ -31,8 +31,8 @@ type AuthRequest struct {
 	Project        string `json:"project"`
 }
 
-// AuthResponse defines model for AuthResponse.
-type AuthResponse struct {
+// AuthResp defines model for AuthResp.
+type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
 	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
@@ -90,8 +90,8 @@ type TokenRequest struct {
 	RefreshToken   string `json:"refresh_token"`
 }
 
-// TokenResponse defines model for TokenResponse.
-type TokenResponse struct {
+// TokenResp defines model for TokenResp.
+type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`

@@ -17,7 +17,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/AuthResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -50,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/AuthResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -83,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/TokenResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -116,7 +116,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/AuthResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -214,7 +214,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/AuthResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -378,8 +378,8 @@ components:
         - project
         - service_id
       writeOnly: true
-    AuthResponse:
-      title: AuthResponse
+    AuthResp:
+      title: AuthResp
       type: object
       x-examples:
         example-paid:
@@ -430,8 +430,8 @@ components:
         - installation_id
         - platform_type
         - refresh_token
-    TokenResponse:
-      title: TokenResponse
+    TokenResp:
+      title: TokenResp
       type: object
       properties:
         access_token:

@@ -730,7 +730,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PaymentDetailsResponse'
+                  $ref: '#/components/schemas/PaymentDetailsResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -744,7 +744,7 @@ paths:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
   /api/license-service/payment-callback:
-    get:
+    post:
       summary: Handle payment callback
       tags:
         - post
@@ -1336,8 +1336,8 @@ components:
         - email
         - project_id
         - product_id
-    PaymentDetailsResponse:
-      title: PaymentDetailsResponse
+    PaymentDetailsResp:
+      title: PaymentDetailsResp
       type: object
       properties:
         payment_url:

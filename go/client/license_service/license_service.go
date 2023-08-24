@@ -174,8 +174,8 @@ type PaymentDetailsRequest struct {
 	UserId    *string `json:"user_id,omitempty"`
 }
 
-// PaymentDetailsResponse defines model for PaymentDetailsResponse.
-type PaymentDetailsResponse struct {
+// PaymentDetailsResp defines model for PaymentDetailsResp.
+type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
@@ -1507,7 +1507,7 @@ func NewPaymentCallbackRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -2527,7 +2527,7 @@ func (r PaymentCallbackResponse) StatusCode() int {
 type PaymentDetailsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]PaymentDetailsResponse
+	JSON200      *[]PaymentDetailsResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -3825,7 +3825,7 @@ func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, e
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []PaymentDetailsResponse
+		var dest []PaymentDetailsResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
