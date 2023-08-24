@@ -711,6 +711,59 @@ paths:
         - entitlements
         - get
 
+  /api/license-service/payment-details:
+    get:
+      summary: Get payment details
+      tags:
+        - get
+        - payment-details
+      operationId: payment-details
+      description: Get payment details
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDetailsResponse'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentDetailsRequest'
+
+  /api/license-service/payment-callback:
+    get:
+      summary: Handle payment callback
+      tags:
+        - post
+        - payment-callback
+      operationId: payment-callback
+      description: Handle payment callback
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
 components:
   schemas:
     Product:
@@ -1252,7 +1305,6 @@ components:
         updated_at:
           type: string
           format: date-time
-
     ApplyParams:
       title: ApplyParams
       type: object
@@ -1265,6 +1317,33 @@ components:
         project_id:
           type: string
           format: uuid
+    PaymentDetailsRequest:
+      title: PaymentDetailsRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - project_id
+        - product_id
+    PaymentDetailsResponse:
+      title: PaymentDetailsResponse
+      type: object
+      properties:
+        payment_url:
+          type: string
+      required:
+        - payment_url
 
   securitySchemes:
     ServiceKey:

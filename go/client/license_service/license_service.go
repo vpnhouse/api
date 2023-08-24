@@ -166,6 +166,19 @@ type PatchPurchaseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// PaymentDetailsRequest defines model for PaymentDetailsRequest.
+type PaymentDetailsRequest struct {
+	Email     string  `json:"email"`
+	ProductId string  `json:"product_id"`
+	ProjectId string  `json:"project_id"`
+	UserId    *string `json:"user_id,omitempty"`
+}
+
+// PaymentDetailsResponse defines model for PaymentDetailsResponse.
+type PaymentDetailsResponse struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -271,6 +284,9 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// PaymentDetailsJSONBody defines parameters for PaymentDetails.
+type PaymentDetailsJSONBody PaymentDetailsRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit  int `json:"limit"`
@@ -321,6 +337,9 @@ type PatchLicenseJSONRequestBody PatchLicenseJSONBody
 
 // UpdateLicenseJSONRequestBody defines body for UpdateLicense for application/json ContentType.
 type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
+
+// PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
+type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
@@ -459,6 +478,14 @@ type ClientInterface interface {
 	UpdateLicenseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateLicense(ctx context.Context, id string, body UpdateLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PaymentCallback request
+	PaymentCallback(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PaymentDetails request with any body
+	PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -715,6 +742,42 @@ func (c *Client) UpdateLicenseWithBody(ctx context.Context, id string, contentTy
 
 func (c *Client) UpdateLicense(ctx context.Context, id string, body UpdateLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateLicenseRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PaymentCallback(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentCallbackRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentDetailsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentDetailsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1425,6 +1488,73 @@ func NewUpdateLicenseRequestWithBody(server string, id string, contentType strin
 	return req, nil
 }
 
+// NewPaymentCallbackRequest generates requests for PaymentCallback
+func NewPaymentCallbackRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/payment-callback")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPaymentDetailsRequest calls the generic PaymentDetails builder with application/json body
+func NewPaymentDetailsRequest(server string, body PaymentDetailsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPaymentDetailsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPaymentDetailsRequestWithBody generates requests for PaymentDetails with any type of body
+func NewPaymentDetailsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/payment-details")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListProductRequest generates requests for ListProduct
 func NewListProductRequest(server string, params *ListProductParams) (*http.Request, error) {
 	var err error
@@ -2029,6 +2159,14 @@ type ClientWithResponsesInterface interface {
 
 	UpdateLicenseWithResponse(ctx context.Context, id string, body UpdateLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateLicenseResponse, error)
 
+	// PaymentCallback request
+	PaymentCallbackWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PaymentCallbackResponse, error)
+
+	// PaymentDetails request with any body
+	PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
+
+	PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
+
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
@@ -2356,6 +2494,55 @@ func (r UpdateLicenseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r UpdateLicenseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PaymentCallbackResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PaymentCallbackResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PaymentCallbackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PaymentDetailsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]PaymentDetailsResponse
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PaymentDetailsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PaymentDetailsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2819,6 +3006,32 @@ func (c *ClientWithResponses) UpdateLicenseWithResponse(ctx context.Context, id 
 		return nil, err
 	}
 	return ParseUpdateLicenseResponse(rsp)
+}
+
+// PaymentCallbackWithResponse request returning *PaymentCallbackResponse
+func (c *ClientWithResponses) PaymentCallbackWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PaymentCallbackResponse, error) {
+	rsp, err := c.PaymentCallback(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentCallbackResponse(rsp)
+}
+
+// PaymentDetailsWithBodyWithResponse request with arbitrary body returning *PaymentDetailsResponse
+func (c *ClientWithResponses) PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error) {
+	rsp, err := c.PaymentDetailsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentDetailsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error) {
+	rsp, err := c.PaymentDetails(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentDetailsResponse(rsp)
 }
 
 // ListProductWithResponse request returning *ListProductResponse
@@ -3544,6 +3757,93 @@ func ParseUpdateLicenseResponse(rsp *http.Response) (*UpdateLicenseResponse, err
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePaymentCallbackResponse parses an HTTP response from a PaymentCallbackWithResponse call
+func ParsePaymentCallbackResponse(rsp *http.Response) (*PaymentCallbackResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PaymentCallbackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePaymentDetailsResponse parses an HTTP response from a PaymentDetailsWithResponse call
+func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PaymentDetailsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []PaymentDetailsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error

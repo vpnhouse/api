@@ -160,6 +160,19 @@ type PatchPurchaseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// PaymentDetailsRequest defines model for PaymentDetailsRequest.
+type PaymentDetailsRequest struct {
+	Email     string  `json:"email"`
+	ProductId string  `json:"product_id"`
+	ProjectId string  `json:"project_id"`
+	UserId    *string `json:"user_id,omitempty"`
+}
+
+// PaymentDetailsResponse defines model for PaymentDetailsResponse.
+type PaymentDetailsResponse struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -265,6 +278,9 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// PaymentDetailsJSONBody defines parameters for PaymentDetails.
+type PaymentDetailsJSONBody PaymentDetailsRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit  int `json:"limit"`
@@ -315,6 +331,9 @@ type PatchLicenseJSONRequestBody PatchLicenseJSONBody
 
 // UpdateLicenseJSONRequestBody defines body for UpdateLicense for application/json ContentType.
 type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
+
+// PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
+type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
@@ -369,6 +388,12 @@ type ServerInterface interface {
 	// Update license
 	// (PUT /api/license-service/license/{id})
 	UpdateLicense(w http.ResponseWriter, r *http.Request, id string)
+	// Handle payment callback
+	// (GET /api/license-service/payment-callback)
+	PaymentCallback(w http.ResponseWriter, r *http.Request)
+	// Get payment details
+	// (GET /api/license-service/payment-details)
+	PaymentDetails(w http.ResponseWriter, r *http.Request)
 	// List products
 	// (GET /api/license-service/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -736,6 +761,44 @@ func (siw *ServerInterfaceWrapper) UpdateLicense(w http.ResponseWriter, r *http.
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateLicense(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PaymentCallback operation middleware
+func (siw *ServerInterfaceWrapper) PaymentCallback(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PaymentCallback(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PaymentDetails operation middleware
+func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PaymentDetails(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1272,6 +1335,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/license-service/license/{id}", wrapper.UpdateLicense)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/payment-callback", wrapper.PaymentCallback)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/product", wrapper.ListProduct)
