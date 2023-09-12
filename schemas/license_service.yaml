@@ -9,8 +9,8 @@ info:
   description: license-service API
 
 servers:
-  - description: Local
-    url: http://localhost:8585
+  - description: Dev
+    url: http://dev.vpnhouse.net:8093
 
 paths:
   /api/license-service/product:

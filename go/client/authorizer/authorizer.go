@@ -20,10 +20,9 @@ import (
 )
 
 const (
-	ServiceKeyScopes  = "ServiceKey.Scopes"
-	ServiceNameScopes = "ServiceName.Scopes"
-	BasicScopes       = "basic.Scopes"
-	BearerScopes      = "bearer.Scopes"
+	ServiceKeyScopes = "ServiceKey.Scopes"
+	BasicScopes      = "basic.Scopes"
+	BearerScopes     = "bearer.Scopes"
 )
 
 // AuthRequest defines model for AuthRequest.
@@ -40,7 +39,9 @@ type AuthRequest struct {
 // AuthResp defines model for AuthResp.
 type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
+	CreatedAt          *time.Time              `json:"created_at,omitempty"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
+	Email              *string                 `json:"email,omitempty"`
 	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
 	ExpiresAt          *time.Time              `json:"expires_at,omitempty"`
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
@@ -50,6 +51,40 @@ type AuthResp struct {
 type AuthServiceRequest struct {
 	Project   string `json:"project"`
 	ServiceId string `json:"service_id"`
+}
+
+// CreateFirebaseUserRequest defines model for CreateFirebaseUserRequest.
+type CreateFirebaseUserRequest struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	ProjectId string `json:"project_id"`
+}
+
+// License defines model for License.
+type License struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// PaymentDetailsRequest defines model for PaymentDetailsRequest.
+type PaymentDetailsRequest struct {
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+}
+
+// PaymentDetailsResp defines model for PaymentDetailsResp.
+type PaymentDetailsResp struct {
+	PaymentUrl string `json:"payment_url"`
 }
 
 // Product defines model for Product.
@@ -64,23 +99,6 @@ type Product struct {
 	Period           *string                 `json:"period,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// Purchase defines model for Purchase.
-type Purchase struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Email            *string                 `json:"email,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseId        *string                 `json:"license_id,omitempty"`
-	Processed        *bool                   `json:"processed,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
@@ -99,9 +117,20 @@ type TokenRequest struct {
 // TokenResp defines model for TokenResp.
 type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
+	CreatedAt          time.Time              `json:"created_at"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
 	ExpiresAt          time.Time              `json:"expires_at"`
+}
+
+// User defines model for User.
+type User struct {
+	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+	Description *map[string]interface{} `json:"description,omitempty"`
+	Email       *string                 `json:"email,omitempty"`
+	Id          *string                 `json:"id,omitempty"`
+	ProjectId   *string                 `json:"project_id,omitempty"`
+	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
 // ConfirmParams defines parameters for Confirm.
@@ -110,15 +139,13 @@ type ConfirmParams struct {
 	PlatformType   string `json:"platform_type"`
 }
 
+// PaymentDetailsJSONBody defines parameters for PaymentDetails.
+type PaymentDetailsJSONBody PaymentDetailsRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
-}
-
-// ListPurchaseByUserParams defines parameters for ListPurchaseByUser.
-type ListPurchaseByUserParams struct {
-	UserId string `json:"user_id"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -136,8 +163,14 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
+// CreateFirebaseUserJSONBody defines parameters for CreateFirebaseUser.
+type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
+
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
+type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -153,6 +186,9 @@ type RegisterJSONRequestBody RegisterJSONBody
 
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
+
+// CreateFirebaseUserJSONRequestBody defines body for CreateFirebaseUser for application/json ContentType.
+type CreateFirebaseUserJSONRequestBody CreateFirebaseUserJSONBody
 
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
@@ -233,11 +269,16 @@ type ClientInterface interface {
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListLicenseByUser request
+	ListLicenseByUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PaymentDetails request with any body
+	PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListPurchaseByUser request
-	ListPurchaseByUser(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -264,6 +305,11 @@ type ClientInterface interface {
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateFirebaseUser request with any body
+	CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateFirebaseUser(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -282,8 +328,8 @@ func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors 
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListProductRequest(c.Server, params)
+func (c *Client) ListLicenseByUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLicenseByUserRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -294,8 +340,32 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) ListPurchaseByUser(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListPurchaseByUserRequest(c.Server, params)
+func (c *Client) PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentDetailsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentDetailsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProductRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -426,6 +496,30 @@ func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditor
 	return c.Client.Do(req)
 }
 
+func (c *Client) CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFirebaseUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateFirebaseUser(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateFirebaseUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewServiceAuthenticateRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -505,6 +599,73 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	return req, nil
 }
 
+// NewListLicenseByUserRequest generates requests for ListLicenseByUser
+func NewListLicenseByUserRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/license-by-user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPaymentDetailsRequest calls the generic PaymentDetails builder with application/json body
+func NewPaymentDetailsRequest(server string, body PaymentDetailsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPaymentDetailsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPaymentDetailsRequestWithBody generates requests for PaymentDetails with any type of body
+func NewPaymentDetailsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/payment-details")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListProductRequest generates requests for ListProduct
 func NewListProductRequest(server string, params *ListProductParams) (*http.Request, error) {
 	var err error
@@ -539,49 +700,6 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	}
 
 	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, params.Offset); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
-			}
-		}
-	}
-
-	queryURL.RawQuery = queryValues.Encode()
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewListPurchaseByUserRequest generates requests for ListPurchaseByUser
-func NewListPurchaseByUserRequest(server string, params *ListPurchaseByUserParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/client/purchase-by-user")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	queryValues := queryURL.Query()
-
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "user_id", runtime.ParamLocationQuery, params.UserId); err != nil {
 		return nil, err
 	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 		return nil, err
@@ -803,6 +921,46 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
+// NewCreateFirebaseUserRequest calls the generic CreateFirebaseUser builder with application/json body
+func NewCreateFirebaseUserRequest(server string, body CreateFirebaseUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateFirebaseUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateFirebaseUserRequestWithBody generates requests for CreateFirebaseUser with any type of body
+func NewCreateFirebaseUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/service/firebase-user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewServiceAuthenticateRequest calls the generic ServiceAuthenticate builder with application/json body
 func NewServiceAuthenticateRequest(server string, body ServiceAuthenticateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -889,11 +1047,16 @@ type ClientWithResponsesInterface interface {
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
+	// ListLicenseByUser request
+	ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error)
+
+	// PaymentDetails request with any body
+	PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
+
+	PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
+
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
-
-	// ListPurchaseByUser request
-	ListPurchaseByUserWithResponse(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*ListPurchaseByUserResponse, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
@@ -919,6 +1082,11 @@ type ClientWithResponsesInterface interface {
 	TokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
+
+	// CreateFirebaseUser request with any body
+	CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
+
+	CreateFirebaseUserWithResponse(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
 
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
@@ -952,6 +1120,58 @@ func (r ConfirmResponse) StatusCode() int {
 	return 0
 }
 
+type ListLicenseByUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]License
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListLicenseByUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListLicenseByUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PaymentDetailsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaymentDetailsResp
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PaymentDetailsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PaymentDetailsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListProductResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -971,33 +1191,6 @@ func (r ListProductResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListProductResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ListPurchaseByUserResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]Purchase
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r ListPurchaseByUserResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListPurchaseByUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1132,6 +1325,32 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
+type CreateFirebaseUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateFirebaseUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateFirebaseUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ServiceAuthenticateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1167,6 +1386,32 @@ func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *C
 	return ParseConfirmResponse(rsp)
 }
 
+// ListLicenseByUserWithResponse request returning *ListLicenseByUserResponse
+func (c *ClientWithResponses) ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error) {
+	rsp, err := c.ListLicenseByUser(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListLicenseByUserResponse(rsp)
+}
+
+// PaymentDetailsWithBodyWithResponse request with arbitrary body returning *PaymentDetailsResponse
+func (c *ClientWithResponses) PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error) {
+	rsp, err := c.PaymentDetailsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentDetailsResponse(rsp)
+}
+
+func (c *ClientWithResponses) PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error) {
+	rsp, err := c.PaymentDetails(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentDetailsResponse(rsp)
+}
+
 // ListProductWithResponse request returning *ListProductResponse
 func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error) {
 	rsp, err := c.ListProduct(ctx, params, reqEditors...)
@@ -1174,15 +1419,6 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 		return nil, err
 	}
 	return ParseListProductResponse(rsp)
-}
-
-// ListPurchaseByUserWithResponse request returning *ListPurchaseByUserResponse
-func (c *ClientWithResponses) ListPurchaseByUserWithResponse(ctx context.Context, params *ListPurchaseByUserParams, reqEditors ...RequestEditorFn) (*ListPurchaseByUserResponse, error) {
-	rsp, err := c.ListPurchaseByUser(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListPurchaseByUserResponse(rsp)
 }
 
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
@@ -1270,6 +1506,23 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 	return ParseTokenResponse(rsp)
 }
 
+// CreateFirebaseUserWithBodyWithResponse request with arbitrary body returning *CreateFirebaseUserResponse
+func (c *ClientWithResponses) CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error) {
+	rsp, err := c.CreateFirebaseUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFirebaseUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateFirebaseUserWithResponse(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error) {
+	rsp, err := c.CreateFirebaseUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateFirebaseUserResponse(rsp)
+}
+
 // ServiceAuthenticateWithBodyWithResponse request with arbitrary body returning *ServiceAuthenticateResponse
 func (c *ClientWithResponses) ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error) {
 	rsp, err := c.ServiceAuthenticateWithBody(ctx, contentType, body, reqEditors...)
@@ -1341,6 +1594,114 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 	return response, nil
 }
 
+// ParseListLicenseByUserResponse parses an HTTP response from a ListLicenseByUserWithResponse call
+func ParseListLicenseByUserResponse(rsp *http.Response) (*ListLicenseByUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListLicenseByUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePaymentDetailsResponse parses an HTTP response from a PaymentDetailsWithResponse call
+func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PaymentDetailsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaymentDetailsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListProductResponse parses an HTTP response from a ListProductWithResponse call
 func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -1375,67 +1736,6 @@ func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) 
 			return nil, err
 		}
 		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListPurchaseByUserResponse parses an HTTP response from a ListPurchaseByUserWithResponse call
-func ParseListPurchaseByUserResponse(rsp *http.Response) (*ListPurchaseByUserResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListPurchaseByUserResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []Purchase
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
@@ -1667,6 +1967,60 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest TokenResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateFirebaseUserResponse parses an HTTP response from a CreateFirebaseUserWithResponse call
+func ParseCreateFirebaseUserResponse(rsp *http.Response) (*CreateFirebaseUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateFirebaseUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest User
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

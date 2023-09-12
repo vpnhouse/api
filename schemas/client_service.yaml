@@ -9,8 +9,8 @@ info:
   description: client-service API
 
 servers:
-  - description: Local
-    url: http://localhost:8586
+  - description: Dev
+    url: http://dev.vpnhouse.net:8091
 
 paths:
   /api/client-service/user:

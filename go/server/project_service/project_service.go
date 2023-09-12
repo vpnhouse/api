@@ -43,6 +43,16 @@ type CreateProjectParams struct {
 	Name        *string                 `json:"name"`
 }
 
+// FindAuthMethodParams defines model for FindAuthMethodParams.
+type FindAuthMethodParams struct {
+	CreatedAt *time.Time              `json:"created_at"`
+	Name      *string                 `json:"name,omitempty"`
+	ProjectId *string                 `json:"project_id,omitempty"`
+	Settings  *map[string]interface{} `json:"settings,omitempty"`
+	Type      *string                 `json:"type,omitempty"`
+	UpdatedAt *time.Time              `json:"updated_at"`
+}
+
 // LocationMapping defines model for LocationMapping.
 type LocationMapping struct {
 	Mapping *map[string]interface{} `json:"mapping,omitempty"`
@@ -104,6 +114,9 @@ type PatchAuthMethodJSONBody PatchAuthMethodParams
 // UpdateAuthMethodJSONBody defines parameters for UpdateAuthMethod.
 type UpdateAuthMethodJSONBody UpdateAuthMethodParams
 
+// FindAuthMethodJSONBody defines parameters for FindAuthMethod.
+type FindAuthMethodJSONBody FindAuthMethodParams
+
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
 	Limit  int `json:"limit"`
@@ -127,6 +140,9 @@ type PatchAuthMethodJSONRequestBody PatchAuthMethodJSONBody
 
 // UpdateAuthMethodJSONRequestBody defines body for UpdateAuthMethod for application/json ContentType.
 type UpdateAuthMethodJSONRequestBody UpdateAuthMethodJSONBody
+
+// FindAuthMethodJSONRequestBody defines body for FindAuthMethod for application/json ContentType.
+type FindAuthMethodJSONRequestBody FindAuthMethodJSONBody
 
 // CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
 type CreateProjectJSONRequestBody CreateProjectJSONBody
@@ -157,6 +173,9 @@ type ServerInterface interface {
 	// Update auth method
 	// (PUT /api/project-service/auth-method/{id})
 	UpdateAuthMethod(w http.ResponseWriter, r *http.Request, id string)
+	// Find auth method
+	// (GET /api/project-service/find-auth-method)
+	FindAuthMethod(w http.ResponseWriter, r *http.Request)
 	// Get location mapping
 	// (GET /api/project-service/location-mapping)
 	GetLocationMapping(w http.ResponseWriter, r *http.Request)
@@ -371,6 +390,25 @@ func (siw *ServerInterfaceWrapper) UpdateAuthMethod(w http.ResponseWriter, r *ht
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateAuthMethod(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// FindAuthMethod operation middleware
+func (siw *ServerInterfaceWrapper) FindAuthMethod(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.FindAuthMethod(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -720,6 +758,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/project-service/auth-method/{id}", wrapper.UpdateAuthMethod)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/project-service/find-auth-method", wrapper.FindAuthMethod)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/project-service/location-mapping", wrapper.GetLocationMapping)

@@ -14,10 +14,9 @@ import (
 )
 
 const (
-	ServiceKeyScopes  = "ServiceKey.Scopes"
-	ServiceNameScopes = "ServiceName.Scopes"
-	BasicScopes       = "basic.Scopes"
-	BearerScopes      = "bearer.Scopes"
+	ServiceKeyScopes = "ServiceKey.Scopes"
+	BasicScopes      = "basic.Scopes"
+	BearerScopes     = "bearer.Scopes"
 )
 
 // AuthRequest defines model for AuthRequest.
@@ -34,7 +33,9 @@ type AuthRequest struct {
 // AuthResp defines model for AuthResp.
 type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
+	CreatedAt          *time.Time              `json:"created_at,omitempty"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
+	Email              *string                 `json:"email,omitempty"`
 	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
 	ExpiresAt          *time.Time              `json:"expires_at,omitempty"`
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
@@ -44,6 +45,40 @@ type AuthResp struct {
 type AuthServiceRequest struct {
 	Project   string `json:"project"`
 	ServiceId string `json:"service_id"`
+}
+
+// CreateFirebaseUserRequest defines model for CreateFirebaseUserRequest.
+type CreateFirebaseUserRequest struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	ProjectId string `json:"project_id"`
+}
+
+// License defines model for License.
+type License struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// PaymentDetailsRequest defines model for PaymentDetailsRequest.
+type PaymentDetailsRequest struct {
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+}
+
+// PaymentDetailsResp defines model for PaymentDetailsResp.
+type PaymentDetailsResp struct {
+	PaymentUrl string `json:"payment_url"`
 }
 
 // Product defines model for Product.
@@ -58,23 +93,6 @@ type Product struct {
 	Period           *string                 `json:"period,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-}
-
-// Purchase defines model for Purchase.
-type Purchase struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Email            *string                 `json:"email,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseId        *string                 `json:"license_id,omitempty"`
-	Processed        *bool                   `json:"processed,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
 }
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
@@ -93,9 +111,20 @@ type TokenRequest struct {
 // TokenResp defines model for TokenResp.
 type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
+	CreatedAt          time.Time              `json:"created_at"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
 	ExpiresAt          time.Time              `json:"expires_at"`
+}
+
+// User defines model for User.
+type User struct {
+	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+	Description *map[string]interface{} `json:"description,omitempty"`
+	Email       *string                 `json:"email,omitempty"`
+	Id          *string                 `json:"id,omitempty"`
+	ProjectId   *string                 `json:"project_id,omitempty"`
+	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
 // ConfirmParams defines parameters for Confirm.
@@ -104,15 +133,13 @@ type ConfirmParams struct {
 	PlatformType   string `json:"platform_type"`
 }
 
+// PaymentDetailsJSONBody defines parameters for PaymentDetails.
+type PaymentDetailsJSONBody PaymentDetailsRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit  int `json:"limit"`
 	Offset int `json:"offset"`
-}
-
-// ListPurchaseByUserParams defines parameters for ListPurchaseByUser.
-type ListPurchaseByUserParams struct {
-	UserId string `json:"user_id"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -130,8 +157,14 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
+// CreateFirebaseUserJSONBody defines parameters for CreateFirebaseUser.
+type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
+
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
+type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -148,6 +181,9 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
+// CreateFirebaseUserJSONRequestBody defines body for CreateFirebaseUser for application/json ContentType.
+type CreateFirebaseUserJSONRequestBody CreateFirebaseUserJSONBody
+
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
@@ -156,12 +192,15 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// List license by user_id
+	// (GET /api/client/license-by-user)
+	ListLicenseByUser(w http.ResponseWriter, r *http.Request)
+	// Get payment details
+	// (POST /api/client/payment-details)
+	PaymentDetails(w http.ResponseWriter, r *http.Request)
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
-	// List purchases by user_id
-	// (GET /api/client/purchase-by-user)
-	ListPurchaseByUser(w http.ResponseWriter, r *http.Request, params ListPurchaseByUserParams)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -177,6 +216,9 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
+	// Create user at firebase
+	// (POST /api/service/firebase-user)
+	CreateFirebaseUser(w http.ResponseWriter, r *http.Request)
 	// Authenticate service
 	// (POST /api/service/signin)
 	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
@@ -239,15 +281,45 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	handler(w, r.WithContext(ctx))
 }
 
+// ListLicenseByUser operation middleware
+func (siw *ServerInterfaceWrapper) ListLicenseByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLicenseByUser(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PaymentDetails operation middleware
+func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListProduct operation middleware
 func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListProductParams
@@ -282,44 +354,6 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ListPurchaseByUser operation middleware
-func (siw *ServerInterfaceWrapper) ListPurchaseByUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ListPurchaseByUserParams
-
-	// ------------- Required query parameter "user_id" -------------
-	if paramValue := r.URL.Query().Get("user_id"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "user_id"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "user_id", r.URL.Query(), &params.UserId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user_id", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListPurchaseByUser(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -407,6 +441,23 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Token(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateFirebaseUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateFirebaseUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateFirebaseUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -550,10 +601,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
+		r.Get(options.BaseURL+"/api/client/license-by-user", wrapper.ListLicenseByUser)
 	})
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/client/purchase-by-user", wrapper.ListPurchaseByUser)
+		r.Post(options.BaseURL+"/api/client/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
@@ -569,6 +623,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/service/firebase-user", wrapper.CreateFirebaseUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
