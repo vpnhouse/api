@@ -46,21 +46,6 @@ type GetOptimalParams struct {
 	Country *string `json:"country,omitempty"`
 }
 
-// Generic error response.
-type Error struct {
-	// Message, which we can put to application logs.
-	Details *string `json:"details,omitempty"`
-
-	// User-friendly error description.
-	Error *string `json:"error,omitempty"`
-
-	// The name of field, caused error.
-	Field *string `json:"field,omitempty"`
-
-	// Machine-readable error code.
-	Result string `json:"result"`
-}
-
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
