@@ -1,0 +1,391 @@
+openapi: 3.0.3
+
+info:
+  title: client-service
+  version: '1.0'
+  contact:
+    email: support@vpnhouse.net
+    name: Dmitry Efimov
+  description: client-service API
+
+servers:
+  - description: Dev
+    url: http://dev.vpnhouse.net:8091
+
+paths:
+  /api/client-service/user:
+    get:
+      summary: Get user
+      tags:
+        - get
+        - user
+      operationId: get-user
+      description: Receive a specific user by id
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/project:
+    get:
+      summary: Get user's project
+      tags:
+        - get
+        - user
+        - project
+      operationId: get-user-project
+      description: Get user's project
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/auth-method:
+    get:
+      summary: List user's auth methods
+      tags:
+        - list
+        - user
+        - auth-method
+      operationId: list-user-auth-method
+      description: List user's auth methods
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthMethod'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/auth:
+    get:
+      summary: List user's auth
+      tags:
+        - list
+        - user
+        - auth
+      operationId: list-user-auth
+      description: List user's auth
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Auth'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/invite:
+    get:
+      summary: List user's invite
+      tags:
+        - list
+        - user
+        - invite
+      operationId: list-user-invite
+      description: List user's invite
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/session:
+    get:
+      summary: List user's session
+      tags:
+        - list
+        - user
+        - session
+      operationId: list-user-session
+      description: List user's session
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/user/mailing:
+    get:
+      summary: List user's mailing
+      tags:
+        - list
+        - user
+        - mailing
+      operationId: list-user-mailing
+      description: List user's mailing
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mailing'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+components:
+  schemas:
+    Project:
+      title: Project
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    User:
+      title: User
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        description:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    AuthMethod:
+      title: AuthMethod
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        settings:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Auth:
+      title: Auth
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        identifier:
+          type: string
+        extended_info:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Invite:
+      title: Invite
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        telegram:
+          type: string
+        reminded:
+          type: boolean
+        query_id:
+          type: string
+        location_id:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        query_params:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Session:
+      title: Session
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        token_id:
+          type: string
+          format: uuid
+        node:
+          type: string
+        label:
+          type: string
+        deleted:
+          type: boolean
+        to_delete:
+          type: boolean
+        peer_id:
+          type: integer
+        first_connected_at:
+          type: string
+          format: date-time
+        connected:
+          type: boolean
+        expires_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Mailing:
+      title: Mailing
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        mailing_tag:
+          type: string
+        status:
+          type: string
+        accepted:
+          type: boolean
+        accept_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+
+tags:
+  - name: get
+  - name: list
+  - name: add
+  - name: delete
+  - name: update
+  - name: patch
+  - name: backend
+  - name: project
+  - name: user
+  - name: auth
+  - name: auth-method
+  - name: invite
+  - name: session
+  - name: mailing

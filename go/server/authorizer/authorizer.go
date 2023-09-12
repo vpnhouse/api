@@ -7,7 +7,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -21,17 +23,22 @@ const (
 type AuthRequest struct {
 	AuthInfo       string `json:"auth_info"`
 	AuthType       string `json:"auth_type"`
-	ClientPlatform string `json:"client_platform"`
 	ClientVersion  string `json:"client_version"`
 	DeviceId       string `json:"device_id"`
+	InstallationId string `json:"installation_id"`
+	PlatformType   string `json:"platform_type"`
 	Project        string `json:"project"`
 }
 
-// AuthResponse defines model for AuthResponse.
-type AuthResponse struct {
-	AccessToken        string    `json:"access_token"`
-	DiscoveryAddresses *[]string `json:"discovery_addresses,omitempty"`
-	RefreshToken       *string   `json:"refresh_token,omitempty"`
+// AuthResp defines model for AuthResp.
+type AuthResp struct {
+	AccessToken        string                  `json:"access_token"`
+	CreatedAt          *time.Time              `json:"created_at,omitempty"`
+	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
+	Email              *string                 `json:"email,omitempty"`
+	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
+	ExpiresAt          *time.Time              `json:"expires_at,omitempty"`
+	RefreshToken       *string                 `json:"refresh_token,omitempty"`
 }
 
 // AuthServiceRequest defines model for AuthServiceRequest.
@@ -40,23 +47,178 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
+// CreateFirebaseUserRequest defines model for CreateFirebaseUserRequest.
+type CreateFirebaseUserRequest struct {
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	ProjectId string `json:"project_id"`
+}
+
+// License defines model for License.
+type License struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EndAt            *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	ProjectId        *string                 `json:"project_id,omitempty"`
+	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt          *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// PaymentDetailsRequest defines model for PaymentDetailsRequest.
+type PaymentDetailsRequest struct {
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+}
+
+// PaymentDetailsResp defines model for PaymentDetailsResp.
+type PaymentDetailsResp struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
+// Product defines model for Product.
+type Product struct {
+	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Disabled         *bool                   `json:"disabled,omitempty"`
+	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id               *string                 `json:"id,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
+	Name             *string                 `json:"name,omitempty"`
+	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
+	Period           *string                 `json:"period,omitempty"`
+	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
+	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+}
+
+// SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
+type SendRestoreLinkRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
+// TokenRequest defines model for TokenRequest.
+type TokenRequest struct {
+	InstallationId string `json:"installation_id"`
+	PlatformType   string `json:"platform_type"`
+	RefreshToken   string `json:"refresh_token"`
+}
+
+// TokenResp defines model for TokenResp.
+type TokenResp struct {
+	AccessToken        string                 `json:"access_token"`
+	CreatedAt          time.Time              `json:"created_at"`
+	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
+	Entitlements       map[string]interface{} `json:"entitlements"`
+	ExpiresAt          time.Time              `json:"expires_at"`
+}
+
+// User defines model for User.
+type User struct {
+	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+	Description *map[string]interface{} `json:"description,omitempty"`
+	Email       *string                 `json:"email,omitempty"`
+	Id          *string                 `json:"id,omitempty"`
+	ProjectId   *string                 `json:"project_id,omitempty"`
+	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+}
+
+// ConfirmParams defines parameters for Confirm.
+type ConfirmParams struct {
+	ConfirmationId string `json:"confirmation_id"`
+	PlatformType   string `json:"platform_type"`
+}
+
+// PaymentDetailsJSONBody defines parameters for PaymentDetails.
+type PaymentDetailsJSONBody PaymentDetailsRequest
+
+// ListProductParams defines parameters for ListProduct.
+type ListProductParams struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+// SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
+type SendConfirmationLinkJSONBody AuthRequest
+
+// SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
+type SendRestoreLinkJSONBody SendRestoreLinkRequest
+
 // AuthenticateJSONBody defines parameters for Authenticate.
 type AuthenticateJSONBody AuthRequest
+
+// RegisterJSONBody defines parameters for Register.
+type RegisterJSONBody AuthRequest
+
+// TokenJSONBody defines parameters for Token.
+type TokenJSONBody TokenRequest
+
+// CreateFirebaseUserJSONBody defines parameters for CreateFirebaseUser.
+type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
+type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
+type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+
+// SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
+type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
+
 // AuthenticateJSONRequestBody defines body for Authenticate for application/json ContentType.
 type AuthenticateJSONRequestBody AuthenticateJSONBody
+
+// RegisterJSONRequestBody defines body for Register for application/json ContentType.
+type RegisterJSONRequestBody RegisterJSONBody
+
+// TokenJSONRequestBody defines body for Token for application/json ContentType.
+type TokenJSONRequestBody TokenJSONBody
+
+// CreateFirebaseUserJSONRequestBody defines body for CreateFirebaseUser for application/json ContentType.
+type CreateFirebaseUserJSONRequestBody CreateFirebaseUserJSONBody
 
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Confirm email
+	// (GET /api/client/confirm)
+	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// List license by user_id
+	// (GET /api/client/license-by-user)
+	ListLicenseByUser(w http.ResponseWriter, r *http.Request)
+	// Get payment details
+	// (POST /api/client/payment-details)
+	PaymentDetails(w http.ResponseWriter, r *http.Request)
+	// List product
+	// (GET /api/client/product)
+	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Send confirmation link
+	// (POST /api/client/send-confirmation-link)
+	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
+	// Send restore link
+	// (POST /api/client/send-restore-link)
+	SendRestoreLink(w http.ResponseWriter, r *http.Request)
 	// Authenticate user
 	// (POST /api/client/signin)
 	Authenticate(w http.ResponseWriter, r *http.Request)
+	// Register user
+	// (POST /api/client/signup)
+	Register(w http.ResponseWriter, r *http.Request)
+	// Refresh access token
+	// (POST /api/client/token)
+	Token(w http.ResponseWriter, r *http.Request)
+	// Create user at firebase
+	// (POST /api/service/firebase-user)
+	CreateFirebaseUser(w http.ResponseWriter, r *http.Request)
 	// Authenticate service
 	// (POST /api/service/signin)
 	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
@@ -71,6 +233,168 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
 
+// Confirm operation middleware
+func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ConfirmParams
+
+	// ------------- Required query parameter "confirmation_id" -------------
+	if paramValue := r.URL.Query().Get("confirmation_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "confirmation_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "confirmation_id", r.URL.Query(), &params.ConfirmationId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "confirmation_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "platform_type"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListLicenseByUser operation middleware
+func (siw *ServerInterfaceWrapper) ListLicenseByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLicenseByUser(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// PaymentDetails operation middleware
+func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ListProduct operation middleware
+func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListProductParams
+
+	// ------------- Required query parameter "limit" -------------
+	if paramValue := r.URL.Query().Get("limit"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "limit"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "offset" -------------
+	if paramValue := r.URL.Query().Get("offset"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "offset"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProduct(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// SendConfirmationLink operation middleware
+func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendConfirmationLink(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// SendRestoreLink operation middleware
+func (siw *ServerInterfaceWrapper) SendRestoreLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendRestoreLink(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // Authenticate operation middleware
 func (siw *ServerInterfaceWrapper) Authenticate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -81,6 +405,59 @@ func (siw *ServerInterfaceWrapper) Authenticate(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Authenticate(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// Register operation middleware
+func (siw *ServerInterfaceWrapper) Register(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	ctx = context.WithValue(ctx, BasicScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Register(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// Token operation middleware
+func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Token(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreateFirebaseUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateFirebaseUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateFirebaseUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -221,7 +598,34 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/license-by-user", wrapper.ListLicenseByUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/send-restore-link", wrapper.SendRestoreLink)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/signin", wrapper.Authenticate)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/signup", wrapper.Register)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/service/firebase-user", wrapper.CreateFirebaseUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
