@@ -524,6 +524,8 @@ components:
           format: date-time
         entitlements:
           type: object
+        email:
+          type: string
         discovery_addresses:
           type: array
           items:
