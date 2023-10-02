@@ -11,6 +11,8 @@ info:
 servers:
   - description: Dev
     url: http://dev.vpnhouse.net:8091
+  - description: Stage
+    url: https://stage.vpnhouse.net
 
 paths:
   /api/client-service/user:
