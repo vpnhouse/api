@@ -119,6 +119,7 @@ type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
 	CreatedAt          time.Time              `json:"created_at"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
+	Email              *string                `json:"email,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
 	ExpiresAt          time.Time              `json:"expires_at"`
 }
@@ -269,6 +270,9 @@ type ClientInterface interface {
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetFirebasePublicKey request
+	GetFirebasePublicKey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListLicenseByUser request
 	ListLicenseByUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -318,6 +322,18 @@ type ClientInterface interface {
 
 func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewConfirmRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetFirebasePublicKey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetFirebasePublicKeyRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -590,6 +606,33 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	}
 
 	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetFirebasePublicKeyRequest generates requests for GetFirebasePublicKey
+func NewGetFirebasePublicKeyRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/firebase-public-key")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -1047,6 +1090,9 @@ type ClientWithResponsesInterface interface {
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
+	// GetFirebasePublicKey request
+	GetFirebasePublicKeyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error)
+
 	// ListLicenseByUser request
 	ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error)
 
@@ -1114,6 +1160,32 @@ func (r ConfirmResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ConfirmResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetFirebasePublicKeyResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetFirebasePublicKeyResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetFirebasePublicKeyResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1386,6 +1458,15 @@ func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *C
 	return ParseConfirmResponse(rsp)
 }
 
+// GetFirebasePublicKeyWithResponse request returning *GetFirebasePublicKeyResponse
+func (c *ClientWithResponses) GetFirebasePublicKeyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error) {
+	rsp, err := c.GetFirebasePublicKey(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetFirebasePublicKeyResponse(rsp)
+}
+
 // ListLicenseByUserWithResponse request returning *ListLicenseByUserResponse
 func (c *ClientWithResponses) ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error) {
 	rsp, err := c.ListLicenseByUser(ctx, reqEditors...)
@@ -1581,6 +1662,60 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetFirebasePublicKeyResponse parses an HTTP response from a GetFirebasePublicKeyWithResponse call
+func ParseGetFirebasePublicKeyResponse(rsp *http.Response) (*GetFirebasePublicKeyResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetFirebasePublicKeyResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error

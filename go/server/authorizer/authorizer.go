@@ -113,6 +113,7 @@ type TokenResp struct {
 	AccessToken        string                 `json:"access_token"`
 	CreatedAt          time.Time              `json:"created_at"`
 	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
+	Email              *string                `json:"email,omitempty"`
 	Entitlements       map[string]interface{} `json:"entitlements"`
 	ExpiresAt          time.Time              `json:"expires_at"`
 }
@@ -192,6 +193,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Get firebase public key
+	// (GET /api/client/firebase-public-key)
+	GetFirebasePublicKey(w http.ResponseWriter, r *http.Request)
 	// List license by user_id
 	// (GET /api/client/license-by-user)
 	ListLicenseByUser(w http.ResponseWriter, r *http.Request)
@@ -272,6 +276,23 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetFirebasePublicKey operation middleware
+func (siw *ServerInterfaceWrapper) GetFirebasePublicKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetFirebasePublicKey(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -599,6 +620,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/firebase-public-key", wrapper.GetFirebasePublicKey)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/license-by-user", wrapper.ListLicenseByUser)
