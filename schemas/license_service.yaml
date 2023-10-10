@@ -7,13 +7,6 @@ info:
     email: support@vpnhouse.net
     name: Dmitry Efimov
   description: license-service API
-
-servers:
-  - description: Dev
-    url: http://dev.vpnhouse.net:8093
-  - description: Stage
-    url: https://stage.vpnhouse.net
-
 paths:
   /api/license-service/product:
     get:

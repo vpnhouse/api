@@ -7,13 +7,6 @@ info:
     email: support@vpnhouse.net
     name: Dmitry Efimov
   description: project-service API
-
-servers:
-  - description: Dev
-    url: http://dev.vpnhouse.net:8092
-  - description: Stage
-    url: https://stage.vpnhouse.net
-
 paths:
   /api/project-service/project:
     get:
