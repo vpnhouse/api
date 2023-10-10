@@ -7,13 +7,6 @@ info:
     email: support@vpnhouse.net
     name: Artem Alemasov
   description: Dashboard API
-
-servers:
-  - description: Dev
-    url: http://dev.vpnhouse.net:8087
-  - description: Stage
-    url: https://stage.vpnhouse.net
-
 paths:
   /api/dashboard/daily_user_sessions:
     parameters:
