@@ -53,6 +53,15 @@ type FindAuthMethodParams struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
+// Location defines model for Location.
+type Location struct {
+	ClientSelector []byte `json:"client_selector"`
+	Id             string `json:"id"`
+	Labels         []byte `json:"labels"`
+	Name           string `json:"name"`
+	NodeSelector   []byte `json:"node_selector"`
+}
+
 // LocationMapping defines model for LocationMapping.
 type LocationMapping struct {
 	Mapping *map[string]interface{} `json:"mapping,omitempty"`
@@ -81,6 +90,13 @@ type Project struct {
 	Id          *string                 `json:"id,omitempty"`
 	Name        *string                 `json:"name,omitempty"`
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+}
+
+// ProjectConfig defines model for ProjectConfig.
+type ProjectConfig struct {
+	Id        string     `json:"id"`
+	Locations []Location `json:"locations"`
+	Name      string     `json:"name"`
 }
 
 // UpdateAuthMethodParams defines model for UpdateAuthMethodParams.
@@ -185,6 +201,9 @@ type ServerInterface interface {
 	// Create project
 	// (POST /api/project-service/project)
 	CreateProject(w http.ResponseWriter, r *http.Request)
+	// Project config list
+	// (GET /api/project-service/project-config)
+	ListProjectConfig(w http.ResponseWriter, r *http.Request)
 	// Delete a project
 	// (DELETE /api/project-service/project/{id})
 	DeleteProject(w http.ResponseWriter, r *http.Request, id string)
@@ -508,6 +527,25 @@ func (siw *ServerInterfaceWrapper) CreateProject(w http.ResponseWriter, r *http.
 	handler(w, r.WithContext(ctx))
 }
 
+// ListProjectConfig operation middleware
+func (siw *ServerInterfaceWrapper) ListProjectConfig(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListProjectConfig(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // DeleteProject operation middleware
 func (siw *ServerInterfaceWrapper) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -770,6 +808,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/project-service/project", wrapper.CreateProject)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/project-service/project-config", wrapper.ListProjectConfig)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/project-service/project/{id}", wrapper.DeleteProject)

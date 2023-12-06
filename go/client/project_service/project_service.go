@@ -59,6 +59,15 @@ type FindAuthMethodParams struct {
 	UpdatedAt *time.Time              `json:"updated_at"`
 }
 
+// Location defines model for Location.
+type Location struct {
+	ClientSelector []byte `json:"client_selector"`
+	Id             string `json:"id"`
+	Labels         []byte `json:"labels"`
+	Name           string `json:"name"`
+	NodeSelector   []byte `json:"node_selector"`
+}
+
 // LocationMapping defines model for LocationMapping.
 type LocationMapping struct {
 	Mapping *map[string]interface{} `json:"mapping,omitempty"`
@@ -87,6 +96,13 @@ type Project struct {
 	Id          *string                 `json:"id,omitempty"`
 	Name        *string                 `json:"name,omitempty"`
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+}
+
+// ProjectConfig defines model for ProjectConfig.
+type ProjectConfig struct {
+	Id        string     `json:"id"`
+	Locations []Location `json:"locations"`
+	Name      string     `json:"name"`
 }
 
 // UpdateAuthMethodParams defines model for UpdateAuthMethodParams.
@@ -271,6 +287,9 @@ type ClientInterface interface {
 	CreateProjectWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateProject(ctx context.Context, body CreateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListProjectConfig request
+	ListProjectConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteProject request
 	DeleteProject(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -459,6 +478,18 @@ func (c *Client) CreateProjectWithBody(ctx context.Context, contentType string, 
 
 func (c *Client) CreateProject(ctx context.Context, body CreateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateProjectRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListProjectConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectConfigRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -960,6 +991,33 @@ func NewCreateProjectRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
+// NewListProjectConfigRequest generates requests for ListProjectConfig
+func NewListProjectConfigRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/project-service/project-config")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewDeleteProjectRequest generates requests for DeleteProject
 func NewDeleteProjectRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -1204,6 +1262,9 @@ type ClientWithResponsesInterface interface {
 	CreateProjectWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectResponse, error)
 
 	CreateProjectWithResponse(ctx context.Context, body CreateProjectJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectResponse, error)
+
+	// ListProjectConfig request
+	ListProjectConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectConfigResponse, error)
 
 	// DeleteProject request
 	DeleteProjectWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteProjectResponse, error)
@@ -1477,6 +1538,31 @@ func (r CreateProjectResponse) StatusCode() int {
 	return 0
 }
 
+type ListProjectConfigResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]ProjectConfig
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProjectConfigResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProjectConfigResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeleteProjectResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1706,6 +1792,15 @@ func (c *ClientWithResponses) CreateProjectWithResponse(ctx context.Context, bod
 		return nil, err
 	}
 	return ParseCreateProjectResponse(rsp)
+}
+
+// ListProjectConfigWithResponse request returning *ListProjectConfigResponse
+func (c *ClientWithResponses) ListProjectConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectConfigResponse, error) {
+	rsp, err := c.ListProjectConfig(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProjectConfigResponse(rsp)
 }
 
 // DeleteProjectWithResponse request returning *DeleteProjectResponse
@@ -2252,6 +2347,53 @@ func ParseCreateProjectResponse(rsp *http.Response) (*CreateProjectResponse, err
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListProjectConfigResponse parses an HTTP response from a ListProjectConfigWithResponse call
+func ParseListProjectConfigResponse(rsp *http.Response) (*ListProjectConfigResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProjectConfigResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []ProjectConfig
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
