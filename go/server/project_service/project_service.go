@@ -55,11 +55,11 @@ type FindAuthMethodParams struct {
 
 // Location defines model for Location.
 type Location struct {
-	ClientSelector []byte `json:"client_selector"`
-	Id             string `json:"id"`
-	Labels         []byte `json:"labels"`
-	Name           string `json:"name"`
-	NodeSelector   []byte `json:"node_selector"`
+	ClientSelector map[string]interface{} `json:"client_selector"`
+	Id             string                 `json:"id"`
+	Labels         map[string]interface{} `json:"labels"`
+	Name           string                 `json:"name"`
+	NodeSelector   map[string]interface{} `json:"node_selector"`
 }
 
 // LocationMapping defines model for LocationMapping.

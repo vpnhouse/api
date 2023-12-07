@@ -648,14 +648,11 @@ components:
         name:
           type: string
         labels:
-          type: string
-          format: byte
+          type: object
         node_selector:
-          type: string
-          format: byte
+          type: object
         client_selector:
-          type: string
-          format: byte
+          type: object
     ProjectConfig:
       title: ProjectConfig
       type: object
