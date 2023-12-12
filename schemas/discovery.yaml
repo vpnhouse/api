@@ -31,6 +31,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
       operationId: get-locations
       description: Returns available locations for client
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: query
+          name: project_id
     parameters: []
   /api/client/credentials:
     get:

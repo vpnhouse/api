@@ -38,6 +38,11 @@ type GetCredentialsParams struct {
 	Location *string `json:"location,omitempty"`
 }
 
+// GetLocationsParams defines parameters for GetLocations.
+type GetLocationsParams struct {
+	ProjectId *string `json:"project_id,omitempty"`
+}
+
 // GetOptimalParams defines parameters for GetOptimal.
 type GetOptimalParams struct {
 	Country *string `json:"country,omitempty"`
@@ -50,7 +55,7 @@ type ServerInterface interface {
 	GetCredentials(w http.ResponseWriter, r *http.Request, params GetCredentialsParams)
 	// Get locations
 	// (GET /api/client/locations)
-	GetLocations(w http.ResponseWriter, r *http.Request)
+	GetLocations(w http.ResponseWriter, r *http.Request, params GetLocationsParams)
 	// Get optimal
 	// (GET /api/client/optimal)
 	GetOptimal(w http.ResponseWriter, r *http.Request, params GetOptimalParams)
@@ -102,10 +107,26 @@ func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http
 func (siw *ServerInterfaceWrapper) GetLocations(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
 	ctx = context.WithValue(ctx, BearerScopes, []string{""})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetLocationsParams
+
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetLocations(w, r)
+		siw.Handler.GetLocations(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
