@@ -41,6 +41,11 @@ type GetCredentialsParams struct {
 	Location *string `json:"location,omitempty"`
 }
 
+// GetLocationsParams defines parameters for GetLocations.
+type GetLocationsParams struct {
+	ProjectId *string `json:"project_id,omitempty"`
+}
+
 // GetOptimalParams defines parameters for GetOptimal.
 type GetOptimalParams struct {
 	Country *string `json:"country,omitempty"`
@@ -123,7 +128,7 @@ type ClientInterface interface {
 	GetCredentials(ctx context.Context, params *GetCredentialsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetLocations request
-	GetLocations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetLocations(ctx context.Context, params *GetLocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOptimal request
 	GetOptimal(ctx context.Context, params *GetOptimalParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -141,8 +146,8 @@ func (c *Client) GetCredentials(ctx context.Context, params *GetCredentialsParam
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetLocations(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetLocationsRequest(c.Server)
+func (c *Client) GetLocations(ctx context.Context, params *GetLocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetLocationsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +218,7 @@ func NewGetCredentialsRequest(server string, params *GetCredentialsParams) (*htt
 }
 
 // NewGetLocationsRequest generates requests for GetLocations
-func NewGetLocationsRequest(server string) (*http.Request, error) {
+func NewGetLocationsRequest(server string, params *GetLocationsParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -230,6 +235,26 @@ func NewGetLocationsRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if params.ProjectId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -333,7 +358,7 @@ type ClientWithResponsesInterface interface {
 	GetCredentialsWithResponse(ctx context.Context, params *GetCredentialsParams, reqEditors ...RequestEditorFn) (*GetCredentialsResponse, error)
 
 	// GetLocations request
-	GetLocationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLocationsResponse, error)
+	GetLocationsWithResponse(ctx context.Context, params *GetLocationsParams, reqEditors ...RequestEditorFn) (*GetLocationsResponse, error)
 
 	// GetOptimal request
 	GetOptimalWithResponse(ctx context.Context, params *GetOptimalParams, reqEditors ...RequestEditorFn) (*GetOptimalResponse, error)
@@ -424,8 +449,8 @@ func (c *ClientWithResponses) GetCredentialsWithResponse(ctx context.Context, pa
 }
 
 // GetLocationsWithResponse request returning *GetLocationsResponse
-func (c *ClientWithResponses) GetLocationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetLocationsResponse, error) {
-	rsp, err := c.GetLocations(ctx, reqEditors...)
+func (c *ClientWithResponses) GetLocationsWithResponse(ctx context.Context, params *GetLocationsParams, reqEditors ...RequestEditorFn) (*GetLocationsResponse, error) {
+	rsp, err := c.GetLocations(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
