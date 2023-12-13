@@ -203,6 +203,32 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/project-service/project-config:
+    get:
+      summary: Project config list
+      tags:
+        - list
+        - project-config
+      operationId: list-project-config
+      description: Receive project config list to use it for resolving node selection in discovery
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectConfig'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
 
   /api/project-service/auth-method:
     get:
@@ -606,7 +632,44 @@ components:
       properties:
         mapping:
           type: object
-
+    Location:
+      title: Location
+      type: object
+      required:
+        - id
+        - name
+        - labels
+        - node_selector
+        - client_selector
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        labels:
+          type: object
+        node_selector:
+          type: object
+        client_selector:
+          type: object
+    ProjectConfig:
+      title: ProjectConfig
+      type: object
+      required:
+        - id
+        - name
+        - locations
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
   securitySchemes:
     ServiceKey:
       name: X-VPNHOUSE-SERVICE-KEY
@@ -628,3 +691,4 @@ tags:
   - name: project
   - name: auth-method
   - name: location-mapping
+  - name: project-configs
