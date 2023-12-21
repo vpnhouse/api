@@ -21,6 +21,11 @@ paths:
           name: offset
           in: query
           required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: false
       summary: List products
       tags:
         - list
@@ -759,6 +764,33 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/license-service/google-play/subscription-purchased:
+    post:
+      summary: Handle google play subscription purchased
+      tags:
+        - post
+        - google-play
+        - subscription-purchased
+      operationId: google-play-subscription-purchased
+      description: Handle google play subscription purchased
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GooglePlaySubscriptionPurchasedRequest'
+
 components:
   schemas:
     Product:
@@ -1339,6 +1371,28 @@ components:
           type: string
       required:
         - payment_url
+    GooglePlaySubscriptionPurchasedRequest:
+      title: GooglePlaySubscriptionPurchasedRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        package_name:
+          type: string
+        purchase_token:
+          type: string
+      required:
+        - project_id
+        - product_id
+        - package_name
+        - purchase_token
 
   securitySchemes:
     ServiceKey:
