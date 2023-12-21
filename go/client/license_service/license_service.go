@@ -168,10 +168,12 @@ type PatchPurchaseParams struct {
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
-	Email     string  `json:"email"`
-	ProductId string  `json:"product_id"`
-	ProjectId string  `json:"project_id"`
-	UserId    *string `json:"user_id,omitempty"`
+	Email          string  `json:"email"`
+	GaId           *string `json:"ga_id,omitempty"`
+	InstallationId *string `json:"installation_id,omitempty"`
+	ProductId      string  `json:"product_id"`
+	ProjectId      string  `json:"project_id"`
+	UserId         *string `json:"user_id,omitempty"`
 }
 
 // PaymentDetailsResp defines model for PaymentDetailsResp.
