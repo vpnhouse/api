@@ -378,6 +378,30 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/client/delete:
+    delete:
+      summary: Delete user
+      tags:
+        - delete
+        - user
+      operationId: delete-user
+      description: Delete user
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
 components:
   schemas:
     AuthRequest:
