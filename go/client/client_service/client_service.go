@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -1103,4 +1104,3 @@ func ParseListUserSessionResponse(rsp *http.Response) (*ListUserSessionResponse,
 
 	return response, nil
 }
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
