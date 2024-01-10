@@ -679,6 +679,12 @@ components:
         product_id:
           type: string
           format: uuid
+        ga_id:
+          type: string
+          maxLength: 32
+        installation_id:
+          type: string
+          format: uuid
       required:
         - email
         - project_id

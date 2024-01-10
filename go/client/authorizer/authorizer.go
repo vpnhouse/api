@@ -77,9 +77,11 @@ type License struct {
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
-	Email     string `json:"email"`
-	ProductId string `json:"product_id"`
-	ProjectId string `json:"project_id"`
+	Email          string  `json:"email"`
+	GaId           *string `json:"ga_id,omitempty"`
+	InstallationId *string `json:"installation_id,omitempty"`
+	ProductId      string  `json:"product_id"`
+	ProjectId      string  `json:"project_id"`
 }
 
 // PaymentDetailsResp defines model for PaymentDetailsResp.
