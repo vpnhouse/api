@@ -57,7 +57,7 @@ sed -i -e 's/var dest Error/var dest externalRef1.Error/g' $target
 
 ### fix external ref bug for the client_service-client
 target=../go/client/client_service/client_service.go
-ln=$(grep -m1 -n "time" $target | cut -d: -f1)
+ln=$(grep -m1 -n "import (" $target | cut -d: -f1)
 ed $target << END
 ${ln}a
 	externalRef1 "github.com/vpnhouse/api/go/server/common"
