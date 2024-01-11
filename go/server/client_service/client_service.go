@@ -78,7 +78,7 @@ type Project struct {
 
 // Session defines model for Session.
 type Session struct {
-	Connected        *bool      `json:"connected,omitempty"`
+	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
 	CreatedAt        *time.Time `json:"created_at,omitempty"`
 	Deleted          *bool      `json:"deleted,omitempty"`
 	ExpiresAt        *time.Time `json:"expires_at,omitempty"`

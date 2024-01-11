@@ -329,8 +329,9 @@ components:
         first_connected_at:
           type: string
           format: date-time
-        connected:
-          type: boolean
+        connected_at:
+          type: string
+          format: date-time
         expires_at:
           type: string
           format: date-time
