@@ -358,6 +358,36 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
+  /api/client/purchase-order-id:
+    post:
+      summary: Get purchase order ID
+      tags:
+        - get
+        - purchase-order-id
+      operationId: get-purchase-order-id
+      description: Get purchase order ID
+      security:
+        - {}
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetPurchaseOrderIDResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetPurchaseOrderIDRequest'
+
   /api/client/firebase-public-key:
     get:
       summary: Get firebase public key
@@ -702,6 +732,31 @@ components:
           type: string
       required:
         - payment_url
+    GetPurchaseOrderIDRequest:
+      title: GetPurchaseOrderIDRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - project_id
+        - product_id
+        - user_id
+    GetPurchaseOrderIDResp:
+      title: GetPurchaseOrderIDResp
+      type: object
+      properties:
+        order_id:
+          type: string
+      required:
+        - order_id
 
   securitySchemes:
     bearer:

@@ -22,6 +22,7 @@ import (
 const (
 	ServiceKeyScopes  = "ServiceKey.Scopes"
 	ServiceNameScopes = "ServiceName.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // ApplyParams defines model for ApplyParams.
@@ -109,6 +110,18 @@ type FindPurchaseParams struct {
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// GetPurchaseOrderIDRequest defines model for GetPurchaseOrderIDRequest.
+type GetPurchaseOrderIDRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// GetPurchaseOrderIDResp defines model for GetPurchaseOrderIDResp.
+type GetPurchaseOrderIDResp struct {
+	OrderId string `json:"order_id"`
 }
 
 // License defines model for License.
@@ -314,6 +327,9 @@ type ListPurchaseParams struct {
 // CreatePurchaseJSONBody defines parameters for CreatePurchase.
 type CreatePurchaseJSONBody CreatePurchaseParams
 
+// GetPurchaseOrderIdJSONBody defines parameters for GetPurchaseOrderId.
+type GetPurchaseOrderIdJSONBody GetPurchaseOrderIDRequest
+
 // PatchPurchaseJSONBody defines parameters for PatchPurchase.
 type PatchPurchaseJSONBody PatchPurchaseParams
 
@@ -355,6 +371,9 @@ type UpdateProductJSONRequestBody UpdateProductJSONBody
 
 // CreatePurchaseJSONRequestBody defines body for CreatePurchase for application/json ContentType.
 type CreatePurchaseJSONRequestBody CreatePurchaseJSONBody
+
+// GetPurchaseOrderIdJSONRequestBody defines body for GetPurchaseOrderId for application/json ContentType.
+type GetPurchaseOrderIdJSONRequestBody GetPurchaseOrderIdJSONBody
 
 // PatchPurchaseJSONRequestBody defines body for PatchPurchase for application/json ContentType.
 type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
@@ -521,6 +540,11 @@ type ClientInterface interface {
 	CreatePurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreatePurchase(ctx context.Context, body CreatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPurchaseOrderId request with any body
+	GetPurchaseOrderIdWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetPurchaseOrderId(ctx context.Context, body GetPurchaseOrderIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeletePurchase request
 	DeletePurchase(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -925,6 +949,30 @@ func (c *Client) CreatePurchaseWithBody(ctx context.Context, contentType string,
 
 func (c *Client) CreatePurchase(ctx context.Context, body CreatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreatePurchaseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPurchaseOrderIdWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPurchaseOrderIdRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPurchaseOrderId(ctx context.Context, body GetPurchaseOrderIdJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPurchaseOrderIdRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1926,6 +1974,46 @@ func NewCreatePurchaseRequestWithBody(server string, contentType string, body io
 	return req, nil
 }
 
+// NewGetPurchaseOrderIdRequest calls the generic GetPurchaseOrderId builder with application/json body
+func NewGetPurchaseOrderIdRequest(server string, body GetPurchaseOrderIdJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetPurchaseOrderIdRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetPurchaseOrderIdRequestWithBody generates requests for GetPurchaseOrderId with any type of body
+func NewGetPurchaseOrderIdRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/purchase-order-id")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeletePurchaseRequest generates requests for DeletePurchase
 func NewDeletePurchaseRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -2217,6 +2305,11 @@ type ClientWithResponsesInterface interface {
 	CreatePurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseResponse, error)
 
 	CreatePurchaseWithResponse(ctx context.Context, body CreatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePurchaseResponse, error)
+
+	// GetPurchaseOrderId request with any body
+	GetPurchaseOrderIdWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetPurchaseOrderIdResponse, error)
+
+	GetPurchaseOrderIdWithResponse(ctx context.Context, body GetPurchaseOrderIdJSONRequestBody, reqEditors ...RequestEditorFn) (*GetPurchaseOrderIdResponse, error)
 
 	// DeletePurchase request
 	DeletePurchaseWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeletePurchaseResponse, error)
@@ -2771,6 +2864,31 @@ func (r CreatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+type GetPurchaseOrderIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *GetPurchaseOrderIDResp
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPurchaseOrderIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPurchaseOrderIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type DeletePurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3155,6 +3273,23 @@ func (c *ClientWithResponses) CreatePurchaseWithResponse(ctx context.Context, bo
 		return nil, err
 	}
 	return ParseCreatePurchaseResponse(rsp)
+}
+
+// GetPurchaseOrderIdWithBodyWithResponse request with arbitrary body returning *GetPurchaseOrderIdResponse
+func (c *ClientWithResponses) GetPurchaseOrderIdWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetPurchaseOrderIdResponse, error) {
+	rsp, err := c.GetPurchaseOrderIdWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPurchaseOrderIdResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetPurchaseOrderIdWithResponse(ctx context.Context, body GetPurchaseOrderIdJSONRequestBody, reqEditors ...RequestEditorFn) (*GetPurchaseOrderIdResponse, error) {
+	rsp, err := c.GetPurchaseOrderId(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPurchaseOrderIdResponse(rsp)
 }
 
 // DeletePurchaseWithResponse request returning *DeletePurchaseResponse
@@ -4260,6 +4395,53 @@ func ParseCreatePurchaseResponse(rsp *http.Response) (*CreatePurchaseResponse, e
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPurchaseOrderIdResponse parses an HTTP response from a GetPurchaseOrderIdWithResponse call
+func ParseGetPurchaseOrderIdResponse(rsp *http.Response) (*GetPurchaseOrderIdResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPurchaseOrderIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest GetPurchaseOrderIDResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error

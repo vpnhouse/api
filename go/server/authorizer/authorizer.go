@@ -54,6 +54,18 @@ type CreateFirebaseUserRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// GetPurchaseOrderIDRequest defines model for GetPurchaseOrderIDRequest.
+type GetPurchaseOrderIDRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// GetPurchaseOrderIDResp defines model for GetPurchaseOrderIDResp.
+type GetPurchaseOrderIDResp struct {
+	OrderId string `json:"order_id"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -146,6 +158,9 @@ type ListProductParams struct {
 	PlatformType *string `json:"platform_type,omitempty"`
 }
 
+// GetPurchaseOrderIdJSONBody defines parameters for GetPurchaseOrderId.
+type GetPurchaseOrderIdJSONBody GetPurchaseOrderIDRequest
+
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
@@ -169,6 +184,9 @@ type ServiceAuthenticateJSONBody AuthServiceRequest
 
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// GetPurchaseOrderIdJSONRequestBody defines body for GetPurchaseOrderId for application/json ContentType.
+type GetPurchaseOrderIdJSONRequestBody GetPurchaseOrderIdJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -211,6 +229,9 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Get purchase order ID
+	// (POST /api/client/purchase-order-id)
+	GetPurchaseOrderId(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -409,6 +430,23 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetPurchaseOrderId operation middleware
+func (siw *ServerInterfaceWrapper) GetPurchaseOrderId(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPurchaseOrderId(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -669,6 +707,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/purchase-order-id", wrapper.GetPurchaseOrderId)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
