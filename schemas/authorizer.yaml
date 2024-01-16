@@ -271,6 +271,11 @@ paths:
           name: offset
           in: query
           required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: false
       summary: List product
       tags:
         - list
