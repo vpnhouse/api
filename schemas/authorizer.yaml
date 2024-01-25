@@ -358,14 +358,14 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
-  /api/client/purchase-order-id:
+  /api/client/create-purchase-context:
     post:
-      summary: Get purchase order ID
+      summary: Create purchase context
       tags:
-        - get
-        - purchase-order-id
-      operationId: get-purchase-order-id
-      description: Get purchase order ID
+        - create
+        - purchase-context
+      operationId: create-purchase-context
+      description: Create new purchase context
       security:
         - {}
         - bearer: [ ]
@@ -375,7 +375,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetPurchaseOrderIDResp'
+                $ref: '#/components/schemas/CreatePurchaseContextResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -386,7 +386,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GetPurchaseOrderIDRequest'
+              $ref: '#/components/schemas/CreatePurchaseContextRequest'
 
   /api/client/firebase-public-key:
     get:
@@ -732,8 +732,8 @@ components:
           type: string
       required:
         - payment_url
-    GetPurchaseOrderIDRequest:
-      title: GetPurchaseOrderIDRequest
+    CreatePurchaseContextRequest:
+      title: CreatePurchaseContextRequest
       type: object
       properties:
         project_id:
@@ -749,14 +749,14 @@ components:
         - project_id
         - product_id
         - user_id
-    GetPurchaseOrderIDResp:
-      title: GetPurchaseOrderIDResp
+    CreatePurchaseContextResp:
+      title: CreatePurchaseContextResp
       type: object
       properties:
-        order_id:
+        purchase_context_id:
           type: string
       required:
-        - order_id
+        - purchase_context_id
 
   securitySchemes:
     bearer:

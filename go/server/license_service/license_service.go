@@ -49,6 +49,18 @@ type CreateProductParams struct {
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
 }
 
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+}
+
 // CreatePurchaseParams defines model for CreatePurchaseParams.
 type CreatePurchaseParams struct {
 	Email            *string                 `json:"email"`
@@ -104,18 +116,6 @@ type FindPurchaseParams struct {
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 	UserId           *string                 `json:"user_id,omitempty"`
-}
-
-// GetPurchaseOrderIDRequest defines model for GetPurchaseOrderIDRequest.
-type GetPurchaseOrderIDRequest struct {
-	ProductId string `json:"product_id"`
-	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
-}
-
-// GetPurchaseOrderIDResp defines model for GetPurchaseOrderIDResp.
-type GetPurchaseOrderIDResp struct {
-	OrderId string `json:"order_id"`
 }
 
 // License defines model for License.
@@ -262,6 +262,9 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // GetEntitlementsParams defines parameters for GetEntitlements.
 type GetEntitlementsParams struct {
 	ProjectId    string `json:"project_id"`
@@ -321,9 +324,6 @@ type ListPurchaseParams struct {
 // CreatePurchaseJSONBody defines parameters for CreatePurchase.
 type CreatePurchaseJSONBody CreatePurchaseParams
 
-// GetPurchaseOrderIdJSONBody defines parameters for GetPurchaseOrderId.
-type GetPurchaseOrderIdJSONBody GetPurchaseOrderIDRequest
-
 // PatchPurchaseJSONBody defines parameters for PatchPurchase.
 type PatchPurchaseJSONBody PatchPurchaseParams
 
@@ -332,6 +332,9 @@ type UpdatePurchaseJSONBody UpdatePurchaseParams
 
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
+
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
 // FindLicenseJSONRequestBody defines body for FindLicense for application/json ContentType.
 type FindLicenseJSONRequestBody FindLicenseJSONBody
@@ -366,9 +369,6 @@ type UpdateProductJSONRequestBody UpdateProductJSONBody
 // CreatePurchaseJSONRequestBody defines body for CreatePurchase for application/json ContentType.
 type CreatePurchaseJSONRequestBody CreatePurchaseJSONBody
 
-// GetPurchaseOrderIdJSONRequestBody defines body for GetPurchaseOrderId for application/json ContentType.
-type GetPurchaseOrderIdJSONRequestBody GetPurchaseOrderIdJSONBody
-
 // PatchPurchaseJSONRequestBody defines body for PatchPurchase for application/json ContentType.
 type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
@@ -380,6 +380,9 @@ type ServerInterface interface {
 	// Copy all purchases find by email and create new licenses for user in given project
 	// (GET /api/license-service/apply-for-user-by-email)
 	ApplyForUserByEmail(w http.ResponseWriter, r *http.Request)
+	// Create new purchase context
+	// (POST /api/license-service/create-purchase-context)
+	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
 	// Get entitlements
 	// (GET /api/license-service/entitlements)
 	GetEntitlements(w http.ResponseWriter, r *http.Request, params GetEntitlementsParams)
@@ -440,9 +443,6 @@ type ServerInterface interface {
 	// Create purchase
 	// (POST /api/license-service/purchase)
 	CreatePurchase(w http.ResponseWriter, r *http.Request)
-	// Get purchase order ID
-	// (POST /api/license-service/purchase-order-id)
-	GetPurchaseOrderId(w http.ResponseWriter, r *http.Request)
 	// Delete a purchase
 	// (DELETE /api/license-service/purchase/{id})
 	DeletePurchase(w http.ResponseWriter, r *http.Request, id string)
@@ -476,6 +476,23 @@ func (siw *ServerInterfaceWrapper) ApplyForUserByEmail(w http.ResponseWriter, r 
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyForUserByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreatePurchaseContext operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchaseContext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchaseContext(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1106,23 +1123,6 @@ func (siw *ServerInterfaceWrapper) CreatePurchase(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
-// GetPurchaseOrderId operation middleware
-func (siw *ServerInterfaceWrapper) GetPurchaseOrderId(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetPurchaseOrderId(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
 // DeletePurchase operation middleware
 func (siw *ServerInterfaceWrapper) DeletePurchase(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1360,6 +1360,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/license-service/apply-for-user-by-email", wrapper.ApplyForUserByEmail)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/create-purchase-context", wrapper.CreatePurchaseContext)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/entitlements", wrapper.GetEntitlements)
 	})
 	r.Group(func(r chi.Router) {
@@ -1418,9 +1421,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/purchase", wrapper.CreatePurchase)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/license-service/purchase-order-id", wrapper.GetPurchaseOrderId)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/license-service/purchase/{id}", wrapper.DeletePurchase)

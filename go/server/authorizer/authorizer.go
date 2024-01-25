@@ -54,16 +54,16 @@ type CreateFirebaseUserRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
-// GetPurchaseOrderIDRequest defines model for GetPurchaseOrderIDRequest.
-type GetPurchaseOrderIDRequest struct {
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
 	ProductId string `json:"product_id"`
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
 }
 
-// GetPurchaseOrderIDResp defines model for GetPurchaseOrderIDResp.
-type GetPurchaseOrderIDResp struct {
-	OrderId string `json:"order_id"`
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // License defines model for License.
@@ -148,6 +148,9 @@ type ConfirmParams struct {
 	PlatformType   string `json:"platform_type"`
 }
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
@@ -157,9 +160,6 @@ type ListProductParams struct {
 	Offset       int     `json:"offset"`
 	PlatformType *string `json:"platform_type,omitempty"`
 }
-
-// GetPurchaseOrderIdJSONBody defines parameters for GetPurchaseOrderId.
-type GetPurchaseOrderIdJSONBody GetPurchaseOrderIDRequest
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
@@ -182,11 +182,11 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
+
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
-
-// GetPurchaseOrderIdJSONRequestBody defines body for GetPurchaseOrderId for application/json ContentType.
-type GetPurchaseOrderIdJSONRequestBody GetPurchaseOrderIdJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -214,6 +214,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Create purchase context
+	// (POST /api/client/create-purchase-context)
+	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
 	// Delete user
 	// (DELETE /api/client/delete)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
@@ -229,9 +232,6 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
-	// Get purchase order ID
-	// (POST /api/client/purchase-order-id)
-	GetPurchaseOrderId(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -303,6 +303,23 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreatePurchaseContext operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchaseContext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchaseContext(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -430,23 +447,6 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// GetPurchaseOrderId operation middleware
-func (siw *ServerInterfaceWrapper) GetPurchaseOrderId(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetPurchaseOrderId(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -694,6 +694,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/create-purchase-context", wrapper.CreatePurchaseContext)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/client/delete", wrapper.DeleteUser)
 	})
 	r.Group(func(r chi.Router) {
@@ -707,9 +710,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/client/purchase-order-id", wrapper.GetPurchaseOrderId)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
