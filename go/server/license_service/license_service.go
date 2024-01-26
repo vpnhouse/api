@@ -51,6 +51,7 @@ type CreateProductParams struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
+	Email     string `json:"email"`
 	ProductId string `json:"product_id"`
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
@@ -188,6 +189,16 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
+type ProcessAndroidPurchaseRequest struct {
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -299,6 +310,9 @@ type UpdateLicenseJSONBody UpdateLicenseParams
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
+// ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
+type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit        int     `json:"limit"`
@@ -356,6 +370,9 @@ type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
 
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
+type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
@@ -419,6 +436,9 @@ type ServerInterface interface {
 	// Get payment details
 	// (GET /api/license-service/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+	// Process android purchase
+	// (POST /api/license-service/process-android-purchase)
+	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
 	// List products
 	// (GET /api/license-service/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -841,6 +861,23 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ProcessAndroidPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessAndroidPurchase(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1397,6 +1434,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/process-android-purchase", wrapper.ProcessAndroidPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/product", wrapper.ListProduct)
