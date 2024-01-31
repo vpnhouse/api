@@ -111,6 +111,12 @@ type ProcessAndroidPurchaseRequest struct {
 	Signature         string `json:"signature"`
 }
 
+// ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
+type ProcessIOSPurchaseRequest struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+	Receipt           string `json:"receipt"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -173,6 +179,9 @@ type PaymentDetailsJSONBody PaymentDetailsRequest
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
 type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
 
+// ProcessIosPurchaseJSONBody defines parameters for ProcessIosPurchase.
+type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit        int     `json:"limit"`
@@ -209,6 +218,9 @@ type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
 type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
+
+// ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
+type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -330,6 +342,11 @@ type ClientInterface interface {
 	ProcessAndroidPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ProcessAndroidPurchase(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ProcessIosPurchase request with any body
+	ProcessIosPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ProcessIosPurchase(ctx context.Context, body ProcessIosPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -480,6 +497,30 @@ func (c *Client) ProcessAndroidPurchaseWithBody(ctx context.Context, contentType
 
 func (c *Client) ProcessAndroidPurchase(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewProcessAndroidPurchaseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProcessIosPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProcessIosPurchaseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProcessIosPurchase(ctx context.Context, body ProcessIosPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProcessIosPurchaseRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -926,6 +967,46 @@ func NewProcessAndroidPurchaseRequestWithBody(server string, contentType string,
 	return req, nil
 }
 
+// NewProcessIosPurchaseRequest calls the generic ProcessIosPurchase builder with application/json body
+func NewProcessIosPurchaseRequest(server string, body ProcessIosPurchaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewProcessIosPurchaseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewProcessIosPurchaseRequestWithBody generates requests for ProcessIosPurchase with any type of body
+func NewProcessIosPurchaseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/process-ios-purchase")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListProductRequest generates requests for ListProduct
 func NewListProductRequest(server string, params *ListProductParams) (*http.Request, error) {
 	var err error
@@ -1347,6 +1428,11 @@ type ClientWithResponsesInterface interface {
 
 	ProcessAndroidPurchaseWithResponse(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error)
 
+	// ProcessIosPurchase request with any body
+	ProcessIosPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProcessIosPurchaseResponse, error)
+
+	ProcessIosPurchaseWithResponse(ctx context.Context, body ProcessIosPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ProcessIosPurchaseResponse, error)
+
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
@@ -1559,6 +1645,30 @@ func (r ProcessAndroidPurchaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ProcessAndroidPurchaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ProcessIosPurchaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ProcessIosPurchaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ProcessIosPurchaseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1855,6 +1965,23 @@ func (c *ClientWithResponses) ProcessAndroidPurchaseWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseProcessAndroidPurchaseResponse(rsp)
+}
+
+// ProcessIosPurchaseWithBodyWithResponse request with arbitrary body returning *ProcessIosPurchaseResponse
+func (c *ClientWithResponses) ProcessIosPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProcessIosPurchaseResponse, error) {
+	rsp, err := c.ProcessIosPurchaseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProcessIosPurchaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) ProcessIosPurchaseWithResponse(ctx context.Context, body ProcessIosPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ProcessIosPurchaseResponse, error) {
+	rsp, err := c.ProcessIosPurchase(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProcessIosPurchaseResponse(rsp)
 }
 
 // ListProductWithResponse request returning *ListProductResponse
@@ -2311,6 +2438,46 @@ func ParseProcessAndroidPurchaseResponse(rsp *http.Response) (*ProcessAndroidPur
 	}
 
 	response := &ProcessAndroidPurchaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseProcessIosPurchaseResponse parses an HTTP response from a ProcessIosPurchaseWithResponse call
+func ParseProcessIosPurchaseResponse(rsp *http.Response) (*ProcessIosPurchaseResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ProcessIosPurchaseResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

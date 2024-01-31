@@ -199,6 +199,12 @@ type ProcessAndroidPurchaseRequest struct {
 	Signature         string `json:"signature"`
 }
 
+// ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
+type ProcessIOSPurchaseRequest struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+	Receipt           string `json:"receipt"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -313,6 +319,9 @@ type PaymentDetailsJSONBody PaymentDetailsRequest
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
 type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
 
+// ProcessIosPurchaseJSONBody defines parameters for ProcessIosPurchase.
+type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit        int     `json:"limit"`
@@ -373,6 +382,9 @@ type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
 // ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
 type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
+
+// ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
+type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
 
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
@@ -439,6 +451,9 @@ type ServerInterface interface {
 	// Process android purchase
 	// (POST /api/license-service/process-android-purchase)
 	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
+	// Process ios purchase
+	// (POST /api/license-service/process-ios-purchase)
+	ProcessIosPurchase(w http.ResponseWriter, r *http.Request)
 	// List products
 	// (GET /api/license-service/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -878,6 +893,23 @@ func (siw *ServerInterfaceWrapper) ProcessAndroidPurchase(w http.ResponseWriter,
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ProcessAndroidPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ProcessIosPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessIosPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessIosPurchase(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1437,6 +1469,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/process-android-purchase", wrapper.ProcessAndroidPurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/process-ios-purchase", wrapper.ProcessIosPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/product", wrapper.ListProduct)
