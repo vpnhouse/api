@@ -101,6 +101,16 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
+type ProcessAndroidPurchaseRequest struct {
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -160,6 +170,9 @@ type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
+// ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
+type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit        int     `json:"limit"`
@@ -193,6 +206,9 @@ type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
+type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -309,6 +325,11 @@ type ClientInterface interface {
 	PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ProcessAndroidPurchase request with any body
+	ProcessAndroidPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ProcessAndroidPurchase(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -435,6 +456,30 @@ func (c *Client) PaymentDetailsWithBody(ctx context.Context, contentType string,
 
 func (c *Client) PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPaymentDetailsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProcessAndroidPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProcessAndroidPurchaseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ProcessAndroidPurchase(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewProcessAndroidPurchaseRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -822,6 +867,46 @@ func NewPaymentDetailsRequestWithBody(server string, contentType string, body io
 	}
 
 	operationPath := fmt.Sprintf("/api/client/payment-details")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewProcessAndroidPurchaseRequest calls the generic ProcessAndroidPurchase builder with application/json body
+func NewProcessAndroidPurchaseRequest(server string, body ProcessAndroidPurchaseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewProcessAndroidPurchaseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewProcessAndroidPurchaseRequestWithBody generates requests for ProcessAndroidPurchase with any type of body
+func NewProcessAndroidPurchaseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/process-android-purchase")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1257,6 +1342,11 @@ type ClientWithResponsesInterface interface {
 
 	PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
 
+	// ProcessAndroidPurchase request with any body
+	ProcessAndroidPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error)
+
+	ProcessAndroidPurchaseWithResponse(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error)
+
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
@@ -1445,6 +1535,30 @@ func (r PaymentDetailsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PaymentDetailsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ProcessAndroidPurchaseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ProcessAndroidPurchaseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ProcessAndroidPurchaseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1724,6 +1838,23 @@ func (c *ClientWithResponses) PaymentDetailsWithResponse(ctx context.Context, bo
 		return nil, err
 	}
 	return ParsePaymentDetailsResponse(rsp)
+}
+
+// ProcessAndroidPurchaseWithBodyWithResponse request with arbitrary body returning *ProcessAndroidPurchaseResponse
+func (c *ClientWithResponses) ProcessAndroidPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error) {
+	rsp, err := c.ProcessAndroidPurchaseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProcessAndroidPurchaseResponse(rsp)
+}
+
+func (c *ClientWithResponses) ProcessAndroidPurchaseWithResponse(ctx context.Context, body ProcessAndroidPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error) {
+	rsp, err := c.ProcessAndroidPurchase(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseProcessAndroidPurchaseResponse(rsp)
 }
 
 // ListProductWithResponse request returning *ListProductResponse
@@ -2145,6 +2276,46 @@ func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, e
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseProcessAndroidPurchaseResponse parses an HTTP response from a ProcessAndroidPurchaseWithResponse call
+func ParseProcessAndroidPurchaseResponse(rsp *http.Response) (*ProcessAndroidPurchaseResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ProcessAndroidPurchaseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

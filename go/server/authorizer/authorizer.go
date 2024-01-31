@@ -95,6 +95,16 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
+type ProcessAndroidPurchaseRequest struct {
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -154,6 +164,9 @@ type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
+// ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
+type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
 	Limit        int     `json:"limit"`
@@ -187,6 +200,9 @@ type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
+type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -229,6 +245,9 @@ type ServerInterface interface {
 	// Get payment details
 	// (POST /api/client/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+	// Process android purchase
+	// (POST /api/client/process-android-purchase)
+	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -388,6 +407,23 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ProcessAndroidPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessAndroidPurchase(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -707,6 +743,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/process-android-purchase", wrapper.ProcessAndroidPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
