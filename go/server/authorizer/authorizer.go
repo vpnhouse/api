@@ -54,6 +54,18 @@ type CreateFirebaseUserRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -136,6 +148,9 @@ type ConfirmParams struct {
 	PlatformType   string `json:"platform_type"`
 }
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
@@ -167,6 +182,9 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
+
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
 
@@ -196,6 +214,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Create purchase context
+	// (POST /api/client/create-purchase-context)
+	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
 	// Delete user
 	// (DELETE /api/client/delete)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
@@ -282,6 +303,23 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreatePurchaseContext operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchaseContext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchaseContext(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -654,6 +692,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/create-purchase-context", wrapper.CreatePurchaseContext)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/client/delete", wrapper.DeleteUser)

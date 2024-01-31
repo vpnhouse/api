@@ -22,6 +22,7 @@ import (
 const (
 	ServiceKeyScopes  = "ServiceKey.Scopes"
 	ServiceNameScopes = "ServiceName.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // ApplyParams defines model for ApplyParams.
@@ -52,6 +53,18 @@ type CreateProductParams struct {
 	PaymentJson      *map[string]interface{} `json:"payment_json"`
 	Period           *string                 `json:"period"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
+}
+
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
@@ -255,6 +268,9 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // GetEntitlementsParams defines parameters for GetEntitlements.
 type GetEntitlementsParams struct {
 	ProjectId    string `json:"project_id"`
@@ -322,6 +338,9 @@ type UpdatePurchaseJSONBody UpdatePurchaseParams
 
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
+
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
 // FindLicenseJSONRequestBody defines body for FindLicense for application/json ContentType.
 type FindLicenseJSONRequestBody FindLicenseJSONBody
@@ -440,6 +459,11 @@ type ClientInterface interface {
 
 	ApplyForUserByEmail(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreatePurchaseContext request with any body
+	CreatePurchaseContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreatePurchaseContext(ctx context.Context, body CreatePurchaseContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEntitlements request
 	GetEntitlements(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -553,6 +577,30 @@ func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType st
 
 func (c *Client) ApplyForUserByEmail(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplyForUserByEmailRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePurchaseContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePurchaseContextRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreatePurchaseContext(ctx context.Context, body CreatePurchaseContextJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreatePurchaseContextRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1038,6 +1086,46 @@ func NewApplyForUserByEmailRequestWithBody(server string, contentType string, bo
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreatePurchaseContextRequest calls the generic CreatePurchaseContext builder with application/json body
+func NewCreatePurchaseContextRequest(server string, body CreatePurchaseContextJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreatePurchaseContextRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreatePurchaseContextRequestWithBody generates requests for CreatePurchaseContext with any type of body
+func NewCreatePurchaseContextRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/create-purchase-context")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -2136,6 +2224,11 @@ type ClientWithResponsesInterface interface {
 
 	ApplyForUserByEmailWithResponse(ctx context.Context, body ApplyForUserByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error)
 
+	// CreatePurchaseContext request with any body
+	CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error)
+
+	CreatePurchaseContextWithResponse(ctx context.Context, body CreatePurchaseContextJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error)
+
 	// GetEntitlements request
 	GetEntitlementsWithResponse(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*GetEntitlementsResponse, error)
 
@@ -2254,6 +2347,31 @@ func (r ApplyForUserByEmailResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ApplyForUserByEmailResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreatePurchaseContextResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *CreatePurchaseContextResp
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreatePurchaseContextResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreatePurchaseContextResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2889,6 +3007,23 @@ func (c *ClientWithResponses) ApplyForUserByEmailWithResponse(ctx context.Contex
 	return ParseApplyForUserByEmailResponse(rsp)
 }
 
+// CreatePurchaseContextWithBodyWithResponse request with arbitrary body returning *CreatePurchaseContextResponse
+func (c *ClientWithResponses) CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error) {
+	rsp, err := c.CreatePurchaseContextWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePurchaseContextResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreatePurchaseContextWithResponse(ctx context.Context, body CreatePurchaseContextJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error) {
+	rsp, err := c.CreatePurchaseContext(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreatePurchaseContextResponse(rsp)
+}
+
 // GetEntitlementsWithResponse request returning *GetEntitlementsResponse
 func (c *ClientWithResponses) GetEntitlementsWithResponse(ctx context.Context, params *GetEntitlementsParams, reqEditors ...RequestEditorFn) (*GetEntitlementsResponse, error) {
 	rsp, err := c.GetEntitlements(ctx, params, reqEditors...)
@@ -3225,6 +3360,53 @@ func ParseApplyForUserByEmailResponse(rsp *http.Response) (*ApplyForUserByEmailR
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreatePurchaseContextResponse parses an HTTP response from a CreatePurchaseContextWithResponse call
+func ParseCreatePurchaseContextResponse(rsp *http.Response) (*CreatePurchaseContextResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreatePurchaseContextResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest CreatePurchaseContextResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
