@@ -1488,12 +1488,12 @@ components:
       title: ProcessIOSPurchaseRequest
       type: object
       properties:
-        receipt:
+        jws_receipt:
           type: string
         purchase_context_id:
           type: string
       required:
-        - receipt
+        - jws_receipt
         - purchase_context_id
 
   securitySchemes:
