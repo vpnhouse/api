@@ -807,6 +807,7 @@ components:
       properties:
         purchase_context_id:
           type: string
+          format: uuid
       required:
         - purchase_context_id
     ProcessAndroidPurchaseRequest:
@@ -825,6 +826,7 @@ components:
           type: string
         purchase_context_id:
           type: string
+          format: uuid
       required:
           - order_id
           - package_name
@@ -840,6 +842,7 @@ components:
             type: string
           purchase_context_id:
             type: string
+            format: uuid
         required:
             - jws_receipt
             - purchase_context_id
