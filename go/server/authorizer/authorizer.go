@@ -138,7 +138,7 @@ type ConfirmParams struct {
 
 // GetFirebasePublicKeyParams defines parameters for GetFirebasePublicKey.
 type GetFirebasePublicKeyParams struct {
-	FirebaseProject *string `json:"firebase_project,omitempty"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
@@ -203,7 +203,7 @@ type ServerInterface interface {
 	// Delete user
 	// (DELETE /api/client/delete)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
-	// Get firebase public key
+	// Get firebase public key by project id or default
 	// (GET /api/client/firebase-public-key)
 	GetFirebasePublicKey(w http.ResponseWriter, r *http.Request, params GetFirebasePublicKeyParams)
 	// List license by user_id
@@ -323,14 +323,14 @@ func (siw *ServerInterfaceWrapper) GetFirebasePublicKey(w http.ResponseWriter, r
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetFirebasePublicKeyParams
 
-	// ------------- Optional query parameter "firebase_project" -------------
-	if paramValue := r.URL.Query().Get("firebase_project"); paramValue != "" {
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
 
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "firebase_project", r.URL.Query(), &params.FirebaseProject)
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "firebase_project", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 

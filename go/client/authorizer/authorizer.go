@@ -144,7 +144,7 @@ type ConfirmParams struct {
 
 // GetFirebasePublicKeyParams defines parameters for GetFirebasePublicKey.
 type GetFirebasePublicKeyParams struct {
-	FirebaseProject *string `json:"firebase_project,omitempty"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
@@ -685,9 +685,9 @@ func NewGetFirebasePublicKeyRequest(server string, params *GetFirebasePublicKeyP
 
 	queryValues := queryURL.Query()
 
-	if params.FirebaseProject != nil {
+	if params.ProjectId != nil {
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "firebase_project", runtime.ParamLocationQuery, *params.FirebaseProject); err != nil {
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
 			return nil, err
 		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 			return nil, err
