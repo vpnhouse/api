@@ -355,6 +355,11 @@ paths:
 
   /api/client/firebase-public-key:
     get:
+      parameters:
+        - schema:
+            type: string
+          name: firebase_project
+          in: query
       summary: Get firebase public key
       tags:
         - get
