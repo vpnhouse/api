@@ -21,6 +21,11 @@ paths:
           name: offset
           in: query
           required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: false
       summary: List products
       tags:
         - list
@@ -759,6 +764,89 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/license-service/create-purchase-context:
+    post:
+      summary: Create new purchase context
+      tags:
+        - create
+        - purchase-context
+      operationId: create-purchase-context
+      description: Create new purchase context
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePurchaseContextResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePurchaseContextRequest'
+
+  /api/license-service/process-android-purchase:
+    post:
+      summary: Process android purchase
+      tags:
+        - process
+        - android-purchase
+      operationId: process-android-purchase
+      description: Process android purchase
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessAndroidPurchaseRequest'
+
+  /api/license-service/process-ios-purchase:
+    post:
+      summary: Process ios purchase
+      tags:
+        - process
+        - ios-purchase
+      operationId: process-ios-purchase
+      description: Process ios purchase
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
+
+
 components:
   schemas:
     Product:
@@ -1345,6 +1433,71 @@ components:
           type: string
       required:
         - payment_url
+    CreatePurchaseContextRequest:
+      title: CreatePurchaseContextRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+      required:
+        - project_id
+        - product_id
+        - user_id
+        - email
+    CreatePurchaseContextResp:
+      title: CreatePurchaseContextResp
+      type: object
+      properties:
+        purchase_context_id:
+          type: string
+          format: uuid
+      required:
+        - purchase_context_id
+    ProcessAndroidPurchaseRequest:
+      title: ProcessAndroidPurchaseRequest
+      type: object
+      properties:
+        order_id:
+          type: string
+        package_name:
+          type: string
+        purchase_time:
+          type: integer
+        purchase_token:
+          type: string
+        signature:
+          type: string
+        purchase_context_id:
+          type: string
+          format: uuid
+      required:
+        - order_id
+        - package_name
+        - purchase_time
+        - purchase_token
+        - signature
+        - purchase_context_id
+    ProcessIOSPurchaseRequest:
+      title: ProcessIOSPurchaseRequest
+      type: object
+      properties:
+        jws_receipt:
+          type: string
+        purchase_context_id:
+          type: string
+          format: uuid
+      required:
+        - jws_receipt
+        - purchase_context_id
 
   securitySchemes:
     ServiceKey:
