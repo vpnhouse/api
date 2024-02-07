@@ -16,6 +16,7 @@ import (
 const (
 	ServiceKeyScopes  = "ServiceKey.Scopes"
 	ServiceNameScopes = "ServiceName.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // ApplyParams defines model for ApplyParams.
@@ -46,6 +47,19 @@ type CreateProductParams struct {
 	PaymentJson      *map[string]interface{} `json:"payment_json"`
 	Period           *string                 `json:"period"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
+}
+
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
@@ -175,6 +189,22 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
+type ProcessAndroidPurchaseRequest struct {
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+}
+
+// ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
+type ProcessIOSPurchaseRequest struct {
+	JwsReceipt        string `json:"jws_receipt"`
+	PurchaseContextId string `json:"purchase_context_id"`
+}
+
 // Product defines model for Product.
 type Product struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -249,6 +279,9 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // GetEntitlementsParams defines parameters for GetEntitlements.
 type GetEntitlementsParams struct {
 	ProjectId    string `json:"project_id"`
@@ -283,10 +316,17 @@ type UpdateLicenseJSONBody UpdateLicenseParams
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
+// ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
+type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
+
+// ProcessIosPurchaseJSONBody defines parameters for ProcessIosPurchase.
+type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+	Limit        int     `json:"limit"`
+	Offset       int     `json:"offset"`
+	PlatformType *string `json:"platform_type,omitempty"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -316,6 +356,9 @@ type UpdatePurchaseJSONBody UpdatePurchaseParams
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
+
 // FindLicenseJSONRequestBody defines body for FindLicense for application/json ContentType.
 type FindLicenseJSONRequestBody FindLicenseJSONBody
 
@@ -336,6 +379,12 @@ type UpdateLicenseJSONRequestBody UpdateLicenseJSONBody
 
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
+type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
+
+// ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
+type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
 
 // CreateProductJSONRequestBody defines body for CreateProduct for application/json ContentType.
 type CreateProductJSONRequestBody CreateProductJSONBody
@@ -360,6 +409,9 @@ type ServerInterface interface {
 	// Copy all purchases find by email and create new licenses for user in given project
 	// (GET /api/license-service/apply-for-user-by-email)
 	ApplyForUserByEmail(w http.ResponseWriter, r *http.Request)
+	// Create new purchase context
+	// (POST /api/license-service/create-purchase-context)
+	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
 	// Get entitlements
 	// (GET /api/license-service/entitlements)
 	GetEntitlements(w http.ResponseWriter, r *http.Request, params GetEntitlementsParams)
@@ -396,6 +448,12 @@ type ServerInterface interface {
 	// Get payment details
 	// (GET /api/license-service/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+	// Process android purchase
+	// (POST /api/license-service/process-android-purchase)
+	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
+	// Process ios purchase
+	// (POST /api/license-service/process-ios-purchase)
+	ProcessIosPurchase(w http.ResponseWriter, r *http.Request)
 	// List products
 	// (GET /api/license-service/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -453,6 +511,23 @@ func (siw *ServerInterfaceWrapper) ApplyForUserByEmail(w http.ResponseWriter, r 
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyForUserByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// CreatePurchaseContext operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchaseContext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchaseContext(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -810,6 +885,40 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// ProcessAndroidPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessAndroidPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ProcessIosPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessIosPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessIosPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListProduct operation middleware
 func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -848,6 +957,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
 		return
 	}
 
@@ -1309,6 +1429,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/license-service/apply-for-user-by-email", wrapper.ApplyForUserByEmail)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/create-purchase-context", wrapper.CreatePurchaseContext)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/entitlements", wrapper.GetEntitlements)
 	})
 	r.Group(func(r chi.Router) {
@@ -1343,6 +1466,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/process-android-purchase", wrapper.ProcessAndroidPurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/process-ios-purchase", wrapper.ProcessIosPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/product", wrapper.ListProduct)

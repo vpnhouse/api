@@ -54,6 +54,18 @@ type CreateFirebaseUserRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
+type CreatePurchaseContextRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
+type CreatePurchaseContextResp struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -81,6 +93,22 @@ type PaymentDetailsRequest struct {
 // PaymentDetailsResp defines model for PaymentDetailsResp.
 type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
+}
+
+// ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
+type ProcessAndroidPurchaseRequest struct {
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+}
+
+// ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
+type ProcessIOSPurchaseRequest struct {
+	JwsReceipt        string `json:"jws_receipt"`
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // Product defines model for Product.
@@ -136,13 +164,23 @@ type ConfirmParams struct {
 	PlatformType   string `json:"platform_type"`
 }
 
+// CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
+type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
+// ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
+type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
+
+// ProcessIosPurchaseJSONBody defines parameters for ProcessIosPurchase.
+type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
+
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+	Limit        int     `json:"limit"`
+	Offset       int     `json:"offset"`
+	PlatformType *string `json:"platform_type,omitempty"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -166,8 +204,17 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
+type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
+
 // PaymentDetailsJSONRequestBody defines body for PaymentDetails for application/json ContentType.
 type PaymentDetailsJSONRequestBody PaymentDetailsJSONBody
+
+// ProcessAndroidPurchaseJSONRequestBody defines body for ProcessAndroidPurchase for application/json ContentType.
+type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
+
+// ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
+type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -195,6 +242,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Create purchase context
+	// (POST /api/client/create-purchase-context)
+	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
 	// Delete user
 	// (DELETE /api/client/delete)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
@@ -207,6 +257,12 @@ type ServerInterface interface {
 	// Get payment details
 	// (POST /api/client/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+	// Process android purchase
+	// (POST /api/client/process-android-purchase)
+	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
+	// Process ios purchase
+	// (POST /api/client/process-ios-purchase)
+	ProcessIosPurchase(w http.ResponseWriter, r *http.Request)
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
@@ -290,6 +346,23 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	handler(w, r.WithContext(ctx))
 }
 
+// CreatePurchaseContext operation middleware
+func (siw *ServerInterfaceWrapper) CreatePurchaseContext(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreatePurchaseContext(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // DeleteUser operation middleware
 func (siw *ServerInterfaceWrapper) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -358,6 +431,40 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// ProcessAndroidPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessAndroidPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ProcessIosPurchase operation middleware
+func (siw *ServerInterfaceWrapper) ProcessIosPurchase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ProcessIosPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListProduct operation middleware
 func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -392,6 +499,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
 		return
 	}
 
@@ -644,6 +762,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/create-purchase-context", wrapper.CreatePurchaseContext)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/client/delete", wrapper.DeleteUser)
 	})
 	r.Group(func(r chi.Router) {
@@ -654,6 +775,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/process-android-purchase", wrapper.ProcessAndroidPurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/process-ios-purchase", wrapper.ProcessIosPurchase)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
