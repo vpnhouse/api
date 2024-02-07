@@ -173,6 +173,11 @@ type ConfirmParams struct {
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
+// GetFirebasePublicKeyParams defines parameters for GetFirebasePublicKey.
+type GetFirebasePublicKeyParams struct {
+	ProjectId *string `json:"project_id,omitempty"`
+}
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
