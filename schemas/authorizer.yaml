@@ -414,6 +414,32 @@ paths:
             schema:
               $ref: '#/components/schemas/ProcessAndroidPurchaseRequest'
 
+  /api/client/process-ios-purchase:
+    post:
+      summary: Process ios purchase
+      tags:
+        - process
+        - ios-purchase
+      operationId: process-ios-purchase
+      description: Process ios purchase
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
+
   /api/client/firebase-public-key:
     get:
       summary: Get firebase public key
@@ -781,6 +807,7 @@ components:
       properties:
         purchase_context_id:
           type: string
+          format: uuid
       required:
         - purchase_context_id
     ProcessAndroidPurchaseRequest:
@@ -799,6 +826,7 @@ components:
           type: string
         purchase_context_id:
           type: string
+          format: uuid
       required:
           - order_id
           - package_name
@@ -806,6 +834,18 @@ components:
           - purchase_token
           - signature
           - purchase_context_id
+    ProcessIOSPurchaseRequest:
+        title: ProcessIOSPurchaseRequest
+        type: object
+        properties:
+          jws_receipt:
+            type: string
+          purchase_context_id:
+            type: string
+            format: uuid
+        required:
+            - jws_receipt
+            - purchase_context_id
 
   securitySchemes:
     bearer:
