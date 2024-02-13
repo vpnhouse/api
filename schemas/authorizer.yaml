@@ -800,7 +800,6 @@ components:
       required:
         - project_id
         - product_id
-        - user_id
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
       type: object
