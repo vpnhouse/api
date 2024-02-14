@@ -798,9 +798,7 @@ components:
           type: string
           format: uuid
       required:
-        - project_id
         - product_id
-        - user_id
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
       type: object
