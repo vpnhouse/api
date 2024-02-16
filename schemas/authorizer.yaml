@@ -442,13 +442,19 @@ paths:
 
   /api/client/firebase-public-key:
     get:
-      summary: Get firebase public key
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: project_id
+          in: query
+      summary: Get firebase public key by project id or default
       tags:
         - get
         - firebase
         - key
       operationId: get-firebase-public-key
-      description: Get firebase public key
+      description: Get firebase public key by project id or default
       security:
         - bearer: [ ]
       responses:

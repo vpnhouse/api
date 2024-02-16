@@ -173,6 +173,11 @@ type ConfirmParams struct {
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
+// GetFirebasePublicKeyParams defines parameters for GetFirebasePublicKey.
+type GetFirebasePublicKeyParams struct {
+	ProjectId *string `json:"project_id,omitempty"`
+}
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
@@ -328,7 +333,7 @@ type ClientInterface interface {
 	DeleteUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetFirebasePublicKey request
-	GetFirebasePublicKey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetFirebasePublicKey(ctx context.Context, params *GetFirebasePublicKeyParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListLicenseByUser request
 	ListLicenseByUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -435,8 +440,8 @@ func (c *Client) DeleteUser(ctx context.Context, reqEditors ...RequestEditorFn) 
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetFirebasePublicKey(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetFirebasePublicKeyRequest(c.Server)
+func (c *Client) GetFirebasePublicKey(ctx context.Context, params *GetFirebasePublicKeyParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetFirebasePublicKeyRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -834,7 +839,7 @@ func NewDeleteUserRequest(server string) (*http.Request, error) {
 }
 
 // NewGetFirebasePublicKeyRequest generates requests for GetFirebasePublicKey
-func NewGetFirebasePublicKeyRequest(server string) (*http.Request, error) {
+func NewGetFirebasePublicKeyRequest(server string, params *GetFirebasePublicKeyParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -851,6 +856,26 @@ func NewGetFirebasePublicKeyRequest(server string) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if params.ProjectId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -1413,7 +1438,7 @@ type ClientWithResponsesInterface interface {
 	DeleteUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error)
 
 	// GetFirebasePublicKey request
-	GetFirebasePublicKeyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error)
+	GetFirebasePublicKeyWithResponse(ctx context.Context, params *GetFirebasePublicKeyParams, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error)
 
 	// ListLicenseByUser request
 	ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error)
@@ -1916,8 +1941,8 @@ func (c *ClientWithResponses) DeleteUserWithResponse(ctx context.Context, reqEdi
 }
 
 // GetFirebasePublicKeyWithResponse request returning *GetFirebasePublicKeyResponse
-func (c *ClientWithResponses) GetFirebasePublicKeyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error) {
-	rsp, err := c.GetFirebasePublicKey(ctx, reqEditors...)
+func (c *ClientWithResponses) GetFirebasePublicKeyWithResponse(ctx context.Context, params *GetFirebasePublicKeyParams, reqEditors ...RequestEditorFn) (*GetFirebasePublicKeyResponse, error) {
+	rsp, err := c.GetFirebasePublicKey(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

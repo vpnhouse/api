@@ -167,6 +167,11 @@ type ConfirmParams struct {
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
+// GetFirebasePublicKeyParams defines parameters for GetFirebasePublicKey.
+type GetFirebasePublicKeyParams struct {
+	ProjectId *string `json:"project_id,omitempty"`
+}
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
@@ -248,9 +253,9 @@ type ServerInterface interface {
 	// Delete user
 	// (DELETE /api/client/delete)
 	DeleteUser(w http.ResponseWriter, r *http.Request)
-	// Get firebase public key
+	// Get firebase public key by project id or default
 	// (GET /api/client/firebase-public-key)
-	GetFirebasePublicKey(w http.ResponseWriter, r *http.Request)
+	GetFirebasePublicKey(w http.ResponseWriter, r *http.Request, params GetFirebasePublicKeyParams)
 	// List license by user_id
 	// (GET /api/client/license-by-user)
 	ListLicenseByUser(w http.ResponseWriter, r *http.Request)
@@ -384,10 +389,26 @@ func (siw *ServerInterfaceWrapper) DeleteUser(w http.ResponseWriter, r *http.Req
 func (siw *ServerInterfaceWrapper) GetFirebasePublicKey(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
 	ctx = context.WithValue(ctx, BearerScopes, []string{""})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetFirebasePublicKeyParams
+
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetFirebasePublicKey(w, r)
+		siw.Handler.GetFirebasePublicKey(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
