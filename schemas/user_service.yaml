@@ -1755,13 +1755,13 @@ paths:
       responses:
         '200':
           description: OK
-        '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Confirmation'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '409':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'

@@ -6502,10 +6502,9 @@ func (r RegisterUserResponse) StatusCode() int {
 type RotateConfirmationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON400      *externalRef1.Error
+	JSON200      *Confirmation
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
 	JSON500      *externalRef1.Error
 }
 
@@ -10141,12 +10140,12 @@ func ParseRotateConfirmationResponse(rsp *http.Response) (*RotateConfirmationRes
 	}
 
 	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Confirmation
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
-		response.JSON400 = &dest
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
@@ -10161,13 +10160,6 @@ func ParseRotateConfirmationResponse(rsp *http.Response) (*RotateConfirmationRes
 			return nil, err
 		}
 		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
