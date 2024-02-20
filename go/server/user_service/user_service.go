@@ -315,6 +315,12 @@ type RegisterUserRequest struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// RotateConfirmationParams defines model for RotateConfirmationParams.
+type RotateConfirmationParams struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	Id        string    `json:"id"`
+}
+
 // Session defines model for Session.
 type Session struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
@@ -555,6 +561,9 @@ type UpdateProjectJSONBody UpdateProjectParams
 // RegisterUserJSONBody defines parameters for RegisterUser.
 type RegisterUserJSONBody RegisterUserRequest
 
+// RotateConfirmationJSONBody defines parameters for RotateConfirmation.
+type RotateConfirmationJSONBody RotateConfirmationParams
+
 // ListSessionParams defines parameters for ListSession.
 type ListSessionParams struct {
 	Limit  int `json:"limit"`
@@ -682,6 +691,9 @@ type UpdateProjectJSONRequestBody UpdateProjectJSONBody
 
 // RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
 type RegisterUserJSONRequestBody RegisterUserJSONBody
+
+// RotateConfirmationJSONRequestBody defines body for RotateConfirmation for application/json ContentType.
+type RotateConfirmationJSONRequestBody RotateConfirmationJSONBody
 
 // CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
 type CreateSessionJSONRequestBody CreateSessionJSONBody
@@ -847,6 +859,9 @@ type ServerInterface interface {
 	// Register user
 	// (POST /api/user-service/register-user)
 	RegisterUser(w http.ResponseWriter, r *http.Request)
+	// Rotate confirmation
+	// (POST /api/user-service/rotate-confirmation)
+	RotateConfirmation(w http.ResponseWriter, r *http.Request)
 	// List sessions
 	// (GET /api/user-service/session)
 	ListSession(w http.ResponseWriter, r *http.Request, params ListSessionParams)
@@ -2319,6 +2334,25 @@ func (siw *ServerInterfaceWrapper) RegisterUser(w http.ResponseWriter, r *http.R
 	handler(w, r.WithContext(ctx))
 }
 
+// RotateConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) RotateConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RotateConfirmation(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListSession operation middleware
 func (siw *ServerInterfaceWrapper) ListSession(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -3158,6 +3192,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/user-service/register-user", wrapper.RegisterUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/user-service/rotate-confirmation", wrapper.RotateConfirmation)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/session", wrapper.ListSession)

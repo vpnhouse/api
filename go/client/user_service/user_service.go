@@ -321,6 +321,12 @@ type RegisterUserRequest struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// RotateConfirmationParams defines model for RotateConfirmationParams.
+type RotateConfirmationParams struct {
+	ExpiresAt time.Time `json:"expires_at"`
+	Id        string    `json:"id"`
+}
+
 // Session defines model for Session.
 type Session struct {
 	ConnectedAt      *time.Time `json:"connected_at,omitempty"`
@@ -561,6 +567,9 @@ type UpdateProjectJSONBody UpdateProjectParams
 // RegisterUserJSONBody defines parameters for RegisterUser.
 type RegisterUserJSONBody RegisterUserRequest
 
+// RotateConfirmationJSONBody defines parameters for RotateConfirmation.
+type RotateConfirmationJSONBody RotateConfirmationParams
+
 // ListSessionParams defines parameters for ListSession.
 type ListSessionParams struct {
 	Limit  int `json:"limit"`
@@ -688,6 +697,9 @@ type UpdateProjectJSONRequestBody UpdateProjectJSONBody
 
 // RegisterUserJSONRequestBody defines body for RegisterUser for application/json ContentType.
 type RegisterUserJSONRequestBody RegisterUserJSONBody
+
+// RotateConfirmationJSONRequestBody defines body for RotateConfirmation for application/json ContentType.
+type RotateConfirmationJSONRequestBody RotateConfirmationJSONBody
 
 // CreateSessionJSONRequestBody defines body for CreateSession for application/json ContentType.
 type CreateSessionJSONRequestBody CreateSessionJSONBody
@@ -971,6 +983,11 @@ type ClientInterface interface {
 	RegisterUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RegisterUser(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RotateConfirmation request with any body
+	RotateConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RotateConfirmation(ctx context.Context, body RotateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListSession request
 	ListSession(ctx context.Context, params *ListSessionParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1870,6 +1887,30 @@ func (c *Client) RegisterUserWithBody(ctx context.Context, contentType string, b
 
 func (c *Client) RegisterUser(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRegisterUserRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateConfirmationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RotateConfirmation(ctx context.Context, body RotateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRotateConfirmationRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -4137,6 +4178,46 @@ func NewRegisterUserRequestWithBody(server string, contentType string, body io.R
 	return req, nil
 }
 
+// NewRotateConfirmationRequest calls the generic RotateConfirmation builder with application/json body
+func NewRotateConfirmationRequest(server string, body RotateConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRotateConfirmationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRotateConfirmationRequestWithBody generates requests for RotateConfirmation with any type of body
+func NewRotateConfirmationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/rotate-confirmation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListSessionRequest generates requests for ListSession
 func NewListSessionRequest(server string, params *ListSessionParams) (*http.Request, error) {
 	var err error
@@ -5168,6 +5249,11 @@ type ClientWithResponsesInterface interface {
 	RegisterUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error)
 
 	RegisterUserWithResponse(ctx context.Context, body RegisterUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterUserResponse, error)
+
+	// RotateConfirmation request with any body
+	RotateConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateConfirmationResponse, error)
+
+	RotateConfirmationWithResponse(ctx context.Context, body RotateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RotateConfirmationResponse, error)
 
 	// ListSession request
 	ListSessionWithResponse(ctx context.Context, params *ListSessionParams, reqEditors ...RequestEditorFn) (*ListSessionResponse, error)
@@ -6413,6 +6499,32 @@ func (r RegisterUserResponse) StatusCode() int {
 	return 0
 }
 
+type RotateConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RotateConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RotateConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListSessionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -7447,6 +7559,23 @@ func (c *ClientWithResponses) RegisterUserWithResponse(ctx context.Context, body
 		return nil, err
 	}
 	return ParseRegisterUserResponse(rsp)
+}
+
+// RotateConfirmationWithBodyWithResponse request with arbitrary body returning *RotateConfirmationResponse
+func (c *ClientWithResponses) RotateConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RotateConfirmationResponse, error) {
+	rsp, err := c.RotateConfirmationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) RotateConfirmationWithResponse(ctx context.Context, body RotateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RotateConfirmationResponse, error) {
+	rsp, err := c.RotateConfirmation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRotateConfirmationResponse(rsp)
 }
 
 // ListSessionWithResponse request returning *ListSessionResponse
@@ -9958,6 +10087,60 @@ func ParseRegisterUserResponse(rsp *http.Response) (*RegisterUserResponse, error
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRotateConfirmationResponse parses an HTTP response from a RotateConfirmationWithResponse call
+func ParseRotateConfirmationResponse(rsp *http.Response) (*RotateConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RotateConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
