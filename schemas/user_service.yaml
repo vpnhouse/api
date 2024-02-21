@@ -2850,11 +2850,14 @@ components:
         id:
           type: string
           format: uuid
+        identifier:
+          type: string
         expires_at:
           type: string
           format: date-time
       required:
         - id
+        - identifier
         - expires_at
     SessionToDeleteParams:
       title: SessionToDeleteParams

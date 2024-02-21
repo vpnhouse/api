@@ -317,8 +317,9 @@ type RegisterUserRequest struct {
 
 // RotateConfirmationParams defines model for RotateConfirmationParams.
 type RotateConfirmationParams struct {
-	ExpiresAt time.Time `json:"expires_at"`
-	Id        string    `json:"id"`
+	ExpiresAt  time.Time `json:"expires_at"`
+	Id         string    `json:"id"`
+	Identifier string    `json:"identifier"`
 }
 
 // Session defines model for Session.
