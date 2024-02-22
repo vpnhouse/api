@@ -845,7 +845,31 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
-
+  /api/license-service/activate-trial-license:
+    post:
+      summary: Process ios purchase
+      tags:
+        - trial
+        - license
+      operationId: activate-trial-license
+      description: Activate trial license
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateTrialLicenseRequest'
 
 components:
   schemas:
@@ -1498,6 +1522,15 @@ components:
       required:
         - jws_receipt
         - purchase_context_id
+    ActivateTrialLicenseRequest:
+      title: ActivateTrialLicenseRequest
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+      required:
+        - product_id
 
   securitySchemes:
     ServiceKey:

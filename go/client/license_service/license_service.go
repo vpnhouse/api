@@ -25,6 +25,11 @@ const (
 	BearerScopes      = "bearer.Scopes"
 )
 
+// ActivateTrialLicenseRequest defines model for ActivateTrialLicenseRequest.
+type ActivateTrialLicenseRequest struct {
+	ProductId string `json:"product_id"`
+}
+
 // ApplyParams defines model for ApplyParams.
 type ApplyParams struct {
 	Email     *string `json:"email,omitempty"`
@@ -282,6 +287,9 @@ type UpdatePurchaseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
+// ActivateTrialLicenseJSONBody defines parameters for ActivateTrialLicense.
+type ActivateTrialLicenseJSONBody ActivateTrialLicenseRequest
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
@@ -358,6 +366,9 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
+
+// ActivateTrialLicenseJSONRequestBody defines body for ActivateTrialLicense for application/json ContentType.
+type ActivateTrialLicenseJSONRequestBody ActivateTrialLicenseJSONBody
 
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
@@ -483,6 +494,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ActivateTrialLicense request with any body
+	ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ApplyForUserByEmail request with any body
 	ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -600,6 +616,30 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateTrialLicenseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateTrialLicenseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1140,6 +1180,46 @@ func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurch
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewActivateTrialLicenseRequest calls the generic ActivateTrialLicense builder with application/json body
+func NewActivateTrialLicenseRequest(server string, body ActivateTrialLicenseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActivateTrialLicenseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewActivateTrialLicenseRequestWithBody generates requests for ActivateTrialLicense with any type of body
+func NewActivateTrialLicenseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/activate-trial-license")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewApplyForUserByEmailRequest calls the generic ApplyForUserByEmail builder with application/json body
@@ -2386,6 +2466,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ActivateTrialLicense request with any body
+	ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+
+	ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+
 	// ApplyForUserByEmail request with any body
 	ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error)
 
@@ -2503,6 +2588,30 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
+}
+
+type ActivateTrialLicenseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ActivateTrialLicenseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ActivateTrialLicenseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ApplyForUserByEmailResponse struct {
@@ -3215,6 +3324,23 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+// ActivateTrialLicenseWithBodyWithResponse request with arbitrary body returning *ActivateTrialLicenseResponse
+func (c *ClientWithResponses) ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
+	rsp, err := c.ActivateTrialLicenseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActivateTrialLicenseResponse(rsp)
+}
+
+func (c *ClientWithResponses) ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
+	rsp, err := c.ActivateTrialLicense(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActivateTrialLicenseResponse(rsp)
+}
+
 // ApplyForUserByEmailWithBodyWithResponse request with arbitrary body returning *ApplyForUserByEmailResponse
 func (c *ClientWithResponses) ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error) {
 	rsp, err := c.ApplyForUserByEmailWithBody(ctx, contentType, body, reqEditors...)
@@ -3601,6 +3727,46 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
+}
+
+// ParseActivateTrialLicenseResponse parses an HTTP response from a ActivateTrialLicenseWithResponse call
+func ParseActivateTrialLicenseResponse(rsp *http.Response) (*ActivateTrialLicenseResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ActivateTrialLicenseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseApplyForUserByEmailResponse parses an HTTP response from a ApplyForUserByEmailWithResponse call
