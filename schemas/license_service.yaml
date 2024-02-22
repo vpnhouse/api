@@ -845,14 +845,14 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
-  /api/license-service/activate-trial-license:
+  /api/license-service/apply-trial-license:
     post:
-      summary: Activate trial license
+      summary: Apply trial license by given product
       tags:
         - trial
         - license
-      operationId: activate-trial-license
-      description: Activate trial license
+      operationId: apply-trial-license
+      description: Apply trial license
       security:
         - { }
         - bearer: [ ]
@@ -873,7 +873,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivateTrialLicenseRequest'
+              $ref: '#/components/schemas/ApplyTrialLicenseRequest'
 
 components:
   schemas:
@@ -1526,8 +1526,8 @@ components:
       required:
         - jws_receipt
         - purchase_context_id
-    ActivateTrialLicenseRequest:
-      title: ActivateTrialLicenseRequest
+    ApplyTrialLicenseRequest:
+      title: ApplyTrialLicenseRequest
       type: object
       properties:
         project_id:

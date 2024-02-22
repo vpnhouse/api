@@ -25,8 +25,8 @@ const (
 	BearerScopes     = "bearer.Scopes"
 )
 
-// ActivateTrialLicenseRequest defines model for ActivateTrialLicenseRequest.
-type ActivateTrialLicenseRequest struct {
+// ApplyTrialLicenseRequest defines model for ApplyTrialLicenseRequest.
+type ApplyTrialLicenseRequest struct {
 	ProductId string `json:"product_id"`
 }
 
@@ -169,8 +169,8 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
-// ActivateTrialLicenseJSONBody defines parameters for ActivateTrialLicense.
-type ActivateTrialLicenseJSONBody ActivateTrialLicenseRequest
+// ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
+type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
@@ -223,8 +223,8 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
-// ActivateTrialLicenseJSONRequestBody defines body for ActivateTrialLicense for application/json ContentType.
-type ActivateTrialLicenseJSONRequestBody ActivateTrialLicenseJSONBody
+// ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
+type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
 
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
@@ -332,10 +332,10 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// ActivateTrialLicense request with any body
-	ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ApplyTrialLicense request with any body
+	ApplyTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	ApplyTrialLicense(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -408,8 +408,8 @@ type ClientInterface interface {
 	ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewActivateTrialLicenseRequestWithBody(c.Server, contentType, body)
+func (c *Client) ApplyTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewApplyTrialLicenseRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -420,8 +420,8 @@ func (c *Client) ActivateTrialLicenseWithBody(ctx context.Context, contentType s
 	return c.Client.Do(req)
 }
 
-func (c *Client) ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewActivateTrialLicenseRequest(c.Server, body)
+func (c *Client) ApplyTrialLicense(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewApplyTrialLicenseRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -756,19 +756,19 @@ func (c *Client) ServiceAuthenticate(ctx context.Context, body ServiceAuthentica
 	return c.Client.Do(req)
 }
 
-// NewActivateTrialLicenseRequest calls the generic ActivateTrialLicense builder with application/json body
-func NewActivateTrialLicenseRequest(server string, body ActivateTrialLicenseJSONRequestBody) (*http.Request, error) {
+// NewApplyTrialLicenseRequest calls the generic ApplyTrialLicense builder with application/json body
+func NewApplyTrialLicenseRequest(server string, body ApplyTrialLicenseJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewActivateTrialLicenseRequestWithBody(server, "application/json", bodyReader)
+	return NewApplyTrialLicenseRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewActivateTrialLicenseRequestWithBody generates requests for ActivateTrialLicense with any type of body
-func NewActivateTrialLicenseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewApplyTrialLicenseRequestWithBody generates requests for ApplyTrialLicense with any type of body
+func NewApplyTrialLicenseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -776,7 +776,7 @@ func NewActivateTrialLicenseRequestWithBody(server string, contentType string, b
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/client/activate-trial-license")
+	operationPath := fmt.Sprintf("/api/client/apply-trial-license")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1506,10 +1506,10 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// ActivateTrialLicense request with any body
-	ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+	// ApplyTrialLicense request with any body
+	ApplyTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error)
 
-	ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+	ApplyTrialLicenseWithResponse(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error)
 
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
@@ -1582,7 +1582,7 @@ type ClientWithResponsesInterface interface {
 	ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 }
 
-type ActivateTrialLicenseResponse struct {
+type ApplyTrialLicenseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *License
@@ -1592,7 +1592,7 @@ type ActivateTrialLicenseResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r ActivateTrialLicenseResponse) Status() string {
+func (r ApplyTrialLicenseResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -1600,7 +1600,7 @@ func (r ActivateTrialLicenseResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ActivateTrialLicenseResponse) StatusCode() int {
+func (r ApplyTrialLicenseResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2015,21 +2015,21 @@ func (r ServiceAuthenticateResponse) StatusCode() int {
 	return 0
 }
 
-// ActivateTrialLicenseWithBodyWithResponse request with arbitrary body returning *ActivateTrialLicenseResponse
-func (c *ClientWithResponses) ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
-	rsp, err := c.ActivateTrialLicenseWithBody(ctx, contentType, body, reqEditors...)
+// ApplyTrialLicenseWithBodyWithResponse request with arbitrary body returning *ApplyTrialLicenseResponse
+func (c *ClientWithResponses) ApplyTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error) {
+	rsp, err := c.ApplyTrialLicenseWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseActivateTrialLicenseResponse(rsp)
+	return ParseApplyTrialLicenseResponse(rsp)
 }
 
-func (c *ClientWithResponses) ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
-	rsp, err := c.ActivateTrialLicense(ctx, body, reqEditors...)
+func (c *ClientWithResponses) ApplyTrialLicenseWithResponse(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error) {
+	rsp, err := c.ApplyTrialLicense(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseActivateTrialLicenseResponse(rsp)
+	return ParseApplyTrialLicenseResponse(rsp)
 }
 
 // ConfirmWithResponse request returning *ConfirmResponse
@@ -2264,15 +2264,15 @@ func (c *ClientWithResponses) ServiceAuthenticateWithResponse(ctx context.Contex
 	return ParseServiceAuthenticateResponse(rsp)
 }
 
-// ParseActivateTrialLicenseResponse parses an HTTP response from a ActivateTrialLicenseWithResponse call
-func ParseActivateTrialLicenseResponse(rsp *http.Response) (*ActivateTrialLicenseResponse, error) {
+// ParseApplyTrialLicenseResponse parses an HTTP response from a ApplyTrialLicenseWithResponse call
+func ParseApplyTrialLicenseResponse(rsp *http.Response) (*ApplyTrialLicenseResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ActivateTrialLicenseResponse{
+	response := &ApplyTrialLicenseResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

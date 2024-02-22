@@ -358,14 +358,14 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
-  /api/client/activate-trial-license:
+  /api/client/apply-trial-license:
     post:
-      summary: Activate trial license
+      summary: Apply trial license
       tags:
         - trial
         - license
-      operationId: activate-trial-license
-      description: Activate trial license
+      operationId: apply-trial-license
+      description: Apply trial license
       security:
         - {}
         - bearer: [ ]
@@ -386,7 +386,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivateTrialLicenseRequest'
+              $ref: '#/components/schemas/ApplyTrialLicenseRequest'
 
   /api/client/create-purchase-context:
     post:
@@ -880,8 +880,8 @@ components:
         required:
             - jws_receipt
             - purchase_context_id
-    ActivateTrialLicenseRequest:
-      title: ActivateTrialLicenseRequest
+    ApplyTrialLicenseRequest:
+      title: ApplyTrialLicenseRequest
       type: object
       properties:
         product_id:
