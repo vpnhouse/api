@@ -19,6 +19,11 @@ const (
 	BearerScopes     = "bearer.Scopes"
 )
 
+// ActivateTrialLicenseRequest defines model for ActivateTrialLicenseRequest.
+type ActivateTrialLicenseRequest struct {
+	ProductId string `json:"product_id"`
+}
+
 // AuthRequest defines model for AuthRequest.
 type AuthRequest struct {
 	AuthInfo       string `json:"auth_info"`
@@ -158,6 +163,9 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// ActivateTrialLicenseJSONBody defines parameters for ActivateTrialLicense.
+type ActivateTrialLicenseJSONBody ActivateTrialLicenseRequest
+
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
@@ -209,6 +217,9 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// ActivateTrialLicenseJSONRequestBody defines body for ActivateTrialLicense for application/json ContentType.
+type ActivateTrialLicenseJSONRequestBody ActivateTrialLicenseJSONBody
+
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
@@ -244,6 +255,9 @@ type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Activate trial license
+	// (POST /api/client/activate-trial-license)
+	ActivateTrialLicense(w http.ResponseWriter, r *http.Request)
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
@@ -302,6 +316,23 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// ActivateTrialLicense operation middleware
+func (siw *ServerInterfaceWrapper) ActivateTrialLicense(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ActivateTrialLicense(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // Confirm operation middleware
 func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Request) {
@@ -779,6 +810,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/activate-trial-license", wrapper.ActivateTrialLicense)
+	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
 	})

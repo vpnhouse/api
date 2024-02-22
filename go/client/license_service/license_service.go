@@ -2596,6 +2596,7 @@ type ClientWithResponsesInterface interface {
 type ActivateTrialLicenseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *License
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -3746,6 +3747,13 @@ func ParseActivateTrialLicenseResponse(rsp *http.Response) (*ActivateTrialLicens
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

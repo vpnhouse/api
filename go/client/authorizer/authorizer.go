@@ -25,6 +25,11 @@ const (
 	BearerScopes     = "bearer.Scopes"
 )
 
+// ActivateTrialLicenseRequest defines model for ActivateTrialLicenseRequest.
+type ActivateTrialLicenseRequest struct {
+	ProductId string `json:"product_id"`
+}
+
 // AuthRequest defines model for AuthRequest.
 type AuthRequest struct {
 	AuthInfo       string `json:"auth_info"`
@@ -164,6 +169,9 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// ActivateTrialLicenseJSONBody defines parameters for ActivateTrialLicense.
+type ActivateTrialLicenseJSONBody ActivateTrialLicenseRequest
+
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
@@ -214,6 +222,9 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// ActivateTrialLicenseJSONRequestBody defines body for ActivateTrialLicense for application/json ContentType.
+type ActivateTrialLicenseJSONRequestBody ActivateTrialLicenseJSONBody
 
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
@@ -321,6 +332,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ActivateTrialLicense request with any body
+	ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -390,6 +406,30 @@ type ClientInterface interface {
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ActivateTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateTrialLicenseRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ActivateTrialLicense(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewActivateTrialLicenseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -714,6 +754,46 @@ func (c *Client) ServiceAuthenticate(ctx context.Context, body ServiceAuthentica
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewActivateTrialLicenseRequest calls the generic ActivateTrialLicense builder with application/json body
+func NewActivateTrialLicenseRequest(server string, body ActivateTrialLicenseJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewActivateTrialLicenseRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewActivateTrialLicenseRequestWithBody generates requests for ActivateTrialLicense with any type of body
+func NewActivateTrialLicenseRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/activate-trial-license")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewConfirmRequest generates requests for Confirm
@@ -1426,6 +1506,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ActivateTrialLicense request with any body
+	ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+
+	ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error)
+
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
@@ -1495,6 +1580,31 @@ type ClientWithResponsesInterface interface {
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 
 	ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
+}
+
+type ActivateTrialLicenseResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *License
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ActivateTrialLicenseResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ActivateTrialLicenseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ConfirmResponse struct {
@@ -1905,6 +2015,23 @@ func (r ServiceAuthenticateResponse) StatusCode() int {
 	return 0
 }
 
+// ActivateTrialLicenseWithBodyWithResponse request with arbitrary body returning *ActivateTrialLicenseResponse
+func (c *ClientWithResponses) ActivateTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
+	rsp, err := c.ActivateTrialLicenseWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActivateTrialLicenseResponse(rsp)
+}
+
+func (c *ClientWithResponses) ActivateTrialLicenseWithResponse(ctx context.Context, body ActivateTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ActivateTrialLicenseResponse, error) {
+	rsp, err := c.ActivateTrialLicense(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseActivateTrialLicenseResponse(rsp)
+}
+
 // ConfirmWithResponse request returning *ConfirmResponse
 func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error) {
 	rsp, err := c.Confirm(ctx, params, reqEditors...)
@@ -2135,6 +2262,53 @@ func (c *ClientWithResponses) ServiceAuthenticateWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseServiceAuthenticateResponse(rsp)
+}
+
+// ParseActivateTrialLicenseResponse parses an HTTP response from a ActivateTrialLicenseWithResponse call
+func ParseActivateTrialLicenseResponse(rsp *http.Response) (*ActivateTrialLicenseResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ActivateTrialLicenseResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest License
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseConfirmResponse parses an HTTP response from a ConfirmWithResponse call
