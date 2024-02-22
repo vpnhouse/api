@@ -538,6 +538,7 @@ components:
           example: f7df7c7a-3569-401c-b612-f49b775bb19e
           format: uuid
         auth_type:
+          deprecated: true
           type: string
           example: 1744c06e-846b-4212-8154-118760bc9387
         auth_method_id:
