@@ -21,7 +21,10 @@ const (
 
 // ActivateTrialLicenseRequest defines model for ActivateTrialLicenseRequest.
 type ActivateTrialLicenseRequest struct {
+	Email     string `json:"email"`
 	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
 }
 
 // ApplyParams defines model for ApplyParams.
@@ -417,7 +420,7 @@ type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Process ios purchase
+	// Activate trial license
 	// (POST /api/license-service/activate-trial-license)
 	ActivateTrialLicense(w http.ResponseWriter, r *http.Request)
 	// Copy all purchases find by email and create new licenses for user in given project

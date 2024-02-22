@@ -847,7 +847,7 @@ paths:
               $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
   /api/license-service/activate-trial-license:
     post:
-      summary: Process ios purchase
+      summary: Activate trial license
       tags:
         - trial
         - license
@@ -1526,11 +1526,22 @@ components:
       title: ActivateTrialLicenseRequest
       type: object
       properties:
+        project_id:
+          type: string
+          format: uuid
         product_id:
           type: string
           format: uuid
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
       required:
+        - project_id
         - product_id
+        - user_id
+        - email
 
   securitySchemes:
     ServiceKey:
