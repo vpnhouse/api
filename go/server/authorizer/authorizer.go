@@ -290,7 +290,7 @@ type ServerInterface interface {
 	Token(w http.ResponseWriter, r *http.Request)
 	// Delete a user
 	// (DELETE /api/client/user/{id})
-	DeleteUser(w http.ResponseWriter, r *http.Request, id string)
+	DeleteUserById(w http.ResponseWriter, r *http.Request, id string)
 	// Create user at firebase
 	// (POST /api/service/firebase-user)
 	CreateFirebaseUser(w http.ResponseWriter, r *http.Request)
@@ -648,8 +648,8 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 	handler(w, r.WithContext(ctx))
 }
 
-// DeleteUser operation middleware
-func (siw *ServerInterfaceWrapper) DeleteUser(w http.ResponseWriter, r *http.Request) {
+// DeleteUserById operation middleware
+func (siw *ServerInterfaceWrapper) DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -664,7 +664,7 @@ func (siw *ServerInterfaceWrapper) DeleteUser(w http.ResponseWriter, r *http.Req
 	}
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteUser(w, r, id)
+		siw.Handler.DeleteUserById(w, r, id)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -864,7 +864,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
 	})
 	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/client/user/{id}", wrapper.DeleteUser)
+		r.Delete(options.BaseURL+"/api/client/user/{id}", wrapper.DeleteUserById)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/firebase-user", wrapper.CreateFirebaseUser)

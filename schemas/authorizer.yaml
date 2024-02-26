@@ -490,6 +490,14 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  request_id:
+                    type: string
+                    format: uuid
+                    example: '0a00be16-1ccc-450d-94da-0671cca627bf'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -513,8 +521,9 @@ paths:
       summary: Delete a user
       tags:
         - delete
+        - by-id
         - user
-      operationId: delete-user
+      operationId: delete-user-by-id
       description: Delete a specific user by id
       security:
         - { }
