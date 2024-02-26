@@ -32,13 +32,14 @@ type ApplyTrialLicenseRequest struct {
 
 // AuthRequest defines model for AuthRequest.
 type AuthRequest struct {
-	AuthInfo       string `json:"auth_info"`
-	AuthType       string `json:"auth_type"`
-	ClientVersion  string `json:"client_version"`
-	DeviceId       string `json:"device_id"`
-	InstallationId string `json:"installation_id"`
-	PlatformType   string `json:"platform_type"`
-	Project        string `json:"project"`
+	AuthInfo       string  `json:"auth_info"`
+	AuthMethodId   *string `json:"auth_method_id,omitempty"`
+	AuthType       *string `json:"auth_type,omitempty"`
+	ClientVersion  string  `json:"client_version"`
+	DeviceId       string  `json:"device_id"`
+	InstallationId string  `json:"installation_id"`
+	PlatformType   string  `json:"platform_type"`
+	Project        string  `json:"project"`
 }
 
 // AuthResp defines model for AuthResp.

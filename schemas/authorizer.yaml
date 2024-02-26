@@ -568,8 +568,12 @@ components:
           example: f7df7c7a-3569-401c-b612-f49b775bb19e
           format: uuid
         auth_type:
+          deprecated: true
           type: string
           example: 1744c06e-846b-4212-8154-118760bc9387
+        auth_method_id:
+          type: string
+          example: 7e4cfc26-da82-4f04-aaa0-00d03f9de58f
         auth_info:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
@@ -579,7 +583,6 @@ components:
         - client_version
         - device_id
         - installation_id
-        - auth_type
         - auth_info
       writeOnly: true
     AuthServiceRequest:
