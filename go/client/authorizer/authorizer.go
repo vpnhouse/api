@@ -383,6 +383,9 @@ type ClientInterface interface {
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeleteUser request
+	DeleteUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// CreateFirebaseUser request with any body
 	CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -660,6 +663,18 @@ func (c *Client) TokenWithBody(ctx context.Context, contentType string, body io.
 
 func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTokenRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteUserRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -1321,6 +1336,40 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
+// NewDeleteUserRequest generates requests for DeleteUser
+func NewDeleteUserRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/user/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCreateFirebaseUserRequest calls the generic CreateFirebaseUser builder with application/json body
 func NewCreateFirebaseUserRequest(server string, body CreateFirebaseUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1503,6 +1552,9 @@ type ClientWithResponsesInterface interface {
 	TokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
+
+	// DeleteUser request
+	DeleteUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error)
 
 	// CreateFirebaseUser request with any body
 	CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
@@ -1871,6 +1923,30 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
+type DeleteUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateFirebaseUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2119,6 +2195,15 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 		return nil, err
 	}
 	return ParseTokenResponse(rsp)
+}
+
+// DeleteUserWithResponse request returning *DeleteUserResponse
+func (c *ClientWithResponses) DeleteUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error) {
+	rsp, err := c.DeleteUser(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteUserResponse(rsp)
 }
 
 // CreateFirebaseUserWithBodyWithResponse request with arbitrary body returning *CreateFirebaseUserResponse
@@ -2829,6 +2914,46 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteUserResponse parses an HTTP response from a DeleteUserWithResponse call
+func ParseDeleteUserResponse(rsp *http.Response) (*DeleteUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
