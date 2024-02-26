@@ -273,6 +273,9 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Purge a specific user by id
+	// (POST /api/client/purge-user/{id})
+	PurgeUser(w http.ResponseWriter, r *http.Request, id string)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -288,9 +291,6 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
-	// Delete a user
-	// (DELETE /api/client/user/{id})
-	DeleteUserById(w http.ResponseWriter, r *http.Request, id string)
 	// Create user at firebase
 	// (POST /api/service/firebase-user)
 	CreateFirebaseUser(w http.ResponseWriter, r *http.Request)
@@ -561,6 +561,32 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
+// PurgeUser operation middleware
+func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PurgeUser(w, r, id)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // SendConfirmationLink operation middleware
 func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -639,32 +665,6 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Token(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// DeleteUserById operation middleware
-func (siw *ServerInterfaceWrapper) DeleteUserById(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteUserById(w, r, id)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -849,6 +849,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/purge-user/{id}", wrapper.PurgeUser)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
 	})
 	r.Group(func(r chi.Router) {
@@ -862,9 +865,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/client/user/{id}", wrapper.DeleteUserById)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/service/firebase-user", wrapper.CreateFirebaseUser)

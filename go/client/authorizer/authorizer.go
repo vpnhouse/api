@@ -358,6 +358,9 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PurgeUser request
+	PurgeUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -382,9 +385,6 @@ type ClientInterface interface {
 	TokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteUserById request
-	DeleteUserById(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateFirebaseUser request with any body
 	CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -553,6 +553,18 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
+func (c *Client) PurgeUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPurgeUserRequest(c.Server, id)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendConfirmationLinkRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -663,18 +675,6 @@ func (c *Client) TokenWithBody(ctx context.Context, contentType string, body io.
 
 func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTokenRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteUserById(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteUserByIdRequest(c.Server, id)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,6 +1136,40 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
+// NewPurgeUserRequest generates requests for PurgeUser
+func NewPurgeUserRequest(server string, id string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/purge-user/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewSendConfirmationLinkRequest calls the generic SendConfirmationLink builder with application/json body
 func NewSendConfirmationLinkRequest(server string, body SendConfirmationLinkJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1336,40 +1370,6 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewDeleteUserByIdRequest generates requests for DeleteUserById
-func NewDeleteUserByIdRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/client/user/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewCreateFirebaseUserRequest calls the generic CreateFirebaseUser builder with application/json body
 func NewCreateFirebaseUserRequest(server string, body CreateFirebaseUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1528,6 +1528,9 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
+	// PurgeUser request
+	PurgeUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
+
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
@@ -1552,9 +1555,6 @@ type ClientWithResponsesInterface interface {
 	TokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
-
-	// DeleteUserById request
-	DeleteUserByIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteUserByIdResponse, error)
 
 	// CreateFirebaseUser request with any body
 	CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
@@ -1798,6 +1798,30 @@ func (r ListProductResponse) StatusCode() int {
 	return 0
 }
 
+type PurgeUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PurgeUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PurgeUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SendConfirmationLinkResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1920,30 +1944,6 @@ func (r TokenResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r TokenResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteUserByIdResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteUserByIdResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteUserByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2115,6 +2115,15 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
+// PurgeUserWithResponse request returning *PurgeUserResponse
+func (c *ClientWithResponses) PurgeUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
+	rsp, err := c.PurgeUser(ctx, id, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePurgeUserResponse(rsp)
+}
+
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
 func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
 	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
@@ -2198,15 +2207,6 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 		return nil, err
 	}
 	return ParseTokenResponse(rsp)
-}
-
-// DeleteUserByIdWithResponse request returning *DeleteUserByIdResponse
-func (c *ClientWithResponses) DeleteUserByIdWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteUserByIdResponse, error) {
-	rsp, err := c.DeleteUserById(ctx, id, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteUserByIdResponse(rsp)
 }
 
 // CreateFirebaseUserWithBodyWithResponse request with arbitrary body returning *CreateFirebaseUserResponse
@@ -2696,6 +2696,46 @@ func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) 
 	return response, nil
 }
 
+// ParsePurgeUserResponse parses an HTTP response from a PurgeUserWithResponse call
+func ParsePurgeUserResponse(rsp *http.Response) (*PurgeUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PurgeUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseSendConfirmationLinkResponse parses an HTTP response from a SendConfirmationLinkWithResponse call
 func ParseSendConfirmationLinkResponse(rsp *http.Response) (*SendConfirmationLinkResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -2926,46 +2966,6 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 		}
 		response.JSON400 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseDeleteUserByIdResponse parses an HTTP response from a DeleteUserByIdWithResponse call
-func ParseDeleteUserByIdResponse(rsp *http.Response) (*DeleteUserByIdResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteUserByIdResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

@@ -509,7 +509,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/client/user/{id}:
+  /api/client/purge-user/{id}:
     parameters:
       - schema:
           type: string
@@ -517,14 +517,14 @@ paths:
         name: id
         in: path
         required: true
-    delete:
-      summary: Delete a user
+    post:
+      summary: Purge a specific user by id
       tags:
         - delete
         - by-id
         - user
-      operationId: delete-user-by-id
-      description: Delete a specific user by id
+      operationId: purge-user
+      description: Purge the user and all user data from system by userID
       security:
         - { }
       responses:
