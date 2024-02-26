@@ -17,6 +17,7 @@ import (
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	externalRef1 "github.com/vpnhouse/api/go/server/common"
+	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 )
 
 const (
@@ -132,6 +133,12 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
+// PurgeUserRequest defines model for PurgeUserRequest.
+type PurgeUserRequest struct {
+	Email     openapi_types.Email `json:"email"`
+	ProjectId string              `json:"project_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -196,6 +203,9 @@ type ListProductParams struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// PurgeUserJSONBody defines parameters for PurgeUser.
+type PurgeUserJSONBody PurgeUserRequest
+
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
@@ -228,6 +238,9 @@ type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
 type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
+
+// PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
+type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -358,8 +371,10 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PurgeUser request
-	PurgeUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PurgeUser request with any body
+	PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PurgeUser(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -553,8 +568,20 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
-func (c *Client) PurgeUser(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPurgeUserRequest(c.Server, id)
+func (c *Client) PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPurgeUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PurgeUser(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPurgeUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1136,23 +1163,27 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
-// NewPurgeUserRequest generates requests for PurgeUser
-func NewPurgeUserRequest(server string, id string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+// NewPurgeUserRequest calls the generic PurgeUser builder with application/json body
+func NewPurgeUserRequest(server string, body PurgeUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPurgeUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPurgeUserRequestWithBody generates requests for PurgeUser with any type of body
+func NewPurgeUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/client/purge-user/%s", pathParam0)
+	operationPath := fmt.Sprintf("/api/client/purge-user")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1162,10 +1193,12 @@ func NewPurgeUserRequest(server string, id string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1528,8 +1561,10 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
-	// PurgeUser request
-	PurgeUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
+	// PurgeUser request with any body
+	PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
+
+	PurgeUserWithResponse(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
@@ -2115,9 +2150,17 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
-// PurgeUserWithResponse request returning *PurgeUserResponse
-func (c *ClientWithResponses) PurgeUserWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
-	rsp, err := c.PurgeUser(ctx, id, reqEditors...)
+// PurgeUserWithBodyWithResponse request with arbitrary body returning *PurgeUserResponse
+func (c *ClientWithResponses) PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
+	rsp, err := c.PurgeUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePurgeUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) PurgeUserWithResponse(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
+	rsp, err := c.PurgeUser(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

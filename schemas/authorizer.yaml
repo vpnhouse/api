@@ -509,14 +509,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/client/purge-user/{id}:
-    parameters:
-      - schema:
-          type: string
-          format: uuid
-        name: id
-        in: path
-        required: true
+  /api/client/purge-user:
     post:
       summary: Purge a specific user by id
       tags:
@@ -527,6 +520,11 @@ paths:
       description: Purge the user and all user data from system by userID
       security:
         - { }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurgeUserRequest'
       responses:
         '200':
           description: OK
@@ -895,6 +893,19 @@ components:
         required:
             - jws_receipt
             - purchase_context_id
+    PurgeUserRequest:
+      title: PurgeUserRequest
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        project_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - project_id
 
   securitySchemes:
     bearer:

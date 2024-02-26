@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -126,6 +127,12 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
+// PurgeUserRequest defines model for PurgeUserRequest.
+type PurgeUserRequest struct {
+	Email     openapi_types.Email `json:"email"`
+	ProjectId string              `json:"project_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -190,6 +197,9 @@ type ListProductParams struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// PurgeUserJSONBody defines parameters for PurgeUser.
+type PurgeUserJSONBody PurgeUserRequest
+
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
@@ -222,6 +232,9 @@ type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
 type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
+
+// PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
+type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -274,8 +287,8 @@ type ServerInterface interface {
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
 	// Purge a specific user by id
-	// (POST /api/client/purge-user/{id})
-	PurgeUser(w http.ResponseWriter, r *http.Request, id string)
+	// (POST /api/client/purge-user)
+	PurgeUser(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -565,19 +578,8 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id string
-
-	err = runtime.BindStyledParameter("simple", false, "id", chi.URLParam(r, "id"), &id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PurgeUser(w, r, id)
+		siw.Handler.PurgeUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -849,7 +851,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/client/purge-user/{id}", wrapper.PurgeUser)
+		r.Post(options.BaseURL+"/api/client/purge-user", wrapper.PurgeUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
