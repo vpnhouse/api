@@ -187,6 +187,7 @@ type ListProductParams struct {
 	Limit        int     `json:"limit"`
 	Offset       int     `json:"offset"`
 	PlatformType *string `json:"platform_type,omitempty"`
+	ProjectId    *string `json:"project_id,omitempty"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -532,6 +533,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 
