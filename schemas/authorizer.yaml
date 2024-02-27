@@ -519,7 +519,7 @@ paths:
       operationId: purge-user
       description: Purge the user and all user data from system by userID
       security:
-        - { }
+        - bearer: [ ]
       requestBody:
         content:
           application/json:
@@ -897,14 +897,14 @@ components:
       title: PurgeUserRequest
       type: object
       properties:
-        email:
+        user_id:
           type: string
-          format: email
+          format: uuid
         project_id:
           type: string
           format: uuid
       required:
-        - email
+        - user_id
         - project_id
 
   securitySchemes:

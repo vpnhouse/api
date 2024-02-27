@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -129,8 +128,8 @@ type Product struct {
 
 // PurgeUserRequest defines model for PurgeUserRequest.
 type PurgeUserRequest struct {
-	Email     openapi_types.Email `json:"email"`
-	ProjectId string              `json:"project_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
 }
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
@@ -577,6 +576,8 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 // PurgeUser operation middleware
 func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PurgeUser(w, r)

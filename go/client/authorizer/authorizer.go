@@ -17,7 +17,6 @@ import (
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	externalRef1 "github.com/vpnhouse/api/go/server/common"
-	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 )
 
 const (
@@ -135,8 +134,8 @@ type Product struct {
 
 // PurgeUserRequest defines model for PurgeUserRequest.
 type PurgeUserRequest struct {
-	Email     openapi_types.Email `json:"email"`
-	ProjectId string              `json:"project_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
 }
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
