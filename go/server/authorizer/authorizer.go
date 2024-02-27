@@ -128,6 +128,7 @@ type Product struct {
 
 // PurgeUserRequest defines model for PurgeUserRequest.
 type PurgeUserRequest struct {
+	ApiKey    string `json:"api_key"`
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
 }

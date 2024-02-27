@@ -903,9 +903,12 @@ components:
         project_id:
           type: string
           format: uuid
+        api_key:
+          type: string
       required:
         - user_id
         - project_id
+        - api_key
 
   securitySchemes:
     bearer:
