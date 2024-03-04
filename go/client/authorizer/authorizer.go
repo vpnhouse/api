@@ -120,7 +120,12 @@ type ProcessIOSPurchaseRequest struct {
 
 // Product defines model for Product.
 type Product struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	// The currency amount in cents ($19.99)
+	Amount    *float32   `json:"amount,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+
+	// The currency code (ISO 4217)
+	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
