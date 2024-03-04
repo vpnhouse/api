@@ -40,11 +40,8 @@ type CreateLicenseParams struct {
 
 // CreateProductParams defines model for CreateProductParams.
 type CreateProductParams struct {
-	// The currency amount in cents ($19.99)
-	Amount int `json:"amount"`
-
-	// The currency code (ISO 4217)
-	Currency         string                  `json:"currency"`
+	Amount           *int                    `json:"amount"`
+	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseType      *string                 `json:"license_type"`

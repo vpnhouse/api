@@ -911,12 +911,10 @@ components:
           nullable: true
         amount:
           type: integer
-          description: The currency amount in cents ($19.99)
-          example: 1999
+          nullable: true
         currency:
           type: string
-          description: The currency code (ISO 4217)
-          example: USD
+          nullable: true
       required:
         - name
         - license_type
