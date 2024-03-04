@@ -877,7 +877,7 @@ components:
           type: string
           format: date-time
         amount:
-          type: number
+          type: integer
           description: The currency amount in cents ($19.99)
           example: 1999
         currency:
@@ -910,7 +910,7 @@ components:
           type: boolean
           nullable: true
         amount:
-          type: number
+          type: integer
           description: The currency amount in cents ($19.99)
           example: 1999
         currency:
@@ -957,7 +957,7 @@ components:
           format: date-time
           nullable: true
         amount:
-          type: number
+          type: integer
           nullable: true
         currency:
           type: string
@@ -996,7 +996,7 @@ components:
           format: date-time
           nullable: true
         amount:
-          type: number
+          type: integer
           nullable: true
         currency:
           type: string
@@ -1028,7 +1028,7 @@ components:
           type: string
           format: date-time
         amount:
-          type: number
+          type: integer
         currency:
           type: string
     Purchase:

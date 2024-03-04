@@ -115,7 +115,7 @@ type ProcessIOSPurchaseRequest struct {
 // Product defines model for Product.
 type Product struct {
 	// The currency amount in cents ($19.99)
-	Amount    *float32   `json:"amount,omitempty"`
+	Amount    *int       `json:"amount,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// The currency code (ISO 4217)

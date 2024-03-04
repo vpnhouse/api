@@ -41,7 +41,7 @@ type CreateLicenseParams struct {
 // CreateProductParams defines model for CreateProductParams.
 type CreateProductParams struct {
 	// The currency amount in cents ($19.99)
-	Amount float32 `json:"amount"`
+	Amount int `json:"amount"`
 
 	// The currency code (ISO 4217)
 	Currency         string                  `json:"currency"`
@@ -97,7 +97,7 @@ type FindLicenseParams struct {
 
 // FindProductParams defines model for FindProductParams.
 type FindProductParams struct {
-	Amount           *float32                `json:"amount,omitempty"`
+	Amount           *int                    `json:"amount,omitempty"`
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
 	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
@@ -156,7 +156,7 @@ type PatchLicenseParams struct {
 
 // PatchProductParams defines model for PatchProductParams.
 type PatchProductParams struct {
-	Amount           *float32                `json:"amount"`
+	Amount           *int                    `json:"amount"`
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
@@ -217,7 +217,7 @@ type ProcessIOSPurchaseRequest struct {
 // Product defines model for Product.
 type Product struct {
 	// The currency amount in cents ($19.99)
-	Amount    *float32   `json:"amount,omitempty"`
+	Amount    *int       `json:"amount,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// The currency code (ISO 4217)
@@ -265,7 +265,7 @@ type UpdateLicenseParams struct {
 
 // UpdateProductParams defines model for UpdateProductParams.
 type UpdateProductParams struct {
-	Amount           *float32                `json:"amount"`
+	Amount           *int                    `json:"amount"`
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
