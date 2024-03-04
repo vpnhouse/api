@@ -878,10 +878,12 @@ components:
           format: date-time
         amount:
           type: integer
+          format: int64
           description: The currency amount in cents ($19.99)
           example: 1999
         currency:
           type: string
+          format: int64
           description: The currency code (ISO 4217)
           example: USD
     CreateProductParams:
@@ -911,6 +913,7 @@ components:
           nullable: true
         amount:
           type: integer
+          format: int64
           nullable: true
         currency:
           type: string
@@ -956,6 +959,7 @@ components:
           nullable: true
         amount:
           type: integer
+          format: int64
           nullable: true
         currency:
           type: string
@@ -995,6 +999,7 @@ components:
           nullable: true
         amount:
           type: integer
+          format: int64
           nullable: true
         currency:
           type: string
@@ -1027,6 +1032,7 @@ components:
           format: date-time
         amount:
           type: integer
+          format: int64
         currency:
           type: string
     Purchase:
