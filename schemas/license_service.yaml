@@ -23,11 +23,6 @@ paths:
           required: true
         - schema:
             type: string
-          name: platform_type
-          in: query
-          required: false
-        - schema:
-            type: string
             format: uuid
           name: project_id
           in: query

@@ -126,13 +126,6 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
-// PurgeUserRequest defines model for PurgeUserRequest.
-type PurgeUserRequest struct {
-	ApiKey    string `json:"api_key"`
-	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
-}
-
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -191,14 +184,9 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit        int     `json:"limit"`
-	Offset       int     `json:"offset"`
-	PlatformType *string `json:"platform_type,omitempty"`
-	ProjectId    *string `json:"project_id,omitempty"`
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
-
-// PurgeUserJSONBody defines parameters for PurgeUser.
-type PurgeUserJSONBody PurgeUserRequest
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
@@ -232,9 +220,6 @@ type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
 type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
-
-// PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
-type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -286,9 +271,6 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
-	// Purge a specific user by id
-	// (POST /api/client/purge-user)
-	PurgeUser(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -541,47 +523,8 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// ------------- Optional query parameter "platform_type" -------------
-	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "project_id" -------------
-	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
-		return
-	}
-
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// PurgeUser operation middleware
-func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, BearerScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PurgeUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -851,9 +794,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/client/purge-user", wrapper.PurgeUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
