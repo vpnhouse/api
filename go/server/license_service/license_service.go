@@ -337,9 +337,9 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit        int     `json:"limit"`
-	Offset       int     `json:"offset"`
-	PlatformType *string `json:"platform_type,omitempty"`
+	Limit     int    `json:"limit"`
+	Offset    int    `json:"offset"`
+	ProjectId string `json:"project_id"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -973,14 +973,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// ------------- Optional query parameter "platform_type" -------------
-	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 

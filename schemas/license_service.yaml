@@ -23,9 +23,10 @@ paths:
           required: true
         - schema:
             type: string
-          name: platform_type
+            format: uuid
+          name: project_id
           in: query
-          required: false
+          required: true
       summary: List products
       tags:
         - list
