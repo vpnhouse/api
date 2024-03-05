@@ -485,6 +485,14 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  request_id:
+                    type: string
+                    format: uuid
+                    example: '0a00be16-1ccc-450d-94da-0671cca627bf'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -492,6 +500,32 @@ paths:
         '403':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/purge-user:
+    post:
+      summary: Purge a specific user by id
+      tags:
+        - delete
+        - by-id
+        - user
+      operationId: purge-user
+      description: Purge the user and all user data from system by userID
+      security:
+        - bearer: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurgeUserRequest'
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
@@ -854,6 +888,22 @@ components:
         required:
             - jws_receipt
             - purchase_context_id
+    PurgeUserRequest:
+      title: PurgeUserRequest
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        api_key:
+          type: string
+      required:
+        - user_id
+        - project_id
+        - api_key
 
   securitySchemes:
     bearer:
