@@ -126,6 +126,13 @@ type Product struct {
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 }
 
+// PurgeUserRequest defines model for PurgeUserRequest.
+type PurgeUserRequest struct {
+	ApiKey    string `json:"api_key"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -190,6 +197,9 @@ type ListProductParams struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// PurgeUserJSONBody defines parameters for PurgeUser.
+type PurgeUserJSONBody PurgeUserRequest
+
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
@@ -222,6 +232,9 @@ type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
 type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
+
+// PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
+type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -273,6 +286,9 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Purge a specific user by id
+	// (POST /api/client/purge-user)
+	PurgeUser(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -558,6 +574,23 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
+// PurgeUser operation middleware
+func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PurgeUser(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // SendConfirmationLink operation middleware
 func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -818,6 +851,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/purge-user", wrapper.PurgeUser)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
