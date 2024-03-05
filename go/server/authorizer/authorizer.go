@@ -184,8 +184,9 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+	Limit     int     `json:"limit"`
+	Offset    int     `json:"offset"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
@@ -520,6 +521,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, true, "offset", r.URL.Query(), &params.Offset)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 

@@ -21,6 +21,12 @@ paths:
           name: offset
           in: query
           required: true
+        - schema:
+            type: string
+            format: uuid
+          name: project_id
+          in: query
+          required: true
       summary: List products
       tags:
         - list
