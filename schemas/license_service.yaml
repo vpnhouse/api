@@ -877,6 +877,16 @@ components:
         updated_at:
           type: string
           format: date-time
+        amount:
+          type: integer
+          format: int64
+          description: The currency amount in cents ($19.99)
+          example: 1999
+        currency:
+          type: string
+          format: int64
+          description: The currency code (ISO 4217)
+          example: USD
     CreateProductParams:
       title: CreateProductParams
       type: object
@@ -902,6 +912,13 @@ components:
         disabled:
           type: boolean
           nullable: true
+        amount:
+          type: integer
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          nullable: true
       required:
         - name
         - license_type
@@ -910,6 +927,8 @@ components:
         - selector_json
         - entitlements_json
         - disabled
+        - amount
+        - currency
     UpdateProductParams:
       title: UpdateProductParams
       type: object
@@ -939,6 +958,13 @@ components:
           type: string
           format: date-time
           nullable: true
+        amount:
+          type: integer
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          nullable: true
       required:
         - name
         - license_type
@@ -948,6 +974,8 @@ components:
         - entitlements_json
         - disabled
         - updated_at
+        - amount
+        - currency
     PatchProductParams:
       title: PatchProductParams
       type: object
@@ -969,6 +997,13 @@ components:
         updated_at:
           type: string
           format: date-time
+          nullable: true
+        amount:
+          type: integer
+          format: int64
+          nullable: true
+        currency:
+          type: string
           nullable: true
       required:
         - updated_at
@@ -996,6 +1031,11 @@ components:
         updated_at:
           type: string
           format: date-time
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
     Purchase:
       title: Purchase
       type: object

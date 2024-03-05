@@ -765,6 +765,15 @@ components:
         updated_at:
           type: string
           format: date-time
+        amount:
+          type: integer
+          format: int64
+          description: The currency amount in cents ($19.99)
+          example: 1999
+        currency:
+          type: string
+          description: The currency code (ISO 4217)
+          example: USD
     License:
       title: License
       type: object
