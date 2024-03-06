@@ -359,6 +359,36 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
+  /api/client/apply-trial-license:
+    post:
+      summary: Apply trial license
+      tags:
+        - trial
+        - license
+      operationId: apply-trial-license
+      description: Apply trial license
+      security:
+        - {}
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyTrialLicenseRequest'
+
   /api/client/create-purchase-context:
     post:
       summary: Create purchase context
@@ -897,6 +927,15 @@ components:
         required:
             - jws_receipt
             - purchase_context_id
+    ApplyTrialLicenseRequest:
+      title: ApplyTrialLicenseRequest
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+      required:
+        - product_id
     PurgeUserRequest:
       title: PurgeUserRequest
       type: object

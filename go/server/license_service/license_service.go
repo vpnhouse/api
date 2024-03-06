@@ -26,6 +26,13 @@ type ApplyParams struct {
 	UserId    *string `json:"user_id,omitempty"`
 }
 
+// ApplyTrialLicenseRequest defines model for ApplyTrialLicenseRequest.
+type ApplyTrialLicenseRequest struct {
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
 // CreateLicenseParams defines model for CreateLicenseParams.
 type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -292,6 +299,9 @@ type UpdatePurchaseParams struct {
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
+// ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
+type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -369,6 +379,9 @@ type UpdatePurchaseJSONBody UpdatePurchaseParams
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
+// ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
+type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
+
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
@@ -422,6 +435,9 @@ type ServerInterface interface {
 	// Copy all purchases find by email and create new licenses for user in given project
 	// (GET /api/license-service/apply-for-user-by-email)
 	ApplyForUserByEmail(w http.ResponseWriter, r *http.Request)
+	// Apply trial license by given product
+	// (POST /api/license-service/apply-trial-license)
+	ApplyTrialLicense(w http.ResponseWriter, r *http.Request)
 	// Create new purchase context
 	// (POST /api/license-service/create-purchase-context)
 	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
@@ -524,6 +540,23 @@ func (siw *ServerInterfaceWrapper) ApplyForUserByEmail(w http.ResponseWriter, r 
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyForUserByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// ApplyTrialLicense operation middleware
+func (siw *ServerInterfaceWrapper) ApplyTrialLicense(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ApplyTrialLicense(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1443,6 +1476,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/apply-for-user-by-email", wrapper.ApplyForUserByEmail)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/apply-trial-license", wrapper.ApplyTrialLicense)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/create-purchase-context", wrapper.CreatePurchaseContext)

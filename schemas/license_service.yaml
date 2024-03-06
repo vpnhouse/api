@@ -846,7 +846,35 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
-
+  /api/license-service/apply-trial-license:
+    post:
+      summary: Apply trial license by given product
+      tags:
+        - trial
+        - license
+      operationId: apply-trial-license
+      description: Apply trial license
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyTrialLicenseRequest'
 
 components:
   schemas:
@@ -1539,6 +1567,23 @@ components:
       required:
         - jws_receipt
         - purchase_context_id
+    ApplyTrialLicenseRequest:
+      title: ApplyTrialLicenseRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - project_id
+        - product_id
+        - user_id
 
   securitySchemes:
     ServiceKey:
