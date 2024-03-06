@@ -125,7 +125,12 @@ type ProcessIOSPurchaseRequest struct {
 
 // Product defines model for Product.
 type Product struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	// The currency amount in cents ($19.99)
+	Amount    *int64     `json:"amount,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+
+	// The currency code (ISO 4217)
+	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
@@ -135,6 +140,13 @@ type Product struct {
 	Period           *string                 `json:"period,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+}
+
+// PurgeUserRequest defines model for PurgeUserRequest.
+type PurgeUserRequest struct {
+	ApiKey    string `json:"api_key"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
 }
 
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
@@ -198,10 +210,13 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit        int     `json:"limit"`
-	Offset       int     `json:"offset"`
-	PlatformType *string `json:"platform_type,omitempty"`
+	Limit     int     `json:"limit"`
+	Offset    int     `json:"offset"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
+
+// PurgeUserJSONBody defines parameters for PurgeUser.
+type PurgeUserJSONBody PurgeUserRequest
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
@@ -238,6 +253,9 @@ type ProcessAndroidPurchaseJSONRequestBody ProcessAndroidPurchaseJSONBody
 
 // ProcessIosPurchaseJSONRequestBody defines body for ProcessIosPurchase for application/json ContentType.
 type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
+
+// PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
+type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -372,6 +390,11 @@ type ClientInterface interface {
 
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PurgeUser request with any body
+	PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PurgeUser(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -579,6 +602,30 @@ func (c *Client) ProcessIosPurchase(ctx context.Context, body ProcessIosPurchase
 
 func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListProductRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPurgeUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PurgeUser(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPurgeUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1158,9 +1205,9 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 		}
 	}
 
-	if params.PlatformType != nil {
+	if params.ProjectId != nil {
 
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, *params.PlatformType); err != nil {
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
 			return nil, err
 		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 			return nil, err
@@ -1180,6 +1227,46 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewPurgeUserRequest calls the generic PurgeUser builder with application/json body
+func NewPurgeUserRequest(server string, body PurgeUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPurgeUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewPurgeUserRequestWithBody generates requests for PurgeUser with any type of body
+func NewPurgeUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/purge-user")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1547,6 +1634,11 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
+	// PurgeUser request with any body
+	PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
+
+	PurgeUserWithResponse(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
+
 	// SendConfirmationLink request with any body
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
@@ -1662,11 +1754,14 @@ func (r CreatePurchaseContextResponse) StatusCode() int {
 type DeleteUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON409      *externalRef1.Error
-	JSON500      *externalRef1.Error
+	JSON200      *struct {
+		RequestId *string `json:"request_id,omitempty"`
+	}
+	JSON400 *externalRef1.Error
+	JSON401 *externalRef1.Error
+	JSON403 *externalRef1.Error
+	JSON409 *externalRef1.Error
+	JSON500 *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -1830,6 +1925,30 @@ func (r ListProductResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListProductResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PurgeUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PurgeUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PurgeUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2146,6 +2265,23 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
+// PurgeUserWithBodyWithResponse request with arbitrary body returning *PurgeUserResponse
+func (c *ClientWithResponses) PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
+	rsp, err := c.PurgeUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePurgeUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) PurgeUserWithResponse(ctx context.Context, body PurgeUserJSONRequestBody, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
+	rsp, err := c.PurgeUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePurgeUserResponse(rsp)
+}
+
 // SendConfirmationLinkWithBodyWithResponse request with arbitrary body returning *SendConfirmationLinkResponse
 func (c *ClientWithResponses) SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error) {
 	rsp, err := c.SendConfirmationLinkWithBody(ctx, contentType, body, reqEditors...)
@@ -2427,6 +2563,15 @@ func ParseDeleteUserResponse(rsp *http.Response) (*DeleteUserResponse, error) {
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			RequestId *string `json:"request_id,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -2730,6 +2875,46 @@ func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) 
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePurgeUserResponse parses an HTTP response from a PurgeUserWithResponse call
+func ParsePurgeUserResponse(rsp *http.Response) (*PurgeUserResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PurgeUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

@@ -47,6 +47,8 @@ type CreateLicenseParams struct {
 
 // CreateProductParams defines model for CreateProductParams.
 type CreateProductParams struct {
+	Amount           *int64                  `json:"amount"`
+	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseType      *string                 `json:"license_type"`
@@ -99,7 +101,9 @@ type FindLicenseParams struct {
 
 // FindProductParams defines model for FindProductParams.
 type FindProductParams struct {
+	Amount           *int64                  `json:"amount,omitempty"`
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseType      *string                 `json:"license_type,omitempty"`
@@ -156,6 +160,8 @@ type PatchLicenseParams struct {
 
 // PatchProductParams defines model for PatchProductParams.
 type PatchProductParams struct {
+	Amount           *int64                  `json:"amount"`
+	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseType      *string                 `json:"license_type,omitempty"`
@@ -214,7 +220,12 @@ type ProcessIOSPurchaseRequest struct {
 
 // Product defines model for Product.
 type Product struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
+	// The currency amount in cents ($19.99)
+	Amount    *int64     `json:"amount,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+
+	// The currency code (ISO 4217)
+	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
@@ -258,6 +269,8 @@ type UpdateLicenseParams struct {
 
 // UpdateProductParams defines model for UpdateProductParams.
 type UpdateProductParams struct {
+	Amount           *int64                  `json:"amount"`
+	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseType      *string                 `json:"license_type"`
@@ -334,9 +347,9 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit        int     `json:"limit"`
-	Offset       int     `json:"offset"`
-	PlatformType *string `json:"platform_type,omitempty"`
+	Limit     int    `json:"limit"`
+	Offset    int    `json:"offset"`
+	ProjectId string `json:"project_id"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -993,14 +1006,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// ------------- Optional query parameter "platform_type" -------------
-	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "platform_type", r.URL.Query(), &params.PlatformType)
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 
