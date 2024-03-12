@@ -765,18 +765,18 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/license-service/payment-callback/{type}:
+  /api/license-service/payment-callback/{paygate_type}:
     post:
       summary: Handle payment callback for specific payment gateway
       tags:
         - post
-        - payment-callback-type
-      operationId: payment-callback-type
-      description: Handle payment callback for specific payment gateway
+        - payment-callback-paygate-type
+      operationId: payment-callback-paygate-type
+      description: Handle payment callback for specific pay gateway
       parameters:
-        - name: type
+        - name: paygate_type
           in: path
-          description: Payment gateway type
+          description: Pay gateway type
           required: true
           schema:
             type: string

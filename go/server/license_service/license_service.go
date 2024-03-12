@@ -336,8 +336,8 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
-// PaymentCallbackTypeParamsType defines parameters for PaymentCallbackType.
-type PaymentCallbackTypeParamsType string
+// PaymentCallbackPaygateTypeParamsPaygateType defines parameters for PaymentCallbackPaygateType.
+type PaymentCallbackPaygateTypeParamsPaygateType string
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
@@ -478,8 +478,8 @@ type ServerInterface interface {
 	// (POST /api/license-service/payment-callback)
 	PaymentCallback(w http.ResponseWriter, r *http.Request)
 	// Handle payment callback for specific payment gateway
-	// (POST /api/license-service/payment-callback/{type})
-	PaymentCallbackType(w http.ResponseWriter, r *http.Request, pType PaymentCallbackTypeParamsType)
+	// (POST /api/license-service/payment-callback/{paygate_type})
+	PaymentCallbackPaygateType(w http.ResponseWriter, r *http.Request, paygateType PaymentCallbackPaygateTypeParamsPaygateType)
 	// Get payment details
 	// (GET /api/license-service/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
@@ -918,18 +918,18 @@ func (siw *ServerInterfaceWrapper) PaymentCallback(w http.ResponseWriter, r *htt
 	handler(w, r.WithContext(ctx))
 }
 
-// PaymentCallbackType operation middleware
-func (siw *ServerInterfaceWrapper) PaymentCallbackType(w http.ResponseWriter, r *http.Request) {
+// PaymentCallbackPaygateType operation middleware
+func (siw *ServerInterfaceWrapper) PaymentCallbackPaygateType(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
 
-	// ------------- Path parameter "type" -------------
-	var pType PaymentCallbackTypeParamsType
+	// ------------- Path parameter "paygate_type" -------------
+	var paygateType PaymentCallbackPaygateTypeParamsPaygateType
 
-	err = runtime.BindStyledParameter("simple", false, "type", chi.URLParam(r, "type"), &pType)
+	err = runtime.BindStyledParameter("simple", false, "paygate_type", chi.URLParam(r, "paygate_type"), &paygateType)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "type", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "paygate_type", Err: err})
 		return
 	}
 
@@ -938,7 +938,7 @@ func (siw *ServerInterfaceWrapper) PaymentCallbackType(w http.ResponseWriter, r 
 	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PaymentCallbackType(w, r, pType)
+		siw.Handler.PaymentCallbackPaygateType(w, r, paygateType)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1553,7 +1553,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/license-service/payment-callback", wrapper.PaymentCallback)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/license-service/payment-callback/{type}", wrapper.PaymentCallbackType)
+		r.Post(options.BaseURL+"/api/license-service/payment-callback/{paygate_type}", wrapper.PaymentCallbackPaygateType)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
