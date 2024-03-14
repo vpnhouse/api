@@ -132,9 +132,8 @@ type FindPurchaseParams struct {
 
 // GetAvailableLicensesRequest defines model for GetAvailableLicensesRequest.
 type GetAvailableLicensesRequest struct {
-	PlatformType *string `json:"platform_type,omitempty"`
-	ProjectId    *string `json:"project_id,omitempty"`
-	UserId       *string `json:"user_id,omitempty"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
 }
 
 // License defines model for License.

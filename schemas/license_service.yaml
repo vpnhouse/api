@@ -1515,8 +1515,9 @@ components:
         user_id:
           type: string
           format: uuid
-        platform_type:
-          type: string
+      required:
+        - project_id
+        - user_id
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
