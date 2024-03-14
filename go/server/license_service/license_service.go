@@ -130,6 +130,13 @@ type FindPurchaseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// GetAvailableLicensesRequest defines model for GetAvailableLicensesRequest.
+type GetAvailableLicensesRequest struct {
+	PlatformType *string `json:"platform_type,omitempty"`
+	ProjectId    *string `json:"project_id,omitempty"`
+	UserId       *string `json:"user_id,omitempty"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -321,6 +328,9 @@ type FindProductJSONBody FindProductParams
 // FindPurchaseJSONBody defines parameters for FindPurchase.
 type FindPurchaseJSONBody FindPurchaseParams
 
+// GetAvailableLicensesJSONBody defines parameters for GetAvailableLicenses.
+type GetAvailableLicensesJSONBody GetAvailableLicensesRequest
+
 // ListLicenseParams defines parameters for ListLicense.
 type ListLicenseParams struct {
 	Limit  int `json:"limit"`
@@ -394,6 +404,9 @@ type FindProductJSONRequestBody FindProductJSONBody
 // FindPurchaseJSONRequestBody defines body for FindPurchase for application/json ContentType.
 type FindPurchaseJSONRequestBody FindPurchaseJSONBody
 
+// GetAvailableLicensesJSONRequestBody defines body for GetAvailableLicenses for application/json ContentType.
+type GetAvailableLicensesJSONRequestBody GetAvailableLicensesJSONBody
+
 // CreateLicenseJSONRequestBody defines body for CreateLicense for application/json ContentType.
 type CreateLicenseJSONRequestBody CreateLicenseJSONBody
 
@@ -453,6 +466,9 @@ type ServerInterface interface {
 	// Find purchase
 	// (GET /api/license-service/find-purchase)
 	FindPurchase(w http.ResponseWriter, r *http.Request)
+	// Get available licenses
+	// (GET /api/license-service/get-available-licenses)
+	GetAvailableLicenses(w http.ResponseWriter, r *http.Request)
 	// List licenses
 	// (GET /api/license-service/license)
 	ListLicense(w http.ResponseWriter, r *http.Request, params ListLicenseParams)
@@ -693,6 +709,25 @@ func (siw *ServerInterfaceWrapper) FindPurchase(w http.ResponseWriter, r *http.R
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.FindPurchase(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetAvailableLicenses operation middleware
+func (siw *ServerInterfaceWrapper) GetAvailableLicenses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAvailableLicenses(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1494,6 +1529,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/find-purchase", wrapper.FindPurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/get-available-licenses", wrapper.GetAvailableLicenses)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/license", wrapper.ListLicense)
