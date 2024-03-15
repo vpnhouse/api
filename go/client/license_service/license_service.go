@@ -136,6 +136,12 @@ type FindPurchaseParams struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// GetAvailableLicensesRequest defines model for GetAvailableLicensesRequest.
+type GetAvailableLicensesRequest struct {
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -327,6 +333,9 @@ type FindProductJSONBody FindProductParams
 // FindPurchaseJSONBody defines parameters for FindPurchase.
 type FindPurchaseJSONBody FindPurchaseParams
 
+// GetAvailableLicensesJSONBody defines parameters for GetAvailableLicenses.
+type GetAvailableLicensesJSONBody GetAvailableLicensesRequest
+
 // ListLicenseParams defines parameters for ListLicense.
 type ListLicenseParams struct {
 	Limit  int `json:"limit"`
@@ -399,6 +408,9 @@ type FindProductJSONRequestBody FindProductJSONBody
 
 // FindPurchaseJSONRequestBody defines body for FindPurchase for application/json ContentType.
 type FindPurchaseJSONRequestBody FindPurchaseJSONBody
+
+// GetAvailableLicensesJSONRequestBody defines body for GetAvailableLicenses for application/json ContentType.
+type GetAvailableLicensesJSONRequestBody GetAvailableLicensesJSONBody
 
 // CreateLicenseJSONRequestBody defines body for CreateLicense for application/json ContentType.
 type CreateLicenseJSONRequestBody CreateLicenseJSONBody
@@ -541,6 +553,11 @@ type ClientInterface interface {
 	FindPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	FindPurchase(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetAvailableLicenses request with any body
+	GetAvailableLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetAvailableLicenses(ctx context.Context, body GetAvailableLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListLicense request
 	ListLicense(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -779,6 +796,30 @@ func (c *Client) FindPurchaseWithBody(ctx context.Context, contentType string, b
 
 func (c *Client) FindPurchase(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewFindPurchaseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAvailableLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAvailableLicensesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetAvailableLicenses(ctx context.Context, body GetAvailableLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAvailableLicensesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1485,6 +1526,46 @@ func NewFindPurchaseRequestWithBody(server string, contentType string, body io.R
 	}
 
 	operationPath := fmt.Sprintf("/api/license-service/find-purchase")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetAvailableLicensesRequest calls the generic GetAvailableLicenses builder with application/json body
+func NewGetAvailableLicensesRequest(server string, body GetAvailableLicensesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetAvailableLicensesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetAvailableLicensesRequestWithBody generates requests for GetAvailableLicenses with any type of body
+func NewGetAvailableLicensesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/get-available-licenses")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2510,6 +2591,11 @@ type ClientWithResponsesInterface interface {
 
 	FindPurchaseWithResponse(ctx context.Context, body FindPurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*FindPurchaseResponse, error)
 
+	// GetAvailableLicenses request with any body
+	GetAvailableLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetAvailableLicensesResponse, error)
+
+	GetAvailableLicensesWithResponse(ctx context.Context, body GetAvailableLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*GetAvailableLicensesResponse, error)
+
 	// ListLicense request
 	ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error)
 
@@ -2777,6 +2863,33 @@ func (r FindPurchaseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r FindPurchaseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetAvailableLicensesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]License
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAvailableLicensesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAvailableLicensesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3447,6 +3560,23 @@ func (c *ClientWithResponses) FindPurchaseWithResponse(ctx context.Context, body
 	return ParseFindPurchaseResponse(rsp)
 }
 
+// GetAvailableLicensesWithBodyWithResponse request with arbitrary body returning *GetAvailableLicensesResponse
+func (c *ClientWithResponses) GetAvailableLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetAvailableLicensesResponse, error) {
+	rsp, err := c.GetAvailableLicensesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAvailableLicensesResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetAvailableLicensesWithResponse(ctx context.Context, body GetAvailableLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*GetAvailableLicensesResponse, error) {
+	rsp, err := c.GetAvailableLicenses(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAvailableLicensesResponse(rsp)
+}
+
 // ListLicenseWithResponse request returning *ListLicenseResponse
 func (c *ClientWithResponses) ListLicenseWithResponse(ctx context.Context, params *ListLicenseParams, reqEditors ...RequestEditorFn) (*ListLicenseResponse, error) {
 	rsp, err := c.ListLicense(ctx, params, reqEditors...)
@@ -4074,6 +4204,67 @@ func ParseFindPurchaseResponse(rsp *http.Response) (*FindPurchaseResponse, error
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest []Purchase
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetAvailableLicensesResponse parses an HTTP response from a GetAvailableLicensesWithResponse call
+func ParseGetAvailableLicensesResponse(rsp *http.Response) (*GetAvailableLicensesResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAvailableLicensesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []License
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
