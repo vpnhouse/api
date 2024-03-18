@@ -63,7 +63,6 @@ type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
 	ProductId string `json:"product_id"`
 	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.

@@ -62,9 +62,9 @@ type CreateFirebaseUserRequest struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	ProductId string  `json:"product_id"`
-	ProjectId *string `json:"project_id,omitempty"`
-	UserId    *string `json:"user_id,omitempty"`
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
