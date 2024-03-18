@@ -638,6 +638,42 @@ paths:
             schema:
               $ref: '#/components/schemas/FindLicenseParams'
 
+  /api/license-service/get-available-licenses:
+    get:
+      summary: Get available licenses
+      tags:
+        - get
+        - license
+      operationId: get-available-licenses
+      description: Get available licenses
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAvailableLicensesRequest'
+
   /api/license-service/apply-for-user-by-email:
     get:
       summary: Copy all purchases find by email and create new licenses for user in given project
@@ -1498,6 +1534,19 @@ components:
         project_id:
           type: string
           format: uuid
+    GetAvailableLicensesRequest:
+      title: GetAvailableLicensesRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - project_id
+        - user_id
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
