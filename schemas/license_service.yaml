@@ -1563,6 +1563,9 @@ components:
           format: uuid
         email:
           type: string
+        user_id:
+          type: string
+          format: uuid
       required:
         - project_id
         - product_id
