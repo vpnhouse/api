@@ -1665,6 +1665,8 @@ components:
       properties:
         signed_payload:
           type: string
+      required:
+        - signed_payload
   securitySchemes:
     ServiceKey:
       name: X-VPNHOUSE-SERVICE-KEY

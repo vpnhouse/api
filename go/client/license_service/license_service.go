@@ -41,7 +41,7 @@ type ApplyTrialLicenseRequest struct {
 
 // AppstoreNotificationsRequest defines model for AppstoreNotificationsRequest.
 type AppstoreNotificationsRequest struct {
-	SignedPayload *string `json:"signed_payload,omitempty"`
+	SignedPayload string `json:"signed_payload"`
 }
 
 // CreateLicenseParams defines model for CreateLicenseParams.
