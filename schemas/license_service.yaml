@@ -801,6 +801,32 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/license-service/appstore-notifications/v2:
+    post:
+      summary: Handle appstore notifications
+      tags:
+        - post
+        - appstore-notifications
+      operationId: appstore-notifications
+      description: Handle appstore notifications
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppstoreNotificationsRequest'
+
   /api/license-service/create-purchase-context:
     post:
       summary: Create new purchase context
@@ -1633,7 +1659,12 @@ components:
         - project_id
         - product_id
         - user_id
-
+    AppstoreNotificationsRequest:
+      title: AppstoreNotificationsRequest
+      type: object
+      properties:
+        signed_payload:
+          type: string
   securitySchemes:
     ServiceKey:
       name: X-VPNHOUSE-SERVICE-KEY

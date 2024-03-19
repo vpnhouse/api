@@ -33,6 +33,11 @@ type ApplyTrialLicenseRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// AppstoreNotificationsRequest defines model for AppstoreNotificationsRequest.
+type AppstoreNotificationsRequest struct {
+	SignedPayload *string `json:"signed_payload,omitempty"`
+}
+
 // CreateLicenseParams defines model for CreateLicenseParams.
 type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -308,6 +313,9 @@ type ApplyForUserByEmailJSONBody ApplyParams
 // ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
 type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
+// AppstoreNotificationsJSONBody defines parameters for AppstoreNotifications.
+type AppstoreNotificationsJSONBody AppstoreNotificationsRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -391,6 +399,9 @@ type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
 
+// AppstoreNotificationsJSONRequestBody defines body for AppstoreNotifications for application/json ContentType.
+type AppstoreNotificationsJSONRequestBody AppstoreNotificationsJSONBody
+
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
@@ -450,6 +461,9 @@ type ServerInterface interface {
 	// Apply trial license by given product
 	// (POST /api/license-service/apply-trial-license)
 	ApplyTrialLicense(w http.ResponseWriter, r *http.Request)
+	// Handle appstore notifications
+	// (POST /api/license-service/appstore-notifications/v2)
+	AppstoreNotifications(w http.ResponseWriter, r *http.Request)
 	// Create new purchase context
 	// (POST /api/license-service/create-purchase-context)
 	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
@@ -572,6 +586,25 @@ func (siw *ServerInterfaceWrapper) ApplyTrialLicense(w http.ResponseWriter, r *h
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyTrialLicense(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AppstoreNotifications operation middleware
+func (siw *ServerInterfaceWrapper) AppstoreNotifications(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AppstoreNotifications(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1513,6 +1546,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/apply-trial-license", wrapper.ApplyTrialLicense)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/appstore-notifications/v2", wrapper.AppstoreNotifications)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/create-purchase-context", wrapper.CreatePurchaseContext)
