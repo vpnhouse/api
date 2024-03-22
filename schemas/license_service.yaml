@@ -945,6 +945,58 @@ paths:
             schema:
               $ref: '#/components/schemas/AppstoreNotificationsRequest'
 
+  /api/license-service/restore-apple-licenses:
+    post:
+      summary: Restore apple licenses
+      tags:
+        - restore
+        - apple
+        - licenses
+      operationId: restore-apple-licenses
+      description: Restore apple licenses
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreAppleLicensesRequest'
+
+  /api/license-service/restore-google-licenses:
+    post:
+      summary: Restore google licenses
+      tags:
+        - restore
+        - google
+        - licenses
+      operationId: restore-google-licenses
+      description: Restore google licenses
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreGoogleLicensesRequest'
+
 components:
   schemas:
     Product:
@@ -1675,6 +1727,38 @@ components:
           type: string
       required:
         - signed_payload
+    RestoreAppleLicensesRequest:
+      title: RestoreAppleLicensesRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        receipt:
+          type: string
+      required:
+        - project_id
+        - user_id
+        - receipt
+    RestoreGoogleLicensesRequest:
+      title: RestoreGoogleLicensesRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        purchase_token:
+          type: string
+      required:
+        - project_id
+        - user_id
+        - purchase_token
 
   securitySchemes:
     ServiceKey:

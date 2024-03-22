@@ -266,6 +266,20 @@ type Purchase struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// RestoreAppleLicensesRequest defines model for RestoreAppleLicensesRequest.
+type RestoreAppleLicensesRequest struct {
+	ProjectId string `json:"project_id"`
+	Receipt   string `json:"receipt"`
+	UserId    string `json:"user_id"`
+}
+
+// RestoreGoogleLicensesRequest defines model for RestoreGoogleLicensesRequest.
+type RestoreGoogleLicensesRequest struct {
+	ProjectId     string `json:"project_id"`
+	PurchaseToken string `json:"purchase_token"`
+	UserId        string `json:"user_id"`
+}
+
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -395,6 +409,12 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
+// RestoreAppleLicensesJSONBody defines parameters for RestoreAppleLicenses.
+type RestoreAppleLicensesJSONBody RestoreAppleLicensesRequest
+
+// RestoreGoogleLicensesJSONBody defines parameters for RestoreGoogleLicenses.
+type RestoreGoogleLicensesJSONBody RestoreGoogleLicensesRequest
+
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
@@ -454,6 +474,12 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
+
+// RestoreAppleLicensesJSONRequestBody defines body for RestoreAppleLicenses for application/json ContentType.
+type RestoreAppleLicensesJSONRequestBody RestoreAppleLicensesJSONBody
+
+// RestoreGoogleLicensesJSONRequestBody defines body for RestoreGoogleLicenses for application/json ContentType.
+type RestoreGoogleLicensesJSONRequestBody RestoreGoogleLicensesJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -550,6 +576,12 @@ type ServerInterface interface {
 	// Update purchase
 	// (PUT /api/license-service/purchase/{id})
 	UpdatePurchase(w http.ResponseWriter, r *http.Request, id string)
+	// Restore apple licenses
+	// (POST /api/license-service/restore-apple-licenses)
+	RestoreAppleLicenses(w http.ResponseWriter, r *http.Request)
+	// Restore google licenses
+	// (POST /api/license-service/restore-google-licenses)
+	RestoreGoogleLicenses(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -1441,6 +1473,40 @@ func (siw *ServerInterfaceWrapper) UpdatePurchase(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// RestoreAppleLicenses operation middleware
+func (siw *ServerInterfaceWrapper) RestoreAppleLicenses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreAppleLicenses(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// RestoreGoogleLicenses operation middleware
+func (siw *ServerInterfaceWrapper) RestoreGoogleLicenses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreGoogleLicenses(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -1646,6 +1712,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/license-service/purchase/{id}", wrapper.UpdatePurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/restore-apple-licenses", wrapper.RestoreAppleLicenses)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/restore-google-licenses", wrapper.RestoreGoogleLicenses)
 	})
 
 	return r

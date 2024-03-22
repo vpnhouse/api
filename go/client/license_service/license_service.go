@@ -272,6 +272,20 @@ type Purchase struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// RestoreAppleLicensesRequest defines model for RestoreAppleLicensesRequest.
+type RestoreAppleLicensesRequest struct {
+	ProjectId string `json:"project_id"`
+	Receipt   string `json:"receipt"`
+	UserId    string `json:"user_id"`
+}
+
+// RestoreGoogleLicensesRequest defines model for RestoreGoogleLicensesRequest.
+type RestoreGoogleLicensesRequest struct {
+	ProjectId     string `json:"project_id"`
+	PurchaseToken string `json:"purchase_token"`
+	UserId        string `json:"user_id"`
+}
+
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -401,6 +415,12 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
+// RestoreAppleLicensesJSONBody defines parameters for RestoreAppleLicenses.
+type RestoreAppleLicensesJSONBody RestoreAppleLicensesRequest
+
+// RestoreGoogleLicensesJSONBody defines parameters for RestoreGoogleLicenses.
+type RestoreGoogleLicensesJSONBody RestoreGoogleLicensesRequest
+
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
@@ -460,6 +480,12 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
+
+// RestoreAppleLicensesJSONRequestBody defines body for RestoreAppleLicenses for application/json ContentType.
+type RestoreAppleLicensesJSONRequestBody RestoreAppleLicensesJSONBody
+
+// RestoreGoogleLicensesJSONRequestBody defines body for RestoreGoogleLicenses for application/json ContentType.
+type RestoreGoogleLicensesJSONRequestBody RestoreGoogleLicensesJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -666,6 +692,16 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestoreAppleLicenses request with any body
+	RestoreAppleLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RestoreAppleLicenses(ctx context.Context, body RestoreAppleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestoreGoogleLicenses request with any body
+	RestoreGoogleLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RestoreGoogleLicenses(ctx context.Context, body RestoreGoogleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1270,6 +1306,54 @@ func (c *Client) UpdatePurchaseWithBody(ctx context.Context, id string, contentT
 
 func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdatePurchaseRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreAppleLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreAppleLicensesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreAppleLicenses(ctx context.Context, body RestoreAppleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreAppleLicensesRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreGoogleLicensesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreGoogleLicensesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RestoreGoogleLicenses(ctx context.Context, body RestoreGoogleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestoreGoogleLicensesRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2613,6 +2697,86 @@ func NewUpdatePurchaseRequestWithBody(server string, id string, contentType stri
 	return req, nil
 }
 
+// NewRestoreAppleLicensesRequest calls the generic RestoreAppleLicenses builder with application/json body
+func NewRestoreAppleLicensesRequest(server string, body RestoreAppleLicensesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRestoreAppleLicensesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRestoreAppleLicensesRequestWithBody generates requests for RestoreAppleLicenses with any type of body
+func NewRestoreAppleLicensesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/restore-apple-licenses")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRestoreGoogleLicensesRequest calls the generic RestoreGoogleLicenses builder with application/json body
+func NewRestoreGoogleLicensesRequest(server string, body RestoreGoogleLicensesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRestoreGoogleLicensesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRestoreGoogleLicensesRequestWithBody generates requests for RestoreGoogleLicenses with any type of body
+func NewRestoreGoogleLicensesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/restore-google-licenses")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -2788,6 +2952,16 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
+
+	// RestoreAppleLicenses request with any body
+	RestoreAppleLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreAppleLicensesResponse, error)
+
+	RestoreAppleLicensesWithResponse(ctx context.Context, body RestoreAppleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreAppleLicensesResponse, error)
+
+	// RestoreGoogleLicenses request with any body
+	RestoreGoogleLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreGoogleLicensesResponse, error)
+
+	RestoreGoogleLicensesWithResponse(ctx context.Context, body RestoreGoogleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreGoogleLicensesResponse, error)
 }
 
 type ApplyForUserByEmailResponse struct {
@@ -3576,6 +3750,54 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+type RestoreAppleLicensesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RestoreAppleLicensesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestoreAppleLicensesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RestoreGoogleLicensesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RestoreGoogleLicensesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestoreGoogleLicensesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // ApplyForUserByEmailWithBodyWithResponse request with arbitrary body returning *ApplyForUserByEmailResponse
 func (c *ClientWithResponses) ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error) {
 	rsp, err := c.ApplyForUserByEmailWithBody(ctx, contentType, body, reqEditors...)
@@ -4013,6 +4235,40 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
+}
+
+// RestoreAppleLicensesWithBodyWithResponse request with arbitrary body returning *RestoreAppleLicensesResponse
+func (c *ClientWithResponses) RestoreAppleLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreAppleLicensesResponse, error) {
+	rsp, err := c.RestoreAppleLicensesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreAppleLicensesResponse(rsp)
+}
+
+func (c *ClientWithResponses) RestoreAppleLicensesWithResponse(ctx context.Context, body RestoreAppleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreAppleLicensesResponse, error) {
+	rsp, err := c.RestoreAppleLicenses(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreAppleLicensesResponse(rsp)
+}
+
+// RestoreGoogleLicensesWithBodyWithResponse request with arbitrary body returning *RestoreGoogleLicensesResponse
+func (c *ClientWithResponses) RestoreGoogleLicensesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RestoreGoogleLicensesResponse, error) {
+	rsp, err := c.RestoreGoogleLicensesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreGoogleLicensesResponse(rsp)
+}
+
+func (c *ClientWithResponses) RestoreGoogleLicensesWithResponse(ctx context.Context, body RestoreGoogleLicensesJSONRequestBody, reqEditors ...RequestEditorFn) (*RestoreGoogleLicensesResponse, error) {
+	rsp, err := c.RestoreGoogleLicenses(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestoreGoogleLicensesResponse(rsp)
 }
 
 // ParseApplyForUserByEmailResponse parses an HTTP response from a ApplyForUserByEmailWithResponse call
@@ -5536,6 +5792,86 @@ func ParseUpdatePurchaseResponse(rsp *http.Response) (*UpdatePurchaseResponse, e
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestoreAppleLicensesResponse parses an HTTP response from a RestoreAppleLicensesWithResponse call
+func ParseRestoreAppleLicensesResponse(rsp *http.Response) (*RestoreAppleLicensesResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestoreAppleLicensesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestoreGoogleLicensesResponse parses an HTTP response from a RestoreGoogleLicensesWithResponse call
+func ParseRestoreGoogleLicensesResponse(rsp *http.Response) (*RestoreGoogleLicensesResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestoreGoogleLicensesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
