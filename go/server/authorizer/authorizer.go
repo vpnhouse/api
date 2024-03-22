@@ -74,18 +74,20 @@ type CreatePurchaseContextResp struct {
 
 // License defines model for License.
 type License struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Disabled         *bool                   `json:"disabled,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	CreatedAt         *time.Time              `json:"created_at,omitempty"`
+	Disabled          *bool                   `json:"disabled,omitempty"`
+	EndAt             *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id                *string                 `json:"id,omitempty"`
+	PaymentRef        *string                 `json:"payment_ref,omitempty"`
+	ProductId         *string                 `json:"product_id,omitempty"`
+	ProjectId         *string                 `json:"project_id,omitempty"`
+	PurchaseContextId *string                 `json:"purchase_context_id,omitempty"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson      *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt           *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt         *time.Time              `json:"updated_at,omitempty"`
+	UserId            *string                 `json:"user_id,omitempty"`
 }
 
 // LicenseWithType defines model for LicenseWithType.

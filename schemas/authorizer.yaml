@@ -893,7 +893,13 @@ components:
         updated_at:
           type: string
           format: date-time
-        license_type:
+        product_id:
+          type: string
+          format: uuid
+        purchase_context_id:
+          type: string
+          format: uuid
+        payment_ref:
           type: string
     LicenseWithType:
       allOf:

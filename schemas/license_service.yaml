@@ -710,7 +710,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApplyParams'
+              $ref: '#/components/schemas/ApplyLicenseParams'
 
   /api/license-service/entitlements:
     get:
@@ -1430,7 +1430,13 @@ components:
         updated_at:
           type: string
           format: date-time
-        license_type:
+        product_id:
+          type: string
+          format: uuid
+        purchase_context_id:
+          type: string
+          format: uuid
+        payment_ref:
           type: string
     CreateLicenseParams:
       title: CreateLicenseParams
@@ -1464,6 +1470,17 @@ components:
         entitlements_json:
           type: object
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
       required:
         - project_id
         - user_id
@@ -1473,6 +1490,9 @@ components:
         - purchase_json
         - selector_json
         - entitlements_json
+        - product_id
+        - purchase_context_id
+        - payment_ref
     UpdateLicenseParams:
       title: UpdateLicenseParams
       type: object
@@ -1509,6 +1529,17 @@ components:
           type: string
           format: date-time
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
       required:
         - project_id
         - user_id
@@ -1519,6 +1550,9 @@ components:
         - selector_json
         - entitlements_json
         - updated_at
+        - product_id
+        - purchase_context_id
+        - payment_ref
     PatchLicenseParams:
       title: PatchLicenseParams
       type: object
@@ -1546,6 +1580,17 @@ components:
         updated_at:
           type: string
           format: date-time
+          nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
           nullable: true
       required:
         - updated_at
@@ -1579,8 +1624,19 @@ components:
         updated_at:
           type: string
           format: date-time
-    ApplyParams:
-      title: ApplyParams
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
+    ApplyLicenseParams:
+      title: ApplyLicenseParams
       type: object
       properties:
         email:
