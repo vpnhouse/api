@@ -141,6 +141,11 @@ type GetAvailableLicensesRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// GetAvailableLicensesResp defines model for GetAvailableLicensesResp.
+type GetAvailableLicensesResp struct {
+	Licenses []LicenseWithType `json:"licenses"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -155,6 +160,14 @@ type License struct {
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// LicenseWithType defines model for LicenseWithType.
+type LicenseWithType struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	LicenseType *string `json:"license_type,omitempty"`
 }
 
 // PatchLicenseParams defines model for PatchLicenseParams.

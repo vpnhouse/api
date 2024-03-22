@@ -4,11 +4,11 @@
 package authorizer
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -92,6 +92,19 @@ type License struct {
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// LicenseWithType defines model for LicenseWithType.
+type LicenseWithType struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	LicenseType *string `json:"license_type,omitempty"`
+}
+
+// ListLicenseByUserResp defines model for ListLicenseByUserResp.
+type ListLicenseByUserResp struct {
+	Licenses []LicenseWithType `json:"licenses"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
@@ -2001,7 +2014,7 @@ func (r GetFirebasePublicKeyResponse) StatusCode() int {
 type ListLicenseByUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]License
+	JSON200      *ListLicenseByUserResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -2955,7 +2968,7 @@ func ParseListLicenseByUserResponse(rsp *http.Response) (*ListLicenseByUserRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []License
+		var dest ListLicenseByUserResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

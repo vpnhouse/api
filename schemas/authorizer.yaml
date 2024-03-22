@@ -322,9 +322,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/License'
+                $ref: '#/components/schemas/ListLicenseByUserResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -896,6 +894,23 @@ components:
           format: date-time
         license_type:
           type: string
+    LicenseWithType:
+      allOf:
+        - $ref: '#/components/schemas/License'
+        - type: object
+          properties:
+            license_type:
+              type: string
+    ListLicenseByUserResp:
+      title: ListLicenseByUserResponse
+      type: object
+      properties:
+        licenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LicenseWithType'
+      required:
+        - licenses
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object

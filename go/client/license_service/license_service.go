@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -147,6 +147,11 @@ type GetAvailableLicensesRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// GetAvailableLicensesResp defines model for GetAvailableLicensesResp.
+type GetAvailableLicensesResp struct {
+	Licenses []LicenseWithType `json:"licenses"`
+}
+
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -161,6 +166,14 @@ type License struct {
 	StartAt          *time.Time              `json:"start_at,omitempty"`
 	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
 	UserId           *string                 `json:"user_id,omitempty"`
+}
+
+// LicenseWithType defines model for LicenseWithType.
+type LicenseWithType struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	LicenseType *string `json:"license_type,omitempty"`
 }
 
 // PatchLicenseParams defines model for PatchLicenseParams.
@@ -3173,7 +3186,7 @@ func (r FindPurchaseResponse) StatusCode() int {
 type GetAvailableLicensesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]License
+	JSON200      *GetAvailableLicensesResp
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -4704,7 +4717,7 @@ func ParseGetAvailableLicensesResponse(rsp *http.Response) (*GetAvailableLicense
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []License
+		var dest GetAvailableLicensesResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

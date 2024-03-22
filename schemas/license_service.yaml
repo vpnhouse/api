@@ -662,9 +662,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/License'
+                  $ref: '#/components/schemas/GetAvailableLicensesResp'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -1605,6 +1603,23 @@ components:
       required:
         - project_id
         - user_id
+    LicenseWithType:
+      allOf:
+        - $ref: '#/components/schemas/License'
+        - type: object
+          properties:
+            license_type:
+              type: string
+    GetAvailableLicensesResp:
+      title: GetAvailableLicensesResp
+      type: object
+      properties:
+        licenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LicenseWithType'
+      required:
+        - licenses
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object

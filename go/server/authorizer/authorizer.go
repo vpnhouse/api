@@ -88,6 +88,19 @@ type License struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// LicenseWithType defines model for LicenseWithType.
+type LicenseWithType struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	LicenseType *string `json:"license_type,omitempty"`
+}
+
+// ListLicenseByUserResp defines model for ListLicenseByUserResp.
+type ListLicenseByUserResp struct {
+	Licenses []LicenseWithType `json:"licenses"`
+}
+
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
 	Email          string  `json:"email"`

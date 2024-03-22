@@ -3,8 +3,8 @@
 fix_external_ref_bug() {
     target=$1
     import_line=$2
-    ln=$(grep -m1 -n "$import_line" $target | cut -d: -f1)
-    ed $target << END
+    ln=$(grep -m1 -n "$import_line" "$target" | cut -d: -f1)
+    ed "$target" << END
 ${ln}a
     externalRef1 "github.com/vpnhouse/api/go/server/common"
 .
@@ -12,14 +12,14 @@ w
 q
 END
 
-    sed -i -e 's/*Error/*externalRef1.Error/g' $target
-    sed -i -e 's/var dest Error/var dest externalRef1.Error/g' $target
+    sed -i -e 's/*Error/*externalRef1.Error/g' "$target"
+    sed -i -e 's/var dest Error/var dest externalRef1.Error/g' "$target"
 }
 
 for conf_name in *.conf; do
     schema_name="../schemas/${conf_name%%.*}.yaml"
     echo "$schema_name..."
-    oapi-codegen -config $conf_name $schema_name
+    oapi-codegen -config "$conf_name" "$schema_name"
 done
 
 # note: the code below exists because of this issue:
