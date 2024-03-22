@@ -147,11 +147,6 @@ type GetAvailableLicensesRequest struct {
 	UserId    string `json:"user_id"`
 }
 
-// GetAvailableLicensesResp defines model for GetAvailableLicensesResp.
-type GetAvailableLicensesResp struct {
-	Licenses []LicenseWithType `json:"licenses"`
-}
-
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`
@@ -3186,7 +3181,7 @@ func (r FindPurchaseResponse) StatusCode() int {
 type GetAvailableLicensesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *GetAvailableLicensesResp
+	JSON200      *interface{}
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -4717,7 +4712,7 @@ func ParseGetAvailableLicensesResponse(rsp *http.Response) (*GetAvailableLicense
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest GetAvailableLicensesResp
+		var dest interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

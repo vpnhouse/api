@@ -141,11 +141,6 @@ type GetAvailableLicensesRequest struct {
 	UserId    string `json:"user_id"`
 }
 
-// GetAvailableLicensesResp defines model for GetAvailableLicensesResp.
-type GetAvailableLicensesResp struct {
-	Licenses []LicenseWithType `json:"licenses"`
-}
-
 // License defines model for License.
 type License struct {
 	CreatedAt        *time.Time              `json:"created_at,omitempty"`

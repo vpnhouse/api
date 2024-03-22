@@ -102,11 +102,6 @@ type LicenseWithType struct {
 	LicenseType *string `json:"license_type,omitempty"`
 }
 
-// ListLicenseByUserResp defines model for ListLicenseByUserResp.
-type ListLicenseByUserResp struct {
-	Licenses []LicenseWithType `json:"licenses"`
-}
-
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
 	Email          string  `json:"email"`
@@ -2014,7 +2009,7 @@ func (r GetFirebasePublicKeyResponse) StatusCode() int {
 type ListLicenseByUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *ListLicenseByUserResp
+	JSON200      *interface{}
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -2968,7 +2963,7 @@ func ParseListLicenseByUserResponse(rsp *http.Response) (*ListLicenseByUserRespo
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ListLicenseByUserResp
+		var dest interface{}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
