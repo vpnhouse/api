@@ -351,6 +351,9 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// PaymentCallbackPaygateTypeParamsPaygateType defines parameters for PaymentCallbackPaygateType.
+type PaymentCallbackPaygateTypeParamsPaygateType string
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
 
@@ -585,6 +588,9 @@ type ClientInterface interface {
 
 	// PaymentCallback request
 	PaymentCallback(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PaymentCallbackPaygateType request
+	PaymentCallbackPaygateType(ctx context.Context, paygateType PaymentCallbackPaygateTypeParamsPaygateType, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PaymentDetails request with any body
 	PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -940,6 +946,18 @@ func (c *Client) UpdateLicense(ctx context.Context, id string, body UpdateLicens
 
 func (c *Client) PaymentCallback(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPaymentCallbackRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PaymentCallbackPaygateType(ctx context.Context, paygateType PaymentCallbackPaygateTypeParamsPaygateType, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPaymentCallbackPaygateTypeRequest(c.Server, paygateType)
 	if err != nil {
 		return nil, err
 	}
@@ -1869,6 +1887,40 @@ func NewPaymentCallbackRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewPaymentCallbackPaygateTypeRequest generates requests for PaymentCallbackPaygateType
+func NewPaymentCallbackPaygateTypeRequest(server string, paygateType PaymentCallbackPaygateTypeParamsPaygateType) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paygate_type", runtime.ParamLocationPath, paygateType)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/payment-callback/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPaymentDetailsRequest calls the generic PaymentDetails builder with application/json body
 func NewPaymentDetailsRequest(server string, body PaymentDetailsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -2623,6 +2675,9 @@ type ClientWithResponsesInterface interface {
 	// PaymentCallback request
 	PaymentCallbackWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*PaymentCallbackResponse, error)
 
+	// PaymentCallbackPaygateType request
+	PaymentCallbackPaygateTypeWithResponse(ctx context.Context, paygateType PaymentCallbackPaygateTypeParamsPaygateType, reqEditors ...RequestEditorFn) (*PaymentCallbackPaygateTypeResponse, error)
+
 	// PaymentDetails request with any body
 	PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
 
@@ -3066,6 +3121,30 @@ func (r PaymentCallbackResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PaymentCallbackResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PaymentCallbackPaygateTypeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PaymentCallbackPaygateTypeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PaymentCallbackPaygateTypeResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3662,6 +3741,15 @@ func (c *ClientWithResponses) PaymentCallbackWithResponse(ctx context.Context, r
 		return nil, err
 	}
 	return ParsePaymentCallbackResponse(rsp)
+}
+
+// PaymentCallbackPaygateTypeWithResponse request returning *PaymentCallbackPaygateTypeResponse
+func (c *ClientWithResponses) PaymentCallbackPaygateTypeWithResponse(ctx context.Context, paygateType PaymentCallbackPaygateTypeParamsPaygateType, reqEditors ...RequestEditorFn) (*PaymentCallbackPaygateTypeResponse, error) {
+	rsp, err := c.PaymentCallbackPaygateType(ctx, paygateType, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePaymentCallbackPaygateTypeResponse(rsp)
 }
 
 // PaymentDetailsWithBodyWithResponse request with arbitrary body returning *PaymentDetailsResponse
@@ -4615,6 +4703,46 @@ func ParsePaymentCallbackResponse(rsp *http.Response) (*PaymentCallbackResponse,
 	}
 
 	response := &PaymentCallbackResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePaymentCallbackPaygateTypeResponse parses an HTTP response from a PaymentCallbackPaygateTypeWithResponse call
+func ParsePaymentCallbackPaygateTypeResponse(rsp *http.Response) (*PaymentCallbackPaygateTypeResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PaymentCallbackPaygateTypeResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
