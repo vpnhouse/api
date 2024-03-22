@@ -62,9 +62,9 @@ type CreateFirebaseUserRequest struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	ProductId string  `json:"product_id"`
-	ProjectId *string `json:"project_id,omitempty"`
-	UserId    *string `json:"user_id,omitempty"`
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
@@ -79,6 +79,7 @@ type License struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -138,6 +139,20 @@ type Product struct {
 
 // PurgeUserRequest defines model for PurgeUserRequest.
 type PurgeUserRequest struct {
+	ApiKey    string `json:"api_key"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// RestoreAppleLicensesRequest defines model for RestoreAppleLicensesRequest.
+type RestoreAppleLicensesRequest struct {
+	ApiKey    string `json:"api_key"`
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
+// RestoreGoogleLicensesRequest defines model for RestoreGoogleLicensesRequest.
+type RestoreGoogleLicensesRequest struct {
 	ApiKey    string `json:"api_key"`
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
@@ -204,13 +219,20 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int     `json:"limit"`
-	Offset    int     `json:"offset"`
-	ProjectId *string `json:"project_id,omitempty"`
+	Limit       int       `json:"limit"`
+	Offset      int       `json:"offset"`
+	ProjectId   *string   `json:"project_id,omitempty"`
+	PaymentType *[]string `json:"payment_type,omitempty"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
 type PurgeUserJSONBody PurgeUserRequest
+
+// RestoreAppleLicensesJSONBody defines parameters for RestoreAppleLicenses.
+type RestoreAppleLicensesJSONBody RestoreAppleLicensesRequest
+
+// RestoreGoogleLicensesJSONBody defines parameters for RestoreGoogleLicenses.
+type RestoreGoogleLicensesJSONBody RestoreGoogleLicensesRequest
 
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
@@ -250,6 +272,12 @@ type ProcessIosPurchaseJSONRequestBody ProcessIosPurchaseJSONBody
 
 // PurgeUserJSONRequestBody defines body for PurgeUser for application/json ContentType.
 type PurgeUserJSONRequestBody PurgeUserJSONBody
+
+// RestoreAppleLicensesJSONRequestBody defines body for RestoreAppleLicenses for application/json ContentType.
+type RestoreAppleLicensesJSONRequestBody RestoreAppleLicensesJSONBody
+
+// RestoreGoogleLicensesJSONRequestBody defines body for RestoreGoogleLicenses for application/json ContentType.
+type RestoreGoogleLicensesJSONRequestBody RestoreGoogleLicensesJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
@@ -307,6 +335,12 @@ type ServerInterface interface {
 	// Purge a specific user by id
 	// (POST /api/client/purge-user)
 	PurgeUser(w http.ResponseWriter, r *http.Request)
+	// Restore apple licenses
+	// (POST /api/client/restore-apple-licenses)
+	RestoreAppleLicenses(w http.ResponseWriter, r *http.Request)
+	// Restore google licenses
+	// (POST /api/client/restore-google-licenses)
+	RestoreGoogleLicenses(w http.ResponseWriter, r *http.Request)
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
@@ -587,6 +621,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// ------------- Optional query parameter "payment_type" -------------
+	if paramValue := r.URL.Query().Get("payment_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "payment_type", r.URL.Query(), &params.PaymentType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "payment_type", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
 	}
@@ -606,6 +651,40 @@ func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Requ
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PurgeUser(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// RestoreAppleLicenses operation middleware
+func (siw *ServerInterfaceWrapper) RestoreAppleLicenses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreAppleLicenses(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// RestoreGoogleLicenses operation middleware
+func (siw *ServerInterfaceWrapper) RestoreGoogleLicenses(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RestoreGoogleLicenses(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -881,6 +960,12 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/purge-user", wrapper.PurgeUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/restore-apple-licenses", wrapper.RestoreAppleLicenses)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/restore-google-licenses", wrapper.RestoreGoogleLicenses)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)

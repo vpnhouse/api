@@ -27,6 +27,13 @@ paths:
           name: project_id
           in: query
           required: true
+        - schema:
+            type: array
+            items:
+              type: string
+          name: payment_type
+          in: query
+          required: false
       summary: List products
       tags:
         - list
@@ -911,6 +918,32 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ApplyTrialLicenseRequest'
+    
+  /api/license-service/appstore-notifications/v2:
+    post:
+      summary: Handle appstore notifications
+      tags:
+        - post
+        - appstore-notifications
+      operationId: appstore-notifications
+      description: Handle appstore notifications
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppstoreNotificationsRequest'
 
 components:
   schemas:
@@ -1346,6 +1379,8 @@ components:
         updated_at:
           type: string
           format: date-time
+        license_type:
+          type: string
     CreateLicenseParams:
       title: CreateLicenseParams
       type: object
@@ -1569,7 +1604,6 @@ components:
       required:
         - project_id
         - product_id
-        - user_id
         - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
@@ -1633,6 +1667,14 @@ components:
         - project_id
         - product_id
         - user_id
+    AppstoreNotificationsRequest:
+      title: AppstoreNotificationsRequest
+      type: object
+      properties:
+        signed_payload:
+          type: string
+      required:
+        - signed_payload
 
   securitySchemes:
     ServiceKey:

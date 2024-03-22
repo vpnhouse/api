@@ -4,6 +4,7 @@
 package project_service
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -16,7 +17,6 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (

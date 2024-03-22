@@ -4,7 +4,7 @@
 package client_service
 
 import (
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"context"
 	"encoding/json"
 	"fmt"

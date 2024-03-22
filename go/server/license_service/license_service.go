@@ -33,6 +33,11 @@ type ApplyTrialLicenseRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// AppstoreNotificationsRequest defines model for AppstoreNotificationsRequest.
+type AppstoreNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
+}
+
 // CreateLicenseParams defines model for CreateLicenseParams.
 type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -60,10 +65,10 @@ type CreateProductParams struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	Email     string `json:"email"`
-	ProductId string `json:"product_id"`
-	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
+	Email     string  `json:"email"`
+	ProductId string  `json:"product_id"`
+	ProjectId string  `json:"project_id"`
+	UserId    *string `json:"user_id,omitempty"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
@@ -143,6 +148,7 @@ type License struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -308,6 +314,9 @@ type ApplyForUserByEmailJSONBody ApplyParams
 // ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
 type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
+// AppstoreNotificationsJSONBody defines parameters for AppstoreNotifications.
+type AppstoreNotificationsJSONBody AppstoreNotificationsRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -356,9 +365,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int    `json:"limit"`
-	Offset    int    `json:"offset"`
-	ProjectId string `json:"project_id"`
+	Limit       int       `json:"limit"`
+	Offset      int       `json:"offset"`
+	ProjectId   string    `json:"project_id"`
+	PaymentType *[]string `json:"payment_type,omitempty"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -390,6 +400,9 @@ type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
+
+// AppstoreNotificationsJSONRequestBody defines body for AppstoreNotifications for application/json ContentType.
+type AppstoreNotificationsJSONRequestBody AppstoreNotificationsJSONBody
 
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
@@ -450,6 +463,9 @@ type ServerInterface interface {
 	// Apply trial license by given product
 	// (POST /api/license-service/apply-trial-license)
 	ApplyTrialLicense(w http.ResponseWriter, r *http.Request)
+	// Handle appstore notifications
+	// (POST /api/license-service/appstore-notifications/v2)
+	AppstoreNotifications(w http.ResponseWriter, r *http.Request)
 	// Create new purchase context
 	// (POST /api/license-service/create-purchase-context)
 	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
@@ -572,6 +588,25 @@ func (siw *ServerInterfaceWrapper) ApplyTrialLicense(w http.ResponseWriter, r *h
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ApplyTrialLicense(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// AppstoreNotifications operation middleware
+func (siw *ServerInterfaceWrapper) AppstoreNotifications(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AppstoreNotifications(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1054,6 +1089,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	// ------------- Optional query parameter "payment_type" -------------
+	if paramValue := r.URL.Query().Get("payment_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "payment_type", r.URL.Query(), &params.PaymentType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "payment_type", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListProduct(w, r, params)
 	}
@@ -1513,6 +1559,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/apply-trial-license", wrapper.ApplyTrialLicense)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/appstore-notifications/v2", wrapper.AppstoreNotifications)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/create-purchase-context", wrapper.CreatePurchaseContext)

@@ -4,6 +4,7 @@
 package discovery
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -368,9 +369,9 @@ type GetCredentialsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]Node
-	JSON401      *Error
-	JSON403      *Error
-	JSON500      *Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -393,9 +394,9 @@ type GetLocationsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]Location
-	JSON401      *Error
-	JSON403      *Error
-	JSON500      *Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -418,9 +419,9 @@ type GetOptimalResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]Node
-	JSON401      *Error
-	JSON403      *Error
-	JSON500      *Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -488,21 +489,21 @@ func ParseGetCredentialsResponse(rsp *http.Response) (*GetCredentialsResponse, e
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -535,21 +536,21 @@ func ParseGetLocationsResponse(rsp *http.Response) (*GetLocationsResponse, error
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -582,21 +583,21 @@ func ParseGetOptimalResponse(rsp *http.Response) (*GetOptimalResponse, error) {
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

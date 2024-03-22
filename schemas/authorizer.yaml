@@ -277,6 +277,13 @@ paths:
           name: project_id
           in: query
           required: false
+        - schema:
+            type: array
+            items:
+              type: string
+          name: payment_type
+          in: query
+          required: false
       summary: List product
       tags:
         - list
@@ -559,6 +566,56 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client/restore-apple-licenses:
+    post:
+      summary: Restore apple licenses
+      tags:
+        - restore
+        - apple
+        - licenses
+      operationId: restore-apple-licenses
+      description: Restore apple licenses
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreAppleLicensesRequest'
+  /api/client/restore-google-licenses:
+    post:
+      summary: Restore google licenses
+      tags:
+        - restore
+        - google
+        - licenses
+      operationId: restore-google-licenses
+      description: Restore google licenses
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreGoogleLicensesRequest'
 
 components:
   schemas:
@@ -837,6 +894,8 @@ components:
         updated_at:
           type: string
           format: date-time
+        license_type:
+          type: string
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
@@ -877,11 +936,12 @@ components:
         product_id:
           type: string
           format: uuid
-        user_id:
+        email:
           type: string
-          format: uuid
       required:
+        - project_id
         - product_id
+        - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
       type: object
@@ -938,6 +998,38 @@ components:
         - product_id
     PurgeUserRequest:
       title: PurgeUserRequest
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        api_key:
+          type: string
+      required:
+        - user_id
+        - project_id
+        - api_key
+    RestoreAppleLicensesRequest:
+      title: RestoreAppleLicensesRequest
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        api_key:
+          type: string
+      required:
+        - user_id
+        - project_id
+        - api_key
+    RestoreGoogleLicensesRequest:
+      title: RestoreGoogleLicensesRequest
       type: object
       properties:
         user_id:

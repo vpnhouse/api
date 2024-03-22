@@ -4,6 +4,7 @@
 package license_service
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -16,7 +17,6 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -37,6 +37,11 @@ type ApplyTrialLicenseRequest struct {
 	ProductId string `json:"product_id"`
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
+}
+
+// AppstoreNotificationsRequest defines model for AppstoreNotificationsRequest.
+type AppstoreNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
 }
 
 // CreateLicenseParams defines model for CreateLicenseParams.
@@ -66,10 +71,10 @@ type CreateProductParams struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	Email     string `json:"email"`
-	ProductId string `json:"product_id"`
-	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
+	Email     string  `json:"email"`
+	ProductId string  `json:"product_id"`
+	ProjectId string  `json:"project_id"`
+	UserId    *string `json:"user_id,omitempty"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
@@ -149,6 +154,7 @@ type License struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	LicenseType      *string                 `json:"license_type,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -314,6 +320,9 @@ type ApplyForUserByEmailJSONBody ApplyParams
 // ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
 type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
+// AppstoreNotificationsJSONBody defines parameters for AppstoreNotifications.
+type AppstoreNotificationsJSONBody AppstoreNotificationsRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -362,9 +371,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int    `json:"limit"`
-	Offset    int    `json:"offset"`
-	ProjectId string `json:"project_id"`
+	Limit       int       `json:"limit"`
+	Offset      int       `json:"offset"`
+	ProjectId   string    `json:"project_id"`
+	PaymentType *[]string `json:"payment_type,omitempty"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -396,6 +406,9 @@ type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
+
+// AppstoreNotificationsJSONRequestBody defines body for AppstoreNotifications for application/json ContentType.
+type AppstoreNotificationsJSONRequestBody AppstoreNotificationsJSONBody
 
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
@@ -530,6 +543,11 @@ type ClientInterface interface {
 	ApplyTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ApplyTrialLicense(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AppstoreNotifications request with any body
+	AppstoreNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AppstoreNotifications(ctx context.Context, body AppstoreNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePurchaseContext request with any body
 	CreatePurchaseContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -688,6 +706,30 @@ func (c *Client) ApplyTrialLicenseWithBody(ctx context.Context, contentType stri
 
 func (c *Client) ApplyTrialLicense(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewApplyTrialLicenseRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AppstoreNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppstoreNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AppstoreNotifications(ctx context.Context, body AppstoreNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppstoreNotificationsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1299,6 +1341,46 @@ func NewApplyTrialLicenseRequestWithBody(server string, contentType string, body
 	}
 
 	operationPath := fmt.Sprintf("/api/license-service/apply-trial-license")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewAppstoreNotificationsRequest calls the generic AppstoreNotifications builder with application/json body
+func NewAppstoreNotificationsRequest(server string, body AppstoreNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAppstoreNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAppstoreNotificationsRequestWithBody generates requests for AppstoreNotifications with any type of body
+func NewAppstoreNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/appstore-notifications/v2")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2046,6 +2128,22 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 		}
 	}
 
+	if params.PaymentType != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "payment_type", runtime.ParamLocationQuery, *params.PaymentType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
 	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -2568,6 +2666,11 @@ type ClientWithResponsesInterface interface {
 
 	ApplyTrialLicenseWithResponse(ctx context.Context, body ApplyTrialLicenseJSONRequestBody, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error)
 
+	// AppstoreNotifications request with any body
+	AppstoreNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppstoreNotificationsResponse, error)
+
+	AppstoreNotificationsWithResponse(ctx context.Context, body AppstoreNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppstoreNotificationsResponse, error)
+
 	// CreatePurchaseContext request with any body
 	CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error)
 
@@ -2731,6 +2834,30 @@ func (r ApplyTrialLicenseResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ApplyTrialLicenseResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AppstoreNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r AppstoreNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AppstoreNotificationsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3483,6 +3610,23 @@ func (c *ClientWithResponses) ApplyTrialLicenseWithResponse(ctx context.Context,
 	return ParseApplyTrialLicenseResponse(rsp)
 }
 
+// AppstoreNotificationsWithBodyWithResponse request with arbitrary body returning *AppstoreNotificationsResponse
+func (c *ClientWithResponses) AppstoreNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppstoreNotificationsResponse, error) {
+	rsp, err := c.AppstoreNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppstoreNotificationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) AppstoreNotificationsWithResponse(ctx context.Context, body AppstoreNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppstoreNotificationsResponse, error) {
+	rsp, err := c.AppstoreNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppstoreNotificationsResponse(rsp)
+}
+
 // CreatePurchaseContextWithBodyWithResponse request with arbitrary body returning *CreatePurchaseContextResponse
 func (c *ClientWithResponses) CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error) {
 	rsp, err := c.CreatePurchaseContextWithBody(ctx, contentType, body, reqEditors...)
@@ -3939,6 +4083,46 @@ func ParseApplyTrialLicenseResponse(rsp *http.Response) (*ApplyTrialLicenseRespo
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAppstoreNotificationsResponse parses an HTTP response from a AppstoreNotificationsWithResponse call
+func ParseAppstoreNotificationsResponse(rsp *http.Response) (*AppstoreNotificationsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AppstoreNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

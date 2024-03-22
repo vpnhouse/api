@@ -4,6 +4,7 @@
 package dashboard
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -421,9 +422,9 @@ type DailySessionsSummaryResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DailySessionsSummary
-	JSON401      *Error
-	JSON403      *Error
-	JSON500      *Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -446,9 +447,9 @@ type DailyUserSessionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *DailyUserSessions
-	JSON401      *Error
-	JSON403      *Error
-	JSON500      *Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
 }
 
 // Status returns HTTPResponse.Status
@@ -507,21 +508,21 @@ func ParseDailySessionsSummaryResponse(rsp *http.Response) (*DailySessionsSummar
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -554,21 +555,21 @@ func ParseDailyUserSessionsResponse(rsp *http.Response) (*DailyUserSessionsRespo
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON401 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest Error
+		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
