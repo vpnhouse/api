@@ -1216,6 +1216,14 @@ components:
           format: uuid
         processed:
           type: boolean
+        purchase_context_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        payment_ref:
+          type: string
         created_at:
           type: string
           format: date-time
@@ -1261,6 +1269,17 @@ components:
         processed:
           type: boolean
           nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
       required:
         - project_id
         - email
@@ -1272,6 +1291,9 @@ components:
         - entitlements_json
         - license_id
         - processed
+        - purchase_context_id
+        - product_id
+        - payment_ref
     UpdatePurchaseParams:
       title: UpdatePurchaseParams
       type: object
@@ -1315,6 +1337,17 @@ components:
           type: string
           format: date-time
           nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
       required:
         - project_id
         - email
@@ -1327,6 +1360,9 @@ components:
         - license_id
         - processed
         - updated_at
+        - purchase_context_id
+        - product_id
+        - payment_ref
     PatchPurchaseParams:
       title: PatchPurchaseParams
       type: object
@@ -1359,6 +1395,17 @@ components:
         updated_at:
           type: string
           format: date-time
+          nullable: true
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
           nullable: true
       required:
         - updated_at
@@ -1397,6 +1444,17 @@ components:
         updated_at:
           type: string
           format: date-time
+        purchase_context_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
+        payment_ref:
+          type: string
+          nullable: true
     License:
       title: License
       type: object

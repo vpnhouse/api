@@ -87,16 +87,19 @@ type CreatePurchaseContextResp struct {
 
 // CreatePurchaseParams defines model for CreatePurchaseParams.
 type CreatePurchaseParams struct {
-	Email            *string                 `json:"email"`
-	EndAt            *time.Time              `json:"end_at"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LicenseId        *string                 `json:"license_id"`
-	Processed        *bool                   `json:"processed"`
-	ProjectId        *string                 `json:"project_id"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	StartAt          *time.Time              `json:"start_at"`
-	UserId           *string                 `json:"user_id"`
+	Email             *string                 `json:"email"`
+	EndAt             *time.Time              `json:"end_at"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json"`
+	LicenseId         *string                 `json:"license_id"`
+	PaymentRef        *string                 `json:"payment_ref"`
+	Processed         *bool                   `json:"processed"`
+	ProductId         *string                 `json:"product_id"`
+	ProjectId         *string                 `json:"project_id"`
+	PurchaseContextId *string                 `json:"purchase_context_id"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json"`
+	SelectorJson      *map[string]interface{} `json:"selector_json"`
+	StartAt           *time.Time              `json:"start_at"`
+	UserId            *string                 `json:"user_id"`
 }
 
 // FindLicenseParams defines model for FindLicenseParams.
@@ -133,18 +136,21 @@ type FindProductParams struct {
 
 // FindPurchaseParams defines model for FindPurchaseParams.
 type FindPurchaseParams struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Email            *string                 `json:"email,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LicenseId        *string                 `json:"license_id,omitempty"`
-	Processed        *bool                   `json:"processed,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	CreatedAt         *time.Time              `json:"created_at,omitempty"`
+	Email             *string                 `json:"email,omitempty"`
+	EndAt             *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseId         *string                 `json:"license_id,omitempty"`
+	PaymentRef        *string                 `json:"payment_ref"`
+	Processed         *bool                   `json:"processed,omitempty"`
+	ProductId         *string                 `json:"product_id"`
+	ProjectId         *string                 `json:"project_id,omitempty"`
+	PurchaseContextId *string                 `json:"purchase_context_id"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson      *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt           *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt         *time.Time              `json:"updated_at,omitempty"`
+	UserId            *string                 `json:"user_id,omitempty"`
 }
 
 // GetAvailableLicensesRequest defines model for GetAvailableLicensesRequest.
@@ -211,17 +217,20 @@ type PatchProductParams struct {
 
 // PatchPurchaseParams defines model for PatchPurchaseParams.
 type PatchPurchaseParams struct {
-	Email            *string                 `json:"email,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LicenseId        *string                 `json:"license_id,omitempty"`
-	Processed        *bool                   `json:"processed,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	Email             *string                 `json:"email,omitempty"`
+	EndAt             *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LicenseId         *string                 `json:"license_id,omitempty"`
+	PaymentRef        *string                 `json:"payment_ref"`
+	Processed         *bool                   `json:"processed,omitempty"`
+	ProductId         *string                 `json:"product_id"`
+	ProjectId         *string                 `json:"project_id,omitempty"`
+	PurchaseContextId *string                 `json:"purchase_context_id"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson      *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt           *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt         *time.Time              `json:"updated_at"`
+	UserId            *string                 `json:"user_id,omitempty"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
@@ -276,19 +285,22 @@ type Product struct {
 
 // Purchase defines model for Purchase.
 type Purchase struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Email            *string                 `json:"email,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseId        *string                 `json:"license_id,omitempty"`
-	Processed        *bool                   `json:"processed,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	CreatedAt         *time.Time              `json:"created_at,omitempty"`
+	Email             *string                 `json:"email,omitempty"`
+	EndAt             *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id                *string                 `json:"id,omitempty"`
+	LicenseId         *string                 `json:"license_id,omitempty"`
+	PaymentRef        *string                 `json:"payment_ref,omitempty"`
+	Processed         *bool                   `json:"processed,omitempty"`
+	ProductId         *string                 `json:"product_id,omitempty"`
+	ProjectId         *string                 `json:"project_id,omitempty"`
+	PurchaseContextId *string                 `json:"purchase_context_id,omitempty"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json,omitempty"`
+	SelectorJson      *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt           *time.Time              `json:"start_at,omitempty"`
+	UpdatedAt         *time.Time              `json:"updated_at,omitempty"`
+	UserId            *string                 `json:"user_id,omitempty"`
 }
 
 // RestoreAppleLicensesRequest defines model for RestoreAppleLicensesRequest.
@@ -337,17 +349,20 @@ type UpdateProductParams struct {
 
 // UpdatePurchaseParams defines model for UpdatePurchaseParams.
 type UpdatePurchaseParams struct {
-	Email            *string                 `json:"email"`
-	EndAt            *time.Time              `json:"end_at"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LicenseId        *string                 `json:"license_id"`
-	Processed        *bool                   `json:"processed"`
-	ProjectId        *string                 `json:"project_id"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	StartAt          *time.Time              `json:"start_at"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
-	UserId           *string                 `json:"user_id"`
+	Email             *string                 `json:"email"`
+	EndAt             *time.Time              `json:"end_at"`
+	EntitlementsJson  *map[string]interface{} `json:"entitlements_json"`
+	LicenseId         *string                 `json:"license_id"`
+	PaymentRef        *string                 `json:"payment_ref"`
+	Processed         *bool                   `json:"processed"`
+	ProductId         *string                 `json:"product_id"`
+	ProjectId         *string                 `json:"project_id"`
+	PurchaseContextId *string                 `json:"purchase_context_id"`
+	PurchaseJson      *map[string]interface{} `json:"purchase_json"`
+	SelectorJson      *map[string]interface{} `json:"selector_json"`
+	StartAt           *time.Time              `json:"start_at"`
+	UpdatedAt         *time.Time              `json:"updated_at"`
+	UserId            *string                 `json:"user_id"`
 }
 
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
