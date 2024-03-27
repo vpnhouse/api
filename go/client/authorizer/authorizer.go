@@ -189,6 +189,7 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
 	PlatformType   string `json:"platform_type"`
+	ProjectId      string `json:"project_id"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -878,6 +879,18 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	}
 
 	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, params.PlatformType); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
 		return nil, err
 	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 		return nil, err
