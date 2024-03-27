@@ -238,6 +238,11 @@ paths:
           name: platform_type
           in: query
           required: true
+        - schema:
+            type: string
+          name: project_id
+          in: query
+          required: true
       summary: Confirm email
       operationId: confirm
       responses:
