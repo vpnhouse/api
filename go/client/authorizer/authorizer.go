@@ -107,6 +107,11 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// PaymentLinkResp defines model for PaymentLinkResp.
+type PaymentLinkResp struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
 	OrderId           string `json:"order_id"`
@@ -199,8 +204,18 @@ type GetFirebasePublicKeyParams struct {
 	ProjectId *string `json:"project_id,omitempty"`
 }
 
+// PayParams defines parameters for Pay.
+type PayParams struct {
+	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+}
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
+
+// GetPaymentLinkParams defines parameters for GetPaymentLink.
+type GetPaymentLinkParams struct {
+	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+}
 
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
 type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
@@ -373,10 +388,16 @@ type ClientInterface interface {
 	// ListLicenseByUser request
 	ListLicenseByUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// Pay request
+	Pay(ctx context.Context, params *PayParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PaymentDetails request with any body
 	PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetPaymentLink request
+	GetPaymentLink(ctx context.Context, params *GetPaymentLinkParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ProcessAndroidPurchase request with any body
 	ProcessAndroidPurchaseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -528,6 +549,18 @@ func (c *Client) ListLicenseByUser(ctx context.Context, reqEditors ...RequestEdi
 	return c.Client.Do(req)
 }
 
+func (c *Client) Pay(ctx context.Context, params *PayParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPayRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) PaymentDetailsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPaymentDetailsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -542,6 +575,18 @@ func (c *Client) PaymentDetailsWithBody(ctx context.Context, contentType string,
 
 func (c *Client) PaymentDetails(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPaymentDetailsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetPaymentLink(ctx context.Context, params *GetPaymentLinkParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetPaymentLinkRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1040,6 +1085,53 @@ func NewListLicenseByUserRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
+// NewPayRequest generates requests for Pay
+func NewPayRequest(server string, params *PayParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/pay")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.PurchaseContextId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, *params.PurchaseContextId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPaymentDetailsRequest calls the generic PaymentDetails builder with application/json body
 func NewPaymentDetailsRequest(server string, body PaymentDetailsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1076,6 +1168,53 @@ func NewPaymentDetailsRequestWithBody(server string, contentType string, body io
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetPaymentLinkRequest generates requests for GetPaymentLink
+func NewGetPaymentLinkRequest(server string, params *GetPaymentLinkParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/payment-link")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.PurchaseContextId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, *params.PurchaseContextId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -1616,10 +1755,16 @@ type ClientWithResponsesInterface interface {
 	// ListLicenseByUser request
 	ListLicenseByUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicenseByUserResponse, error)
 
+	// Pay request
+	PayWithResponse(ctx context.Context, params *PayParams, reqEditors ...RequestEditorFn) (*PayResponse, error)
+
 	// PaymentDetails request with any body
 	PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
 
 	PaymentDetailsWithResponse(ctx context.Context, body PaymentDetailsJSONRequestBody, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error)
+
+	// GetPaymentLink request
+	GetPaymentLinkWithResponse(ctx context.Context, params *GetPaymentLinkParams, reqEditors ...RequestEditorFn) (*GetPaymentLinkResponse, error)
 
 	// ProcessAndroidPurchase request with any body
 	ProcessAndroidPurchaseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ProcessAndroidPurchaseResponse, error)
@@ -1833,6 +1978,30 @@ func (r ListLicenseByUserResponse) StatusCode() int {
 	return 0
 }
 
+type PayResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r PayResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PayResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PaymentDetailsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -1852,6 +2021,31 @@ func (r PaymentDetailsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PaymentDetailsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetPaymentLinkResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PaymentLinkResp
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetPaymentLinkResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetPaymentLinkResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2205,6 +2399,15 @@ func (c *ClientWithResponses) ListLicenseByUserWithResponse(ctx context.Context,
 	return ParseListLicenseByUserResponse(rsp)
 }
 
+// PayWithResponse request returning *PayResponse
+func (c *ClientWithResponses) PayWithResponse(ctx context.Context, params *PayParams, reqEditors ...RequestEditorFn) (*PayResponse, error) {
+	rsp, err := c.Pay(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePayResponse(rsp)
+}
+
 // PaymentDetailsWithBodyWithResponse request with arbitrary body returning *PaymentDetailsResponse
 func (c *ClientWithResponses) PaymentDetailsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PaymentDetailsResponse, error) {
 	rsp, err := c.PaymentDetailsWithBody(ctx, contentType, body, reqEditors...)
@@ -2220,6 +2423,15 @@ func (c *ClientWithResponses) PaymentDetailsWithResponse(ctx context.Context, bo
 		return nil, err
 	}
 	return ParsePaymentDetailsResponse(rsp)
+}
+
+// GetPaymentLinkWithResponse request returning *GetPaymentLinkResponse
+func (c *ClientWithResponses) GetPaymentLinkWithResponse(ctx context.Context, params *GetPaymentLinkParams, reqEditors ...RequestEditorFn) (*GetPaymentLinkResponse, error) {
+	rsp, err := c.GetPaymentLink(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetPaymentLinkResponse(rsp)
 }
 
 // ProcessAndroidPurchaseWithBodyWithResponse request with arbitrary body returning *ProcessAndroidPurchaseResponse
@@ -2727,6 +2939,46 @@ func ParseListLicenseByUserResponse(rsp *http.Response) (*ListLicenseByUserRespo
 	return response, nil
 }
 
+// ParsePayResponse parses an HTTP response from a PayWithResponse call
+func ParsePayResponse(rsp *http.Response) (*PayResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PayResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParsePaymentDetailsResponse parses an HTTP response from a PaymentDetailsWithResponse call
 func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -2743,6 +2995,53 @@ func ParsePaymentDetailsResponse(rsp *http.Response) (*PaymentDetailsResponse, e
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest PaymentDetailsResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetPaymentLinkResponse parses an HTTP response from a GetPaymentLinkWithResponse call
+func ParseGetPaymentLinkResponse(rsp *http.Response) (*GetPaymentLinkResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetPaymentLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PaymentLinkResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

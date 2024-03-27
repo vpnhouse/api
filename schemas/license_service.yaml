@@ -747,6 +747,37 @@ paths:
       tags:
         - entitlements
         - get
+  
+  /api/license-service/payment-link:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: purchase_context_id
+          in: query
+      summary: ""
+      tags:
+        - get
+        - payment-link
+      operationId: get-payment-link
+      description: Get payment link by supplied purchase_id
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
 
   /api/license-service/payment-details:
     get:
@@ -1574,6 +1605,14 @@ components:
         - product_id
     PaymentDetailsResp:
       title: PaymentDetailsResp
+      type: object
+      properties:
+        payment_url:
+          type: string
+      required:
+        - payment_url
+    PaymentLinkResp:
+      title: PaymentLinkResp
       type: object
       properties:
         payment_url:

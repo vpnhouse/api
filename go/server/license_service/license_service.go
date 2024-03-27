@@ -208,6 +208,11 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// PaymentLinkResp defines model for PaymentLinkResp.
+type PaymentLinkResp struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
 	OrderId           string `json:"order_id"`
@@ -350,6 +355,11 @@ type PaymentCallbackPaygateTypeParamsPaygateType string
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
+
+// GetPaymentLinkParams defines parameters for GetPaymentLink.
+type GetPaymentLinkParams struct {
+	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+}
 
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
 type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
@@ -498,6 +508,9 @@ type ServerInterface interface {
 	// Get payment details
 	// (GET /api/license-service/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+
+	// (GET /api/license-service/payment-link)
+	GetPaymentLink(w http.ResponseWriter, r *http.Request, params GetPaymentLinkParams)
 	// Process android purchase
 	// (POST /api/license-service/process-android-purchase)
 	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
@@ -992,6 +1005,41 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetPaymentLink operation middleware
+func (siw *ServerInterfaceWrapper) GetPaymentLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPaymentLinkParams
+
+	// ------------- Optional query parameter "purchase_context_id" -------------
+	if paramValue := r.URL.Query().Get("purchase_context_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purchase_context_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPaymentLink(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1594,6 +1642,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/payment-link", wrapper.GetPaymentLink)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/process-android-purchase", wrapper.ProcessAndroidPurchase)

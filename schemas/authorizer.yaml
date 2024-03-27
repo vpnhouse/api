@@ -329,6 +329,65 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/client/pay:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: purchase_context_id
+          in: query
+      summary: ""
+      tags:
+        - get
+        - pay
+      operationId: pay
+      description: Redirect user to payment url hosted by other services
+      security:
+        - {}
+      responses:
+        '302':
+          description: URI where the user can fulfill the payment by supplied purchase_context_id
+          schema:
+            type: string
+            format: uri  # Optional - use if the Location header is an absolute URI, starting with http(s)://
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/payment-link:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: purchase_context_id
+          in: query
+      summary: ""
+      tags:
+        - get
+        - payment-link
+      operationId: get-payment-link
+      description: Get payment link by supplied purchase_context_id
+      security:
+        - {}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
   /api/client/payment-details:
     post:
       summary: Get payment details
@@ -861,6 +920,14 @@ components:
         - product_id
     PaymentDetailsResp:
       title: PaymentDetailsResp
+      type: object
+      properties:
+        payment_url:
+          type: string
+      required:
+        - payment_url
+    PaymentLinkResp:
+      title: PaymentLinkResp
       type: object
       properties:
         payment_url:
