@@ -34,6 +34,9 @@ paths:
               properties:
                 name:
                   type: string
+                project_id:
+                  type: string
+                  format: uuid
                 email:
                   type: string
                   format: email
