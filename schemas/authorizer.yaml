@@ -278,9 +278,7 @@ paths:
           in: query
           required: false
         - schema:
-            type: array
-            items:
-              type: string
+            type: string
           name: payment_type
           in: query
           required: false

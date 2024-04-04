@@ -204,10 +204,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit       int       `json:"limit"`
-	Offset      int       `json:"offset"`
-	ProjectId   *string   `json:"project_id,omitempty"`
-	PaymentType *[]string `json:"payment_type,omitempty"`
+	Limit       int     `json:"limit"`
+	Offset      int     `json:"offset"`
+	ProjectId   *string `json:"project_id,omitempty"`
+	PaymentType *string `json:"payment_type,omitempty"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
