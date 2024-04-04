@@ -27,6 +27,13 @@ paths:
           name: project_id
           in: query
           required: true
+        - schema:
+            type: array
+            items:
+              type: string
+          name: payment_type
+          in: query
+          required: true
       summary: List products
       tags:
         - list
