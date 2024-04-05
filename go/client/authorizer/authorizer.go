@@ -206,7 +206,7 @@ type GetFirebasePublicKeyParams struct {
 
 // PayParams defines parameters for Pay.
 type PayParams struct {
-	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
@@ -214,7 +214,7 @@ type PaymentDetailsJSONBody PaymentDetailsRequest
 
 // GetPaymentLinkParams defines parameters for GetPaymentLink.
 type GetPaymentLinkParams struct {
-	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
@@ -1106,20 +1106,16 @@ func NewPayRequest(server string, params *PayParams) (*http.Request, error) {
 
 	queryValues := queryURL.Query()
 
-	if params.PurchaseContextId != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, *params.PurchaseContextId); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, params.PurchaseContextId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
 			}
 		}
-
 	}
 
 	queryURL.RawQuery = queryValues.Encode()
@@ -1193,20 +1189,16 @@ func NewGetPaymentLinkRequest(server string, params *GetPaymentLinkParams) (*htt
 
 	queryValues := queryURL.Query()
 
-	if params.PurchaseContextId != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, *params.PurchaseContextId); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "purchase_context_id", runtime.ParamLocationQuery, params.PurchaseContextId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
 			}
 		}
-
 	}
 
 	queryURL.RawQuery = queryValues.Encode()

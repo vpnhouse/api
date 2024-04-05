@@ -200,7 +200,7 @@ type GetFirebasePublicKeyParams struct {
 
 // PayParams defines parameters for Pay.
 type PayParams struct {
-	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
@@ -208,7 +208,7 @@ type PaymentDetailsJSONBody PaymentDetailsRequest
 
 // GetPaymentLinkParams defines parameters for GetPaymentLink.
 type GetPaymentLinkParams struct {
-	PurchaseContextId *string `json:"purchase_context_id,omitempty"`
+	PurchaseContextId string `json:"purchase_context_id"`
 }
 
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
@@ -518,12 +518,15 @@ func (siw *ServerInterfaceWrapper) Pay(w http.ResponseWriter, r *http.Request) {
 	// Parameter object where we will unmarshal all parameters from the context
 	var params PayParams
 
-	// ------------- Optional query parameter "purchase_context_id" -------------
+	// ------------- Required query parameter "purchase_context_id" -------------
 	if paramValue := r.URL.Query().Get("purchase_context_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "purchase_context_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
+	err = runtime.BindQueryParameter("form", true, true, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purchase_context_id", Err: err})
 		return
@@ -566,12 +569,15 @@ func (siw *ServerInterfaceWrapper) GetPaymentLink(w http.ResponseWriter, r *http
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetPaymentLinkParams
 
-	// ------------- Optional query parameter "purchase_context_id" -------------
+	// ------------- Required query parameter "purchase_context_id" -------------
 	if paramValue := r.URL.Query().Get("purchase_context_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "purchase_context_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
+	err = runtime.BindQueryParameter("form", true, true, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purchase_context_id", Err: err})
 		return
