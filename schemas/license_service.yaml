@@ -756,6 +756,7 @@ paths:
             format: uuid
           name: purchase_context_id
           in: query
+          required: true
       summary: ""
       tags:
         - get
