@@ -360,19 +360,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
 
   /api/client/payment-link:
-    get:
-      parameters:
-        - schema:
-            type: string
-            format: uuid
-          name: purchase_context_id
-          in: query
-          required: true
+    post:
       summary: ""
       tags:
         - get
         - payment-link
-      operationId: get-payment-link
+      operationId: payment-link
       description: Get payment link by supplied purchase_context_id
       security:
         - {}
@@ -389,6 +382,11 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkRequest'
 
   /api/client/payment-details:
     post:
@@ -928,6 +926,15 @@ components:
           type: string
       required:
         - payment_url
+    PaymentLinkRequest:
+      title: PaymentLinkRequest
+      type: object
+      properties:
+        purchase_context_id:
+          type: string
+          format: uuid
+      required:
+        - purchase_context_id
     PaymentLinkResp:
       title: PaymentLinkResp
       type: object
