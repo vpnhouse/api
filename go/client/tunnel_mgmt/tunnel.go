@@ -8,13 +8,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	externalRef0 "github.com/vpnhouse/api/go/client/federation"

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -16,7 +17,6 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
