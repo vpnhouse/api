@@ -4,7 +4,7 @@
 # https://github.com/deepmap/oapi-codegen/issues/377
 fix_external_ref_bug() {
     target=$1
-    import_line=$2
+    import_line="import ("
     ln=$(grep -m1 -n "$import_line" "$target" | cut -d: -f1)
     ed "$target" << END
 ${ln}a
@@ -37,5 +37,5 @@ targets=(
 )
 
 for target in "${targets[@]}"; do
-    fix_external_ref_bug "$target" "import ("
+    fix_external_ref_bug "$target"
 done
