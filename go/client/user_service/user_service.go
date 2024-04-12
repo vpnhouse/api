@@ -4,11 +4,11 @@
 package user_service
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
