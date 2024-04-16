@@ -51,6 +51,7 @@ type CreateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LabelsJson       *map[string]interface{} `json:"labels_json"`
 	LicenseType      *string                 `json:"license_type"`
 	Name             *string                 `json:"name"`
 	PaymentJson      *map[string]interface{} `json:"payment_json"`
@@ -106,6 +107,7 @@ type FindProductParams struct {
 	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LabelsJson       *map[string]interface{} `json:"labels_json,omitempty"`
 	LicenseType      *string                 `json:"license_type,omitempty"`
 	Name             *string                 `json:"name,omitempty"`
 	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
@@ -170,6 +172,7 @@ type PatchProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	LabelsJson       *map[string]interface{} `json:"labels_json"`
 	LicenseType      *string                 `json:"license_type,omitempty"`
 	Name             *string                 `json:"name,omitempty"`
 	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
@@ -235,6 +238,7 @@ type Product struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	LabelsJson       *map[string]interface{} `json:"labels_json,omitempty"`
 	LicenseType      *string                 `json:"license_type,omitempty"`
 	Name             *string                 `json:"name,omitempty"`
 	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
@@ -279,6 +283,7 @@ type UpdateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	LabelsJson       *map[string]interface{} `json:"labels_json"`
 	LicenseType      *string                 `json:"license_type"`
 	Name             *string                 `json:"name"`
 	PaymentJson      *map[string]interface{} `json:"payment_json"`

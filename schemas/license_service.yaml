@@ -951,6 +951,8 @@ components:
           format: int64
           description: The currency code (ISO 4217)
           example: USD
+        labels_json:
+          type: object
     CreateProductParams:
       title: CreateProductParams
       type: object
@@ -983,6 +985,9 @@ components:
         currency:
           type: string
           nullable: true
+        labels_json:
+          type: object
+          nullable: true
       required:
         - name
         - license_type
@@ -993,6 +998,7 @@ components:
         - disabled
         - amount
         - currency
+        - labels_json
     UpdateProductParams:
       title: UpdateProductParams
       type: object
@@ -1029,6 +1035,9 @@ components:
         currency:
           type: string
           nullable: true
+        labels_json:
+          type: object
+          nullable: true
       required:
         - name
         - license_type
@@ -1040,6 +1049,7 @@ components:
         - updated_at
         - amount
         - currency
+        - labels_json
     PatchProductParams:
       title: PatchProductParams
       type: object
@@ -1068,6 +1078,9 @@ components:
           nullable: true
         currency:
           type: string
+          nullable: true
+        labels_json:
+          type: object
           nullable: true
       required:
         - updated_at
@@ -1100,6 +1113,8 @@ components:
           format: int64
         currency:
           type: string
+        labels_json:
+          type: object
     Purchase:
       title: Purchase
       type: object
