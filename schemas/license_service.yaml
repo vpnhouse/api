@@ -1110,6 +1110,9 @@ components:
         project_id:
           type: string
           format: uuid
+        product_id:
+          type: string
+          format: uuid
         email:
           type: string
         user_id:
@@ -1146,6 +1149,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
         email:
           type: string
           nullable: true
@@ -1179,6 +1186,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - email
         - user_id
         - start_at
@@ -1193,6 +1201,10 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
           type: string
           format: uuid
           nullable: true
@@ -1233,6 +1245,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - email
         - user_id
         - start_at
@@ -1248,6 +1261,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         email:
@@ -1283,6 +1299,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         email:
@@ -1323,6 +1342,9 @@ components:
         project_id:
           type: string
           format: uuid
+        product_id:
+          type: string
+          format: uuid
         user_id:
           type: string
           format: uuid
@@ -1354,6 +1376,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
         user_id:
           type: string
           format: uuid
@@ -1380,6 +1406,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - user_id
         - start_at
         - end_at
@@ -1392,6 +1419,10 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
           type: string
           format: uuid
           nullable: true
@@ -1425,6 +1456,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - user_id
         - start_at
         - end_at
@@ -1438,6 +1470,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         user_id:
@@ -1468,6 +1503,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         user_id:
