@@ -204,9 +204,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int     `json:"limit"`
-	Offset    int     `json:"offset"`
-	ProjectId *string `json:"project_id,omitempty"`
+	Limit       int     `json:"limit"`
+	Offset      int     `json:"offset"`
+	ProjectId   *string `json:"project_id,omitempty"`
+	PaymentType *string `json:"payment_type,omitempty"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -584,6 +585,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "payment_type" -------------
+	if paramValue := r.URL.Query().Get("payment_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "payment_type", r.URL.Query(), &params.PaymentType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "payment_type", Err: err})
 		return
 	}
 

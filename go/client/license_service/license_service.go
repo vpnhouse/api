@@ -372,9 +372,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int    `json:"limit"`
-	Offset    int    `json:"offset"`
-	ProjectId string `json:"project_id"`
+	Limit       int       `json:"limit"`
+	Offset      int       `json:"offset"`
+	ProjectId   string    `json:"project_id"`
+	PaymentType *[]string `json:"payment_type,omitempty"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -2054,6 +2055,22 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 				queryValues.Add(k, v2)
 			}
 		}
+	}
+
+	if params.PaymentType != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "payment_type", runtime.ParamLocationQuery, *params.PaymentType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
 	}
 
 	queryURL.RawQuery = queryValues.Encode()
