@@ -11,6 +11,7 @@ import (
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -74,17 +75,14 @@ type CreatePurchaseContextResp struct {
 
 // License defines model for License.
 type License struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Disabled         *bool                   `json:"disabled,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	AvailablePlatforms *[]string               `json:"available_platforms,omitempty"`
+	EndAt              *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson   *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id                 *string                 `json:"id,omitempty"`
+	ProjectId          *string                 `json:"project_id,omitempty"`
+	SelectorJson       *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt            *time.Time              `json:"start_at,omitempty"`
+	UserId             *string                 `json:"user_id,omitempty"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
@@ -120,20 +118,18 @@ type ProcessIOSPurchaseRequest struct {
 // Product defines model for Product.
 type Product struct {
 	// The currency amount in cents ($19.99)
-	Amount    *int64     `json:"amount,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Amount *int64 `json:"amount,omitempty"`
 
 	// The currency code (ISO 4217)
-	Currency         *string                 `json:"currency,omitempty"`
-	Disabled         *bool                   `json:"disabled,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	Id       *string `json:"id,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson  *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType *string                  `json:"license_type,omitempty"`
+	Name        *string                  `json:"name,omitempty"`
+	PaymentJson *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period      *string                  `json:"period,omitempty"`
 }
 
 // PurgeUserRequest defines model for PurgeUserRequest.
