@@ -877,11 +877,13 @@ components:
         product_id:
           type: string
           format: uuid
-        user_id:
+        email:
           type: string
           format: uuid
       required:
+        - project_id
         - product_id
+        - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
       type: object

@@ -1561,15 +1561,14 @@ components:
         product_id:
           type: string
           format: uuid
+        email:
+          type: string
         user_id:
           type: string
           format: uuid
-        email:
-          type: string
       required:
         - project_id
         - product_id
-        - user_id
         - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
