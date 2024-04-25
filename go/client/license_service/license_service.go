@@ -44,6 +44,7 @@ type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -84,6 +85,7 @@ type CreatePurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseId        *string                 `json:"license_id"`
 	Processed        *bool                   `json:"processed"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -97,6 +99,7 @@ type FindLicenseParams struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -128,6 +131,7 @@ type FindPurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -149,6 +153,7 @@ type License struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -162,6 +167,7 @@ type PatchLicenseParams struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -191,6 +197,7 @@ type PatchPurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -258,6 +265,7 @@ type Purchase struct {
 	Id               *string                 `json:"id,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -271,6 +279,7 @@ type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -300,6 +309,7 @@ type UpdatePurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseId        *string                 `json:"license_id"`
 	Processed        *bool                   `json:"processed"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
