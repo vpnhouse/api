@@ -11,6 +11,13 @@ paths:
     parameters: []
     post:
       operationId: submit-user-request
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: project_id
+          in: query
+          required: true
       responses:
         '200':
           description: OK

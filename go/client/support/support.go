@@ -12,7 +12,14 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
+
+// SubmitUserRequestParams defines parameters for SubmitUserRequest.
+type SubmitUserRequestParams struct {
+	ProjectId string `json:"project_id"`
+}
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -88,11 +95,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// SubmitUserRequest request with any body
-	SubmitUserRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	SubmitUserRequestWithBody(ctx context.Context, params *SubmitUserRequestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) SubmitUserRequestWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSubmitUserRequestRequestWithBody(c.Server, contentType, body)
+func (c *Client) SubmitUserRequestWithBody(ctx context.Context, params *SubmitUserRequestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubmitUserRequestRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +111,7 @@ func (c *Client) SubmitUserRequestWithBody(ctx context.Context, contentType stri
 }
 
 // NewSubmitUserRequestRequestWithBody generates requests for SubmitUserRequest with any type of body
-func NewSubmitUserRequestRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewSubmitUserRequestRequestWithBody(server string, params *SubmitUserRequestParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -121,6 +128,22 @@ func NewSubmitUserRequestRequestWithBody(server string, contentType string, body
 	if err != nil {
 		return nil, err
 	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
@@ -176,7 +199,7 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 	// SubmitUserRequest request with any body
-	SubmitUserRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitUserRequestResponse, error)
+	SubmitUserRequestWithBodyWithResponse(ctx context.Context, params *SubmitUserRequestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitUserRequestResponse, error)
 }
 
 type SubmitUserRequestResponse struct {
@@ -204,8 +227,8 @@ func (r SubmitUserRequestResponse) StatusCode() int {
 }
 
 // SubmitUserRequestWithBodyWithResponse request with arbitrary body returning *SubmitUserRequestResponse
-func (c *ClientWithResponses) SubmitUserRequestWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitUserRequestResponse, error) {
-	rsp, err := c.SubmitUserRequestWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) SubmitUserRequestWithBodyWithResponse(ctx context.Context, params *SubmitUserRequestParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SubmitUserRequestResponse, error) {
+	rsp, err := c.SubmitUserRequestWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -7,14 +7,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
+
+// SubmitUserRequestParams defines parameters for SubmitUserRequest.
+type SubmitUserRequestParams struct {
+	ProjectId string `json:"project_id"`
+}
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (POST /api/client/support/request)
-	SubmitUserRequest(w http.ResponseWriter, r *http.Request)
+	SubmitUserRequest(w http.ResponseWriter, r *http.Request, params SubmitUserRequestParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -30,8 +36,27 @@ type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
 func (siw *ServerInterfaceWrapper) SubmitUserRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params SubmitUserRequestParams
+
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.SubmitUserRequest(w, r)
+		siw.Handler.SubmitUserRequest(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
