@@ -921,14 +921,6 @@ paths:
 
 components:
   schemas:
-    LabelsJson:
-      type: object
-      additionalProperties:
-        type: string
-      example: {
-        "label_key_1": "label_value_1",
-        "label_key_2": "label_value_2"
-      }
     Product:
       title: Product
       type: object
@@ -967,7 +959,7 @@ components:
           description: The currency code (ISO 4217)
           example: USD
         labels_json:
-          $ref: '#/components/schemas/LabelsJson'
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
     CreateProductParams:
       title: CreateProductParams
       type: object
@@ -1001,7 +993,7 @@ components:
           type: string
           nullable: true
         labels_json:
-          $ref: '#/components/schemas/LabelsJson'
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - name
         - license_type
@@ -1050,7 +1042,7 @@ components:
           type: string
           nullable: true
         labels_json:
-          $ref: '#/components/schemas/LabelsJson'
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - name
         - license_type
@@ -1093,7 +1085,7 @@ components:
           type: string
           nullable: true
         labels_json:
-          $ref: '#/components/schemas/LabelsJson'
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - updated_at
     FindProductParams:
@@ -1126,7 +1118,7 @@ components:
         currency:
           type: string
         labels_json:
-          $ref: '#/components/schemas/LabelsJson'
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
     Purchase:
       title: Purchase
       type: object

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -58,12 +59,14 @@ type CreateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LabelsJson       LabelsJson              `json:"labels_json"`
-	LicenseType      *string                 `json:"license_type"`
-	Name             *string                 `json:"name"`
-	PaymentJson      *map[string]interface{} `json:"payment_json"`
-	Period           *string                 `json:"period"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
+
+	// Labels in JSON format
+	LabelsJson   externalRef0.LabelsJson `json:"labels_json"`
+	LicenseType  *string                 `json:"license_type"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
 }
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
@@ -116,13 +119,15 @@ type FindProductParams struct {
 	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LabelsJson       *LabelsJson             `json:"labels_json,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at,omitempty"`
 }
 
 // FindPurchaseParams defines model for FindPurchaseParams.
@@ -146,11 +151,6 @@ type FindPurchaseParams struct {
 type GetAvailableLicensesRequest struct {
 	ProjectId string `json:"project_id"`
 	UserId    string `json:"user_id"`
-}
-
-// LabelsJson defines model for LabelsJson.
-type LabelsJson struct {
-	AdditionalProperties map[string]string `json:"-"`
 }
 
 // License defines model for License.
@@ -189,13 +189,15 @@ type PatchProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LabelsJson       *LabelsJson             `json:"labels_json,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at"`
 }
 
 // PatchPurchaseParams defines model for PatchPurchaseParams.
@@ -256,13 +258,15 @@ type Product struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
-	LabelsJson       *LabelsJson             `json:"labels_json,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at,omitempty"`
 }
 
 // Purchase defines model for Purchase.
@@ -303,13 +307,15 @@ type UpdateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LabelsJson       LabelsJson              `json:"labels_json"`
-	LicenseType      *string                 `json:"license_type"`
-	Name             *string                 `json:"name"`
-	PaymentJson      *map[string]interface{} `json:"payment_json"`
-	Period           *string                 `json:"period"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
+
+	// Labels in JSON format
+	LabelsJson   externalRef0.LabelsJson `json:"labels_json"`
+	LicenseType  *string                 `json:"license_type"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
 }
 
 // UpdatePurchaseParams defines model for UpdatePurchaseParams.
@@ -468,59 +474,6 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
-
-// Getter for additional properties for LabelsJson. Returns the specified
-// element and whether it was found
-func (a LabelsJson) Get(fieldName string) (value string, found bool) {
-	if a.AdditionalProperties != nil {
-		value, found = a.AdditionalProperties[fieldName]
-	}
-	return
-}
-
-// Setter for additional properties for LabelsJson
-func (a *LabelsJson) Set(fieldName string, value string) {
-	if a.AdditionalProperties == nil {
-		a.AdditionalProperties = make(map[string]string)
-	}
-	a.AdditionalProperties[fieldName] = value
-}
-
-// Override default JSON handling for LabelsJson to handle AdditionalProperties
-func (a *LabelsJson) UnmarshalJSON(b []byte) error {
-	object := make(map[string]json.RawMessage)
-	err := json.Unmarshal(b, &object)
-	if err != nil {
-		return err
-	}
-
-	if len(object) != 0 {
-		a.AdditionalProperties = make(map[string]string)
-		for fieldName, fieldBuf := range object {
-			var fieldVal string
-			err := json.Unmarshal(fieldBuf, &fieldVal)
-			if err != nil {
-				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
-			}
-			a.AdditionalProperties[fieldName] = fieldVal
-		}
-	}
-	return nil
-}
-
-// Override default JSON handling for LabelsJson to handle AdditionalProperties
-func (a LabelsJson) MarshalJSON() ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-
-	for fieldName, field := range a.AdditionalProperties {
-		object[fieldName], err = json.Marshal(field)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
-		}
-	}
-	return json.Marshal(object)
-}
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
