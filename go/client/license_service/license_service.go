@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -44,6 +45,7 @@ type CreateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -57,19 +59,22 @@ type CreateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LicenseType      *string                 `json:"license_type"`
-	Name             *string                 `json:"name"`
-	PaymentJson      *map[string]interface{} `json:"payment_json"`
-	Period           *string                 `json:"period"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
+
+	// Labels in JSON format
+	LabelsJson   externalRef0.LabelsJson `json:"labels_json"`
+	LicenseType  *string                 `json:"license_type"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
 }
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	Email     string `json:"email"`
-	ProductId string `json:"product_id"`
-	ProjectId string `json:"project_id"`
-	UserId    string `json:"user_id"`
+	Email     string  `json:"email"`
+	ProductId string  `json:"product_id"`
+	ProjectId string  `json:"project_id"`
+	UserId    *string `json:"user_id,omitempty"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
@@ -84,6 +89,7 @@ type CreatePurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseId        *string                 `json:"license_id"`
 	Processed        *bool                   `json:"processed"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -97,6 +103,7 @@ type FindLicenseParams struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -112,12 +119,15 @@ type FindProductParams struct {
 	Currency         *string                 `json:"currency,omitempty"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at,omitempty"`
 }
 
 // FindPurchaseParams defines model for FindPurchaseParams.
@@ -128,6 +138,7 @@ type FindPurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -149,6 +160,7 @@ type License struct {
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -162,6 +174,7 @@ type PatchLicenseParams struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EndAt            *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -176,12 +189,15 @@ type PatchProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at"`
 }
 
 // PatchPurchaseParams defines model for PatchPurchaseParams.
@@ -191,6 +207,7 @@ type PatchPurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -246,12 +263,15 @@ type Product struct {
 	Disabled         *bool                   `json:"disabled,omitempty"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id               *string                 `json:"id,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType  *string                  `json:"license_type,omitempty"`
+	Name         *string                  `json:"name,omitempty"`
+	PaymentJson  *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time               `json:"updated_at,omitempty"`
 }
 
 // Purchase defines model for Purchase.
@@ -263,6 +283,7 @@ type Purchase struct {
 	Id               *string                 `json:"id,omitempty"`
 	LicenseId        *string                 `json:"license_id,omitempty"`
 	Processed        *bool                   `json:"processed,omitempty"`
+	ProductId        *string                 `json:"product_id,omitempty"`
 	ProjectId        *string                 `json:"project_id,omitempty"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
 	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
@@ -276,6 +297,7 @@ type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
 	EndAt            *time.Time              `json:"end_at"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -290,12 +312,15 @@ type UpdateProductParams struct {
 	Currency         *string                 `json:"currency"`
 	Disabled         *bool                   `json:"disabled"`
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
-	LicenseType      *string                 `json:"license_type"`
-	Name             *string                 `json:"name"`
-	PaymentJson      *map[string]interface{} `json:"payment_json"`
-	Period           *string                 `json:"period"`
-	SelectorJson     *map[string]interface{} `json:"selector_json"`
-	UpdatedAt        *time.Time              `json:"updated_at"`
+
+	// Labels in JSON format
+	LabelsJson   externalRef0.LabelsJson `json:"labels_json"`
+	LicenseType  *string                 `json:"license_type"`
+	Name         *string                 `json:"name"`
+	PaymentJson  *map[string]interface{} `json:"payment_json"`
+	Period       *string                 `json:"period"`
+	SelectorJson *map[string]interface{} `json:"selector_json"`
+	UpdatedAt    *time.Time              `json:"updated_at"`
 }
 
 // UpdatePurchaseParams defines model for UpdatePurchaseParams.
@@ -305,6 +330,7 @@ type UpdatePurchaseParams struct {
 	EntitlementsJson *map[string]interface{} `json:"entitlements_json"`
 	LicenseId        *string                 `json:"license_id"`
 	Processed        *bool                   `json:"processed"`
+	ProductId        *string                 `json:"product_id"`
 	ProjectId        *string                 `json:"project_id"`
 	PurchaseJson     *map[string]interface{} `json:"purchase_json"`
 	SelectorJson     *map[string]interface{} `json:"selector_json"`
@@ -375,9 +401,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int    `json:"limit"`
-	Offset    int    `json:"offset"`
-	ProjectId string `json:"project_id"`
+	Limit       int       `json:"limit"`
+	Offset      int       `json:"offset"`
+	ProjectId   string    `json:"project_id"`
+	PaymentType *[]string `json:"payment_type,omitempty"`
 }
 
 // CreateProductJSONBody defines parameters for CreateProduct.
@@ -2164,6 +2191,22 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 				queryValues.Add(k, v2)
 			}
 		}
+	}
+
+	if params.PaymentType != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "payment_type", runtime.ParamLocationQuery, *params.PaymentType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
 	}
 
 	queryURL.RawQuery = queryValues.Encode()

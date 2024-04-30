@@ -238,6 +238,11 @@ paths:
           name: platform_type
           in: query
           required: true
+        - schema:
+            type: string
+          name: project_id
+          in: query
+          required: true
       summary: Confirm email
       operationId: confirm
       responses:
@@ -275,6 +280,11 @@ paths:
             type: string
             format: uuid
           name: project_id
+          in: query
+          required: false
+        - schema:
+            type: string
+          name: payment_type
           in: query
           required: false
       summary: List product
@@ -842,18 +852,8 @@ components:
           type: object
         period:
           type: string
-        selector_json:
-          type: object
-        entitlements_json:
-          type: object
-        disabled:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
         amount:
           type: integer
           format: int64
@@ -882,20 +882,15 @@ components:
         end_at:
           type: string
           format: date-time
-        disabled:
-          type: boolean
-        purchase_json:
-          type: object
         selector_json:
           type: object
         entitlements_json:
           type: object
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
+        available_platforms:
+          type: array
+          items:
+              type: string
+          example: [ "windows", "android", "ios" ]
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
@@ -953,11 +948,13 @@ components:
         product_id:
           type: string
           format: uuid
-        user_id:
+        email:
           type: string
           format: uuid
       required:
+        - project_id
         - product_id
+        - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp
       type: object

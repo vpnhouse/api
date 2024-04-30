@@ -5,6 +5,15 @@ info:
 paths: {}
 components:
   schemas:
+    LabelsJson:
+      description: Labels in JSON format
+      type: object
+      additionalProperties:
+        type: string
+      example: {
+        "label_key_1": "label_value_1",
+        "label_key_2": "label_value_2"
+      }
     ConnectionIdentifiers:
       title: ConnectionIdentifiers
       type: object

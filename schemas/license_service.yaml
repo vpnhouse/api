@@ -27,6 +27,13 @@ paths:
           name: project_id
           in: query
           required: true
+        - schema:
+            type: array
+            items:
+              type: string
+          name: payment_type
+          in: query
+          required: false
       summary: List products
       tags:
         - list
@@ -1012,6 +1019,8 @@ components:
           format: int64
           description: The currency code (ISO 4217)
           example: USD
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
     CreateProductParams:
       title: CreateProductParams
       type: object
@@ -1044,6 +1053,8 @@ components:
         currency:
           type: string
           nullable: true
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - name
         - license_type
@@ -1054,6 +1065,7 @@ components:
         - disabled
         - amount
         - currency
+        - labels_json
     UpdateProductParams:
       title: UpdateProductParams
       type: object
@@ -1090,6 +1102,8 @@ components:
         currency:
           type: string
           nullable: true
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - name
         - license_type
@@ -1101,6 +1115,7 @@ components:
         - updated_at
         - amount
         - currency
+        - labels_json
     PatchProductParams:
       title: PatchProductParams
       type: object
@@ -1130,6 +1145,8 @@ components:
         currency:
           type: string
           nullable: true
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
       required:
         - updated_at
     FindProductParams:
@@ -1161,6 +1178,8 @@ components:
           format: int64
         currency:
           type: string
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
     Purchase:
       title: Purchase
       type: object
@@ -1169,6 +1188,9 @@ components:
           type: string
           format: uuid
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         email:
@@ -1207,6 +1229,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
         email:
           type: string
           nullable: true
@@ -1240,6 +1266,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - email
         - user_id
         - start_at
@@ -1254,6 +1281,10 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
           type: string
           format: uuid
           nullable: true
@@ -1294,6 +1325,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - email
         - user_id
         - start_at
@@ -1309,6 +1341,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         email:
@@ -1344,6 +1379,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         email:
@@ -1384,6 +1422,9 @@ components:
         project_id:
           type: string
           format: uuid
+        product_id:
+          type: string
+          format: uuid
         user_id:
           type: string
           format: uuid
@@ -1415,6 +1456,10 @@ components:
           type: string
           format: uuid
           nullable: true
+        product_id:
+          type: string
+          format: uuid
+          nullable: true
         user_id:
           type: string
           format: uuid
@@ -1441,6 +1486,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - user_id
         - start_at
         - end_at
@@ -1453,6 +1499,10 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+          nullable: true
+        product_id:
           type: string
           format: uuid
           nullable: true
@@ -1486,6 +1536,7 @@ components:
           nullable: true
       required:
         - project_id
+        - product_id
         - user_id
         - start_at
         - end_at
@@ -1499,6 +1550,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         user_id:
@@ -1529,6 +1583,9 @@ components:
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        product_id:
           type: string
           format: uuid
         user_id:
@@ -1630,15 +1687,14 @@ components:
         product_id:
           type: string
           format: uuid
+        email:
+          type: string
         user_id:
           type: string
           format: uuid
-        email:
-          type: string
       required:
         - project_id
         - product_id
-        - user_id
         - email
     CreatePurchaseContextResp:
       title: CreatePurchaseContextResp

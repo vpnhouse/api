@@ -11,6 +11,7 @@ import (
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
+	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
 const (
@@ -62,9 +63,9 @@ type CreateFirebaseUserRequest struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
-	ProductId string  `json:"product_id"`
-	ProjectId *string `json:"project_id,omitempty"`
-	UserId    *string `json:"user_id,omitempty"`
+	Email     string `json:"email"`
+	ProductId string `json:"product_id"`
+	ProjectId string `json:"project_id"`
 }
 
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
@@ -74,17 +75,14 @@ type CreatePurchaseContextResp struct {
 
 // License defines model for License.
 type License struct {
-	CreatedAt        *time.Time              `json:"created_at,omitempty"`
-	Disabled         *bool                   `json:"disabled,omitempty"`
-	EndAt            *time.Time              `json:"end_at,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	ProjectId        *string                 `json:"project_id,omitempty"`
-	PurchaseJson     *map[string]interface{} `json:"purchase_json,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt          *time.Time              `json:"start_at,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
-	UserId           *string                 `json:"user_id,omitempty"`
+	AvailablePlatforms *[]string               `json:"available_platforms,omitempty"`
+	EndAt              *time.Time              `json:"end_at,omitempty"`
+	EntitlementsJson   *map[string]interface{} `json:"entitlements_json,omitempty"`
+	Id                 *string                 `json:"id,omitempty"`
+	ProjectId          *string                 `json:"project_id,omitempty"`
+	SelectorJson       *map[string]interface{} `json:"selector_json,omitempty"`
+	StartAt            *time.Time              `json:"start_at,omitempty"`
+	UserId             *string                 `json:"user_id,omitempty"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
@@ -130,20 +128,18 @@ type ProcessIOSPurchaseRequest struct {
 // Product defines model for Product.
 type Product struct {
 	// The currency amount in cents ($19.99)
-	Amount    *int64     `json:"amount,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Amount *int64 `json:"amount,omitempty"`
 
 	// The currency code (ISO 4217)
-	Currency         *string                 `json:"currency,omitempty"`
-	Disabled         *bool                   `json:"disabled,omitempty"`
-	EntitlementsJson *map[string]interface{} `json:"entitlements_json,omitempty"`
-	Id               *string                 `json:"id,omitempty"`
-	LicenseType      *string                 `json:"license_type,omitempty"`
-	Name             *string                 `json:"name,omitempty"`
-	PaymentJson      *map[string]interface{} `json:"payment_json,omitempty"`
-	Period           *string                 `json:"period,omitempty"`
-	SelectorJson     *map[string]interface{} `json:"selector_json,omitempty"`
-	UpdatedAt        *time.Time              `json:"updated_at,omitempty"`
+	Currency *string `json:"currency,omitempty"`
+	Id       *string `json:"id,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson  *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	LicenseType *string                  `json:"license_type,omitempty"`
+	Name        *string                  `json:"name,omitempty"`
+	PaymentJson *map[string]interface{}  `json:"payment_json,omitempty"`
+	Period      *string                  `json:"period,omitempty"`
 }
 
 // PurgeUserRequest defines model for PurgeUserRequest.
@@ -193,6 +189,7 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 type ConfirmParams struct {
 	ConfirmationId string `json:"confirmation_id"`
 	PlatformType   string `json:"platform_type"`
+	ProjectId      string `json:"project_id"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -222,9 +219,10 @@ type ProcessIosPurchaseJSONBody ProcessIOSPurchaseRequest
 
 // ListProductParams defines parameters for ListProduct.
 type ListProductParams struct {
-	Limit     int     `json:"limit"`
-	Offset    int     `json:"offset"`
-	ProjectId *string `json:"project_id,omitempty"`
+	Limit       int     `json:"limit"`
+	Offset      int     `json:"offset"`
+	ProjectId   *string `json:"project_id,omitempty"`
+	PaymentType *string `json:"payment_type,omitempty"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -417,6 +415,20 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	err = runtime.BindQueryParameter("form", true, true, "platform_type", r.URL.Query(), &params.PlatformType)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 
@@ -660,6 +672,17 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "payment_type" -------------
+	if paramValue := r.URL.Query().Get("payment_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "payment_type", r.URL.Query(), &params.PaymentType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "payment_type", Err: err})
 		return
 	}
 
