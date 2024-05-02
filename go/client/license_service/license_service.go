@@ -334,6 +334,15 @@ type UpdatePurchaseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
+// UserLicense defines model for UserLicense.
+type UserLicense struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	// Labels in JSON format
+	LabelsJson *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+}
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
@@ -2915,7 +2924,7 @@ func (r FindPurchaseResponse) StatusCode() int {
 type GetAvailableLicensesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]License
+	JSON200      *[]UserLicense
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -4307,7 +4316,7 @@ func ParseGetAvailableLicensesResponse(rsp *http.Response) (*GetAvailableLicense
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []License
+		var dest []UserLicense
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

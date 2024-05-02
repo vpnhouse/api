@@ -79,10 +79,13 @@ type License struct {
 	EndAt              *time.Time              `json:"end_at,omitempty"`
 	EntitlementsJson   *map[string]interface{} `json:"entitlements_json,omitempty"`
 	Id                 *string                 `json:"id,omitempty"`
-	ProjectId          *string                 `json:"project_id,omitempty"`
-	SelectorJson       *map[string]interface{} `json:"selector_json,omitempty"`
-	StartAt            *time.Time              `json:"start_at,omitempty"`
-	UserId             *string                 `json:"user_id,omitempty"`
+
+	// Labels in JSON format
+	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	ProjectId    *string                  `json:"project_id,omitempty"`
+	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
+	StartAt      *time.Time               `json:"start_at,omitempty"`
+	UserId       *string                  `json:"user_id,omitempty"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
