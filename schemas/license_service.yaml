@@ -664,7 +664,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/License'
+                  $ref: '#/components/schemas/UserLicense'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -1351,6 +1351,15 @@ components:
         updated_at:
           type: string
           format: date-time
+    UserLicense:
+      title: UserLicense
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/License'
+        - type: object
+          properties:
+            labels_json:
+              $ref: 'common.yaml#/components/schemas/LabelsJson'
     License:
       title: License
       type: object

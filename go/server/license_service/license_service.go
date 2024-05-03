@@ -328,6 +328,15 @@ type UpdatePurchaseParams struct {
 	UserId           *string                 `json:"user_id"`
 }
 
+// UserLicense defines model for UserLicense.
+type UserLicense struct {
+	// Embedded struct due to allOf(#/components/schemas/License)
+	License `yaml:",inline"`
+	// Embedded fields due to inline allOf schema
+	// Labels in JSON format
+	LabelsJson *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+}
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
