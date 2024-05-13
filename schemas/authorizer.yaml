@@ -891,6 +891,8 @@ components:
           items:
               type: string
           example: [ "windows", "android", "ios" ]
+        labels_json:
+          $ref: 'common.yaml#/components/schemas/LabelsJson'
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
