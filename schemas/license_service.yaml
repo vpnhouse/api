@@ -1744,12 +1744,8 @@ components:
       properties:
         jws_receipt:
           type: string
-        purchase_context_id:
-          type: string
-          format: uuid
       required:
         - jws_receipt
-        - purchase_context_id
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object

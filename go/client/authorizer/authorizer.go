@@ -4,11 +4,11 @@
 package authorizer
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -130,8 +130,8 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt        string `json:"jws_receipt"`
-	PurchaseContextId string `json:"purchase_context_id"`
+	AuthInfo   string `json:"auth_info"`
+	JwsReceipt string `json:"jws_receipt"`
 }
 
 // Product defines model for Product.
@@ -2119,6 +2119,7 @@ func (r ProcessAndroidPurchaseResponse) StatusCode() int {
 type ProcessIosPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *AuthResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -3175,6 +3176,13 @@ func ParseProcessIosPurchaseResponse(rsp *http.Response) (*ProcessIosPurchaseRes
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AuthResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {

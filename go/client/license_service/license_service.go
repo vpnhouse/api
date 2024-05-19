@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -248,8 +248,7 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt        string `json:"jws_receipt"`
-	PurchaseContextId string `json:"purchase_context_id"`
+	JwsReceipt string `json:"jws_receipt"`
 }
 
 // Product defines model for Product.

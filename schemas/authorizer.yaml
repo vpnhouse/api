@@ -528,6 +528,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -996,12 +1000,11 @@ components:
         properties:
           jws_receipt:
             type: string
-          purchase_context_id:
+          auth_info:
             type: string
-            format: uuid
         required:
             - jws_receipt
-            - purchase_context_id
+            - auth_info
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object
