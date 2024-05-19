@@ -2119,7 +2119,7 @@ func (r ProcessAndroidPurchaseResponse) StatusCode() int {
 type ProcessIosPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *AuthResp
+	JSON200      *TokenResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -3177,7 +3177,7 @@ func ParseProcessIosPurchaseResponse(rsp *http.Response) (*ProcessIosPurchaseRes
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResp
+		var dest TokenResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

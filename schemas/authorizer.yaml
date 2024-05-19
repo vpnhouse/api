@@ -531,7 +531,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResp'
+                $ref: '#/components/schemas/TokenResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
