@@ -998,11 +998,15 @@ components:
         title: ProcessIOSPurchaseRequest
         type: object
         properties:
+          user_email:
+            type: string
+            format: email
           jws_receipt:
             type: string
           auth_info:
             type: string
         required:
+            - user_email
             - jws_receipt
             - auth_info
     ApplyTrialLicenseRequest:

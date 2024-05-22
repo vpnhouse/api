@@ -4,11 +4,11 @@
 package authorizer
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
@@ -130,8 +131,9 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	AuthInfo   string `json:"auth_info"`
-	JwsReceipt string `json:"jws_receipt"`
+	AuthInfo   string              `json:"auth_info"`
+	JwsReceipt string              `json:"jws_receipt"`
+	UserEmail  openapi_types.Email `json:"user_email"`
 }
 
 // Product defines model for Product.
