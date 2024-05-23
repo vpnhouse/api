@@ -20,6 +20,11 @@ const (
 	BearerScopes     = "bearer.Scopes"
 )
 
+// AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
+type AppleServerNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
+}
+
 // ApplyTrialLicenseRequest defines model for ApplyTrialLicenseRequest.
 type ApplyTrialLicenseRequest struct {
 	ProductId string `json:"product_id"`
@@ -185,6 +190,9 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
+type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
+
 // ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
 type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
@@ -252,6 +260,9 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
 
+// AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
+type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
+
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
 
@@ -296,6 +307,9 @@ type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Apple server notifications
+	// (POST /api/client/apple-server-notifications)
+	AppleServerNotifications(w http.ResponseWriter, r *http.Request)
 	// Apply trial license
 	// (POST /api/client/apply-trial-license)
 	ApplyTrialLicense(w http.ResponseWriter, r *http.Request)
@@ -366,6 +380,21 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// AppleServerNotifications operation middleware
+func (siw *ServerInterfaceWrapper) AppleServerNotifications(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AppleServerNotifications(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // ApplyTrialLicense operation middleware
 func (siw *ServerInterfaceWrapper) ApplyTrialLicense(w http.ResponseWriter, r *http.Request) {
@@ -951,6 +980,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/apple-server-notifications", wrapper.AppleServerNotifications)
+	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/apply-trial-license", wrapper.ApplyTrialLicense)
 	})
