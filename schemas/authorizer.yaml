@@ -5,7 +5,7 @@ info:
   contact:
     name: Sergey Kovalev
     email: support@vpnhouse.net
-  description: 'Authentication API  '
+  description: 'Authentication API'
 paths:
   /api/client/signin:
     post:
@@ -998,15 +998,11 @@ components:
         title: ProcessIOSPurchaseRequest
         type: object
         properties:
-          user_email:
-            type: string
-            format: email
           jws_receipt:
             type: string
           auth_info:
             type: string
         required:
-            - user_email
             - jws_receipt
             - auth_info
     ApplyTrialLicenseRequest:

@@ -1744,11 +1744,13 @@ components:
       properties:
         user_email:
           type: string
-          format: email
+        user_id:
+          type: string
         jws_receipt:
           type: string
       required:
         - user_email
+        - user_id
         - jws_receipt
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest

@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
-	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	externalRef0 "github.com/vpnhouse/api/go/server/common"
 )
 
@@ -249,8 +248,9 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt string              `json:"jws_receipt"`
-	UserEmail  openapi_types.Email `json:"user_email"`
+	JwsReceipt string `json:"jws_receipt"`
+	UserEmail  string `json:"user_email"`
+	UserId     string `json:"user_id"`
 }
 
 // Product defines model for Product.
