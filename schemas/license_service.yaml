@@ -1783,6 +1783,8 @@ components:
       properties:
         signed_payload:
           type: string
+      required:
+        - signed_payload
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object

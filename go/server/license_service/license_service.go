@@ -22,7 +22,7 @@ const (
 
 // AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
 type AppleServerNotificationsRequest struct {
-	SignedPayload *string `json:"signed_payload,omitempty"`
+	SignedPayload string `json:"signed_payload"`
 }
 
 // ApplyParams defines model for ApplyParams.
