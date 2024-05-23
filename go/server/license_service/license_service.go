@@ -243,7 +243,6 @@ type ProcessAndroidPurchaseRequest struct {
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
 	JwsReceipt string `json:"jws_receipt"`
-	UserEmail  string `json:"user_email"`
 	UserId     string `json:"user_id"`
 }
 

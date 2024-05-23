@@ -1742,14 +1742,11 @@ components:
       title: ProcessIOSPurchaseRequest
       type: object
       properties:
-        user_email:
-          type: string
         user_id:
           type: string
         jws_receipt:
           type: string
       required:
-        - user_email
         - user_id
         - jws_receipt
     ApplyTrialLicenseRequest:
