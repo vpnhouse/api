@@ -345,6 +345,7 @@ type UserLicense struct {
 	// Embedded fields due to inline allOf schema
 	// Labels in JSON format
 	LabelsJson *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	Period     *string                  `json:"period,omitempty"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.

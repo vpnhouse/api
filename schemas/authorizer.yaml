@@ -923,6 +923,9 @@ components:
           example: [ "windows", "android", "ios" ]
         labels_json:
           $ref: 'common.yaml#/components/schemas/LabelsJson'
+        period:
+          type: string
+          example: "p1y"
     PaymentDetailsRequest:
       title: PaymentDetailsRequest
       type: object
