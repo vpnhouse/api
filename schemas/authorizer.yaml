@@ -1030,6 +1030,7 @@ components:
           - signature
           - purchase_context_id
           - auth_info
+          - sku
     ProcessIOSPurchaseRequest:
         title: ProcessIOSPurchaseRequest
         type: object

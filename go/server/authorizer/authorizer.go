@@ -120,13 +120,13 @@ type PaymentLinkResp struct {
 
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
-	OrderId           string  `json:"order_id"`
-	PackageName       string  `json:"package_name"`
-	PurchaseContextId string  `json:"purchase_context_id"`
-	PurchaseTime      int     `json:"purchase_time"`
-	PurchaseToken     string  `json:"purchase_token"`
-	Signature         string  `json:"signature"`
-	Sku               *string `json:"sku,omitempty"`
+	OrderId           string `json:"order_id"`
+	PackageName       string `json:"package_name"`
+	PurchaseContextId string `json:"purchase_context_id"`
+	PurchaseTime      int    `json:"purchase_time"`
+	PurchaseToken     string `json:"purchase_token"`
+	Signature         string `json:"signature"`
+	Sku               string `json:"sku"`
 }
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
