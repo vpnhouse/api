@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -249,6 +249,7 @@ type ProcessAndroidPurchaseRequest struct {
 	PurchaseTime      int    `json:"purchase_time"`
 	PurchaseToken     string `json:"purchase_token"`
 	Signature         string `json:"signature"`
+	UserId            string `json:"user_id"`
 }
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.

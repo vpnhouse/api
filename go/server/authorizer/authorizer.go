@@ -120,6 +120,7 @@ type PaymentLinkResp struct {
 
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
+	AuthInfo          string `json:"auth_info"`
 	OrderId           string `json:"order_id"`
 	PackageName       string `json:"package_name"`
 	PurchaseContextId string `json:"purchase_context_id"`

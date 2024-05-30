@@ -1762,6 +1762,9 @@ components:
         purchase_context_id:
           type: string
           format: uuid
+        user_id:
+          type: string
+          format: uuid
       required:
         - order_id
         - package_name
@@ -1769,6 +1772,7 @@ components:
         - purchase_token
         - signature
         - purchase_context_id
+        - user_id
     ProcessIOSPurchaseRequest:
       title: ProcessIOSPurchaseRequest
       type: object

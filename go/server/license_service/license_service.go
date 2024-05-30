@@ -243,6 +243,7 @@ type ProcessAndroidPurchaseRequest struct {
 	PurchaseTime      int    `json:"purchase_time"`
 	PurchaseToken     string `json:"purchase_token"`
 	Signature         string `json:"signature"`
+	UserId            string `json:"user_id"`
 }
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.

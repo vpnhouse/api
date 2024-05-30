@@ -502,6 +502,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -1016,6 +1020,8 @@ components:
         purchase_context_id:
           type: string
           format: uuid
+        auth_info:
+          type: string
       required:
           - order_id
           - package_name
@@ -1023,6 +1029,7 @@ components:
           - purchase_token
           - signature
           - purchase_context_id
+          - auth_info
     ProcessIOSPurchaseRequest:
         title: ProcessIOSPurchaseRequest
         type: object

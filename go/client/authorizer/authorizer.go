@@ -4,11 +4,11 @@
 package authorizer
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -126,6 +126,7 @@ type PaymentLinkResp struct {
 
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
+	AuthInfo          string `json:"auth_info"`
 	OrderId           string `json:"order_id"`
 	PackageName       string `json:"package_name"`
 	PurchaseContextId string `json:"purchase_context_id"`
@@ -2205,6 +2206,7 @@ func (r PaymentLinkResponse) StatusCode() int {
 type ProcessAndroidPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *TokenResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -3303,6 +3305,13 @@ func ParseProcessAndroidPurchaseResponse(rsp *http.Response) (*ProcessAndroidPur
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TokenResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
