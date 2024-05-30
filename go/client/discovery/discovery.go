@@ -4,10 +4,10 @@
 package discovery
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"context"
 	"encoding/json"
 	"fmt"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io/ioutil"
 	"net/http"
 	"net/url"

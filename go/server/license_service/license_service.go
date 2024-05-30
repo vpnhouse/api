@@ -225,6 +225,11 @@ type PaymentDetailsResp struct {
 	PaymentUrl string `json:"payment_url"`
 }
 
+// PaymentLinkResp defines model for PaymentLinkResp.
+type PaymentLinkResp struct {
+	PaymentUrl string `json:"payment_url"`
+}
+
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
 	OrderId           string `json:"order_id"`
@@ -380,8 +385,16 @@ type PatchLicenseJSONBody PatchLicenseParams
 // UpdateLicenseJSONBody defines parameters for UpdateLicense.
 type UpdateLicenseJSONBody UpdateLicenseParams
 
+// PaymentCallbackPaygateTypeParamsPaygateType defines parameters for PaymentCallbackPaygateType.
+type PaymentCallbackPaygateTypeParamsPaygateType string
+
 // PaymentDetailsJSONBody defines parameters for PaymentDetails.
 type PaymentDetailsJSONBody PaymentDetailsRequest
+
+// GetPaymentLinkParams defines parameters for GetPaymentLink.
+type GetPaymentLinkParams struct {
+	PurchaseContextId string `json:"purchase_context_id"`
+}
 
 // ProcessAndroidPurchaseJSONBody defines parameters for ProcessAndroidPurchase.
 type ProcessAndroidPurchaseJSONBody ProcessAndroidPurchaseRequest
@@ -525,9 +538,15 @@ type ServerInterface interface {
 	// Handle payment callback
 	// (POST /api/license-service/payment-callback)
 	PaymentCallback(w http.ResponseWriter, r *http.Request)
+	// Handle payment callback for specific payment gateway
+	// (POST /api/license-service/payment-callback/{paygate_type})
+	PaymentCallbackPaygateType(w http.ResponseWriter, r *http.Request, paygateType PaymentCallbackPaygateTypeParamsPaygateType)
 	// Get payment details
 	// (GET /api/license-service/payment-details)
 	PaymentDetails(w http.ResponseWriter, r *http.Request)
+
+	// (GET /api/license-service/payment-link)
+	GetPaymentLink(w http.ResponseWriter, r *http.Request, params GetPaymentLinkParams)
 	// Process android purchase
 	// (POST /api/license-service/process-android-purchase)
 	ProcessAndroidPurchase(w http.ResponseWriter, r *http.Request)
@@ -982,6 +1001,36 @@ func (siw *ServerInterfaceWrapper) PaymentCallback(w http.ResponseWriter, r *htt
 	handler(w, r.WithContext(ctx))
 }
 
+// PaymentCallbackPaygateType operation middleware
+func (siw *ServerInterfaceWrapper) PaymentCallbackPaygateType(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "paygate_type" -------------
+	var paygateType PaymentCallbackPaygateTypeParamsPaygateType
+
+	err = runtime.BindStyledParameter("simple", false, "paygate_type", chi.URLParam(r, "paygate_type"), &paygateType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "paygate_type", Err: err})
+		return
+	}
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.PaymentCallbackPaygateType(w, r, paygateType)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // PaymentDetails operation middleware
 func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -992,6 +1041,44 @@ func (siw *ServerInterfaceWrapper) PaymentDetails(w http.ResponseWriter, r *http
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.PaymentDetails(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// GetPaymentLink operation middleware
+func (siw *ServerInterfaceWrapper) GetPaymentLink(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPaymentLinkParams
+
+	// ------------- Required query parameter "purchase_context_id" -------------
+	if paramValue := r.URL.Query().Get("purchase_context_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "purchase_context_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "purchase_context_id", r.URL.Query(), &params.PurchaseContextId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "purchase_context_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetPaymentLink(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1601,7 +1688,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/license-service/payment-callback", wrapper.PaymentCallback)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/payment-callback/{paygate_type}", wrapper.PaymentCallbackPaygateType)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/payment-details", wrapper.PaymentDetails)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/payment-link", wrapper.GetPaymentLink)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/process-android-purchase", wrapper.ProcessAndroidPurchase)
