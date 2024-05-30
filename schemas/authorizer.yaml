@@ -1020,7 +1020,7 @@ components:
         purchase_context_id:
           type: string
           format: uuid
-        auth_info:
+        sku:
           type: string
       required:
           - order_id
@@ -1036,11 +1036,8 @@ components:
         properties:
           jws_receipt:
             type: string
-          auth_info:
-            type: string
         required:
             - jws_receipt
-            - auth_info
     AppleServerNotificationsRequest:
         title: AppleServerNotificationsRequest
         type: object

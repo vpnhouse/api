@@ -1762,6 +1762,8 @@ components:
         purchase_context_id:
           type: string
           format: uuid
+        sku:
+          type: string
         user_id:
           type: string
           format: uuid
@@ -1772,6 +1774,7 @@ components:
         - purchase_token
         - signature
         - purchase_context_id
+        - sku
         - user_id
     ProcessIOSPurchaseRequest:
       title: ProcessIOSPurchaseRequest
