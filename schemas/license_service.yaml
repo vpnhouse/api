@@ -1449,6 +1449,9 @@ components:
           properties:
             labels_json:
               $ref: 'common.yaml#/components/schemas/LabelsJson'
+            period:
+              type: string
+              example: "p1y"
     License:
       title: License
       type: object
