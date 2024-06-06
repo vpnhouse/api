@@ -970,26 +970,13 @@ components:
       title: ProcessAndroidPurchaseRequest
       type: object
       properties:
-        order_id:
-          type: string
-        package_name:
-          type: string
-        purchase_time:
-          type: integer
-        purchase_token:
+        purchase:
           type: string
         signature:
           type: string
-        purchase_context_id:
-          type: string
-          format: uuid
       required:
-          - order_id
-          - package_name
-          - purchase_time
-          - purchase_token
+          - purchase
           - signature
-          - purchase_context_id
     ProcessIOSPurchaseRequest:
         title: ProcessIOSPurchaseRequest
         type: object
