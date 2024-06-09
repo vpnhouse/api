@@ -1756,10 +1756,14 @@ components:
         user_id:
           type: string
           format: uuid
+        project_id:
+          type: string
+          format: uuid
       required:
         - purchase
         - signature
         - user_id
+        - project_id
     ProcessIOSPurchaseRequest:
       title: ProcessIOSPurchaseRequest
       type: object
