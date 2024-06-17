@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -238,12 +238,10 @@ type PaymentLinkResp struct {
 
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
-	OrderId           string `json:"order_id"`
-	PackageName       string `json:"package_name"`
-	PurchaseContextId string `json:"purchase_context_id"`
-	PurchaseTime      int    `json:"purchase_time"`
-	PurchaseToken     string `json:"purchase_token"`
-	Signature         string `json:"signature"`
+	ProjectId string `json:"project_id"`
+	Purchase  string `json:"purchase"`
+	Signature string `json:"signature"`
+	UserId    string `json:"user_id"`
 }
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
@@ -346,6 +344,7 @@ type UserLicense struct {
 	// Embedded fields due to inline allOf schema
 	// Labels in JSON format
 	LabelsJson *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	Period     *string                  `json:"period,omitempty"`
 }
 
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.

@@ -82,6 +82,7 @@ type License struct {
 
 	// Labels in JSON format
 	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
+	Period       *string                  `json:"period,omitempty"`
 	ProjectId    *string                  `json:"project_id,omitempty"`
 	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
 	StartAt      *time.Time               `json:"start_at,omitempty"`
@@ -114,12 +115,8 @@ type PaymentLinkResp struct {
 
 // ProcessAndroidPurchaseRequest defines model for ProcessAndroidPurchaseRequest.
 type ProcessAndroidPurchaseRequest struct {
-	OrderId           string `json:"order_id"`
-	PackageName       string `json:"package_name"`
-	PurchaseContextId string `json:"purchase_context_id"`
-	PurchaseTime      int    `json:"purchase_time"`
-	PurchaseToken     string `json:"purchase_token"`
-	Signature         string `json:"signature"`
+	Purchase  string `json:"purchase"`
+	Signature string `json:"signature"`
 }
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
