@@ -132,8 +132,7 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	AuthInfo   *string `json:"auth_info,omitempty"`
-	JwsReceipt string  `json:"jws_receipt"`
+	JwsReceipt string `json:"jws_receipt"`
 }
 
 // Product defines model for Product.

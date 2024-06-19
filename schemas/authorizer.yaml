@@ -1020,8 +1020,6 @@ components:
         properties:
           jws_receipt:
             type: string
-          auth_info:
-            type: string
         required:
             - jws_receipt
     AppleServerNotificationsRequest:
