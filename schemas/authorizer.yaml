@@ -1024,7 +1024,6 @@ components:
             type: string
         required:
             - jws_receipt
-            - auth_info
     AppleServerNotificationsRequest:
         title: AppleServerNotificationsRequest
         type: object

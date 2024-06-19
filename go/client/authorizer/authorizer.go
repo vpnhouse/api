@@ -4,11 +4,11 @@
 package authorizer
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -132,8 +132,8 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	AuthInfo   string `json:"auth_info"`
-	JwsReceipt string `json:"jws_receipt"`
+	AuthInfo   *string `json:"auth_info,omitempty"`
+	JwsReceipt string  `json:"jws_receipt"`
 }
 
 // Product defines model for Product.
