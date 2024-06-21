@@ -13,7 +13,7 @@ import (
 
 // SubmitUserRequestParams defines parameters for SubmitUserRequest.
 type SubmitUserRequestParams struct {
-	ProjectId string `json:"project_id"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // ServerInterface represents all server handlers.
@@ -41,15 +41,12 @@ func (siw *ServerInterfaceWrapper) SubmitUserRequest(w http.ResponseWriter, r *h
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SubmitUserRequestParams
 
-	// ------------- Required query parameter "project_id" -------------
+	// ------------- Optional query parameter "project_id" -------------
 	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
 
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
-		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
