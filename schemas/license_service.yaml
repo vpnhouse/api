@@ -950,6 +950,34 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ProcessIOSPurchaseRequest'
+
+  /api/license-service/apple-server-notifications:
+    post:
+      summary: Apple server notifications
+      tags:
+        - apple
+        - server
+        - notifications
+      operationId: apple-server-notifications
+      description: Apple server notifications
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppleServerNotificationsRequest'
+
   /api/license-service/apply-trial-license:
     post:
       summary: Apply trial license by given product
@@ -1740,14 +1768,21 @@ components:
       title: ProcessIOSPurchaseRequest
       type: object
       properties:
+        user_id:
+          type: string
         jws_receipt:
           type: string
-        purchase_context_id:
-          type: string
-          format: uuid
       required:
+        - user_id
         - jws_receipt
-        - purchase_context_id
+    AppleServerNotificationsRequest:
+      title: AppleServerNotificationsRequest
+      type: object
+      properties:
+        signed_payload:
+          type: string
+      required:
+        - signed_payload
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object

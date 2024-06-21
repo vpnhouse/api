@@ -20,6 +20,11 @@ const (
 	BearerScopes      = "bearer.Scopes"
 )
 
+// AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
+type AppleServerNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
+}
+
 // ApplyParams defines model for ApplyParams.
 type ApplyParams struct {
 	Email     *string `json:"email,omitempty"`
@@ -240,8 +245,8 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt        string `json:"jws_receipt"`
-	PurchaseContextId string `json:"purchase_context_id"`
+	JwsReceipt string `json:"jws_receipt"`
+	UserId     string `json:"user_id"`
 }
 
 // Product defines model for Product.
@@ -341,6 +346,9 @@ type UserLicense struct {
 	Period     *string                  `json:"period,omitempty"`
 }
 
+// AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
+type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
@@ -433,6 +441,9 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
+// AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
+type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
+
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
 
@@ -492,6 +503,9 @@ type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Apple server notifications
+	// (POST /api/license-service/apple-server-notifications)
+	AppleServerNotifications(w http.ResponseWriter, r *http.Request)
 	// Copy all purchases find by email and create new licenses for user in given project
 	// (GET /api/license-service/apply-for-user-by-email)
 	ApplyForUserByEmail(w http.ResponseWriter, r *http.Request)
@@ -598,6 +612,23 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// AppleServerNotifications operation middleware
+func (siw *ServerInterfaceWrapper) AppleServerNotifications(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.AppleServerNotifications(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // ApplyForUserByEmail operation middleware
 func (siw *ServerInterfaceWrapper) ApplyForUserByEmail(w http.ResponseWriter, r *http.Request) {
@@ -1641,6 +1672,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/apple-server-notifications", wrapper.AppleServerNotifications)
+	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/license-service/apply-for-user-by-email", wrapper.ApplyForUserByEmail)
 	})
