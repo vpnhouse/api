@@ -18,7 +18,7 @@ import (
 
 // SubmitUserRequestParams defines parameters for SubmitUserRequest.
 type SubmitUserRequestParams struct {
-	ProjectId string `json:"project_id"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
@@ -131,16 +131,20 @@ func NewSubmitUserRequestRequestWithBody(server string, params *SubmitUserReques
 
 	queryValues := queryURL.Query()
 
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
+	if params.ProjectId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
 			}
 		}
+
 	}
 
 	queryURL.RawQuery = queryValues.Encode()
