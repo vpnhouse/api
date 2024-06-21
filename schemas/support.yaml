@@ -17,7 +17,7 @@ paths:
             format: uuid
           name: project_id
           in: query
-          required: true
+          required: false
       responses:
         '200':
           description: OK
