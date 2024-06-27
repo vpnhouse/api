@@ -49,6 +49,7 @@ type Confirmation struct {
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -75,6 +76,7 @@ type CreateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -144,6 +146,7 @@ type FindConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -233,6 +236,7 @@ type PatchConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
@@ -375,6 +379,7 @@ type UpdateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 

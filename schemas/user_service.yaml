@@ -2729,6 +2729,8 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
         email:
           type: string
         expires_at:
@@ -2754,6 +2756,9 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2765,6 +2770,7 @@ components:
         - email
         - firebase_id
         - confirmed
+        - platform_type
         - email
         - expires_at
     UpdateConfirmationParams:
@@ -2781,6 +2787,9 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2795,6 +2804,7 @@ components:
       required:
         - firebase_id
         - confirmed
+        - platform_type
         - email
         - expires_at
         - updated_at
@@ -2809,6 +2819,9 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2832,6 +2845,8 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
         email:
           type: string
         created_at:
