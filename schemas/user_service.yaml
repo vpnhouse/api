@@ -2870,10 +2870,14 @@ components:
         expires_at:
           type: string
           format: date-time
+        platform_type:
+          type: string
+          format: string
       required:
         - id
         - identifier
         - expires_at
+        - platform_type
     SessionToDeleteParams:
       title: SessionToDeleteParams
       type: object
