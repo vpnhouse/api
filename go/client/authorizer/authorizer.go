@@ -155,6 +155,12 @@ type PurgeUserRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// SendCryptoInfoRequest defines model for SendCryptoInfoRequest.
+type SendCryptoInfoRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -237,6 +243,9 @@ type PurgeUserJSONBody PurgeUserRequest
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
+// SendCryptoInfoJSONBody defines parameters for SendCryptoInfo.
+type SendCryptoInfoJSONBody SendCryptoInfoRequest
+
 // SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
 type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
@@ -278,6 +287,9 @@ type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+
+// SendCryptoInfoJSONRequestBody defines body for SendCryptoInfo for application/json ContentType.
+type SendCryptoInfoJSONRequestBody SendCryptoInfoJSONBody
 
 // SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
 type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
@@ -427,6 +439,11 @@ type ClientInterface interface {
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendCryptoInfo request with any body
+	SendCryptoInfoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendCryptoInfo(ctx context.Context, body SendCryptoInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -713,6 +730,30 @@ func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType s
 
 func (c *Client) SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendConfirmationLinkRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendCryptoInfoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendCryptoInfoRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendCryptoInfo(ctx context.Context, body SendCryptoInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendCryptoInfoRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1485,6 +1526,46 @@ func NewSendConfirmationLinkRequestWithBody(server string, contentType string, b
 	return req, nil
 }
 
+// NewSendCryptoInfoRequest calls the generic SendCryptoInfo builder with application/json body
+func NewSendCryptoInfoRequest(server string, body SendCryptoInfoJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendCryptoInfoRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendCryptoInfoRequestWithBody generates requests for SendCryptoInfo with any type of body
+func NewSendCryptoInfoRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/send-crypto-info")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewSendRestoreLinkRequest calls the generic SendRestoreLink builder with application/json body
 func NewSendRestoreLinkRequest(server string, body SendRestoreLinkJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1825,6 +1906,11 @@ type ClientWithResponsesInterface interface {
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
 	SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+
+	// SendCryptoInfo request with any body
+	SendCryptoInfoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendCryptoInfoResponse, error)
+
+	SendCryptoInfoWithResponse(ctx context.Context, body SendCryptoInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendCryptoInfoResponse, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error)
@@ -2212,6 +2298,32 @@ func (r SendConfirmationLinkResponse) StatusCode() int {
 	return 0
 }
 
+type SendCryptoInfoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendCryptoInfoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendCryptoInfoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SendRestoreLinkResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2555,6 +2667,23 @@ func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseSendConfirmationLinkResponse(rsp)
+}
+
+// SendCryptoInfoWithBodyWithResponse request with arbitrary body returning *SendCryptoInfoResponse
+func (c *ClientWithResponses) SendCryptoInfoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendCryptoInfoResponse, error) {
+	rsp, err := c.SendCryptoInfoWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendCryptoInfoResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendCryptoInfoWithResponse(ctx context.Context, body SendCryptoInfoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendCryptoInfoResponse, error) {
+	rsp, err := c.SendCryptoInfo(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendCryptoInfoResponse(rsp)
 }
 
 // SendRestoreLinkWithBodyWithResponse request with arbitrary body returning *SendRestoreLinkResponse
@@ -3327,6 +3456,60 @@ func ParseSendConfirmationLinkResponse(rsp *http.Response) (*SendConfirmationLin
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendCryptoInfoResponse parses an HTTP response from a SendCryptoInfoWithResponse call
+func ParseSendCryptoInfoResponse(rsp *http.Response) (*SendCryptoInfoResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendCryptoInfoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
