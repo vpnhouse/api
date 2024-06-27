@@ -633,6 +633,35 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/client/send-crypto-info:
+    post:
+      summary: Send crypto info
+      tags:
+        - send
+        - crypto-info
+      operationId: send-crypto-info
+      description: Send crypto info
+      security:
+        - {}
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendCryptoInfoRequest'
+
 components:
   schemas:
     AuthRequest:
@@ -1021,6 +1050,19 @@ components:
         - user_id
         - project_id
         - api_key
+    SendCryptoInfoRequest:
+        title: SendCryptoInfoRequest
+        type: object
+        properties:
+          email:
+            type: string
+            format: uuid
+          project_id:
+            type: string
+            format: uuid
+        required:
+            - email
+            - project_id
 
   securitySchemes:
     bearer:
