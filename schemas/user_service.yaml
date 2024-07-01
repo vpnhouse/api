@@ -2792,7 +2792,7 @@ components:
           format: uuid
       required:
         - email
-        - confiramation_id
+        - confirmation_id
         - user_id
         - project_id
     CreateConfirmationParams:
