@@ -327,10 +327,10 @@ type RegisterUserRequest struct {
 
 // RemainConfirmation defines model for RemainConfirmation.
 type RemainConfirmation struct {
-	ConfirmationId *string `json:"confirmation_id,omitempty"`
-	Email          string  `json:"email"`
-	ProjectId      string  `json:"project_id"`
-	UserId         string  `json:"user_id"`
+	ConfirmationId string `json:"confirmation_id"`
+	Email          string `json:"email"`
+	ProjectId      string `json:"project_id"`
+	UserId         string `json:"user_id"`
 }
 
 // RemainConfirmationParams defines model for RemainConfirmationParams.
