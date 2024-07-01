@@ -211,14 +211,6 @@ type Mailing struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
-// NotConfirmedUserEmail defines model for NotConfirmedUserEmail.
-type NotConfirmedUserEmail struct {
-	Confirmation Confirmation `json:"confirmation"`
-	Email        string       `json:"email"`
-	ProjectId    string       `json:"project_id"`
-	UserId       string       `json:"user_id"`
-}
-
 // PatchAuthMethodParams defines model for PatchAuthMethodParams.
 type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
@@ -325,6 +317,23 @@ type RegisterUserRequest struct {
 	Email        *string `json:"email,omitempty"`
 	Identifier   *string `json:"identifier,omitempty"`
 	ProjectId    *string `json:"project_id,omitempty"`
+}
+
+// RemainConfirmation defines model for RemainConfirmation.
+type RemainConfirmation struct {
+	ConfiramationId string `json:"confiramation_id"`
+	Email           string `json:"email"`
+	ProjectId       string `json:"project_id"`
+	UserId          string `json:"user_id"`
+}
+
+// RemainConfirmationParams defines model for RemainConfirmationParams.
+type RemainConfirmationParams struct {
+	// period in seconds the returned confirmations do expire
+	ConfirmationExpirePeriod int64 `json:"confirmation_expire_period"`
+
+	// period in ISO8601
+	RegisteredAgo string `json:"registered_ago"`
 }
 
 // RotateConfirmationParams defines model for RotateConfirmationParams.
@@ -495,6 +504,9 @@ type ListConfirmationParams struct {
 // CreateConfirmationJSONBody defines parameters for CreateConfirmation.
 type CreateConfirmationJSONBody CreateConfirmationParams
 
+// RemainConfirmationJSONBody defines parameters for RemainConfirmation.
+type RemainConfirmationJSONBody RemainConfirmationParams
+
 // PatchConfirmationJSONBody defines parameters for PatchConfirmation.
 type PatchConfirmationJSONBody PatchConfirmationParams
 
@@ -557,11 +569,6 @@ type PatchMailingJSONBody PatchMailingParams
 
 // UpdateMailingJSONBody defines parameters for UpdateMailing.
 type UpdateMailingJSONBody UpdateMailingParams
-
-// ListNotConfirmedEmailsParams defines parameters for ListNotConfirmedEmails.
-type ListNotConfirmedEmailsParams struct {
-	CreatedAgo string `json:"created_ago"`
-}
 
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
@@ -660,6 +667,9 @@ type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
 // CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
 type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
+
+// RemainConfirmationJSONRequestBody defines body for RemainConfirmation for application/json ContentType.
+type RemainConfirmationJSONRequestBody RemainConfirmationJSONBody
 
 // PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
 type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
@@ -783,6 +793,9 @@ type ServerInterface interface {
 	// Create confirmation
 	// (POST /api/user-service/confirmation)
 	CreateConfirmation(w http.ResponseWriter, r *http.Request)
+	// List of confirmations to remain user
+	// (POST /api/user-service/confirmation-to-remain)
+	RemainConfirmation(w http.ResponseWriter, r *http.Request)
 	// Delete a confirmation
 	// (DELETE /api/user-service/confirmation/{id})
 	DeleteConfirmation(w http.ResponseWriter, r *http.Request, id string)
@@ -858,9 +871,6 @@ type ServerInterface interface {
 	// List nodes
 	// (GET /api/user-service/node-with-not-connected-peer-users)
 	ListNodeWithNotConnectedPeerUsers(w http.ResponseWriter, r *http.Request)
-	// List not confirmed users' emails
-	// (GET /api/user-service/not-confirmed-emails)
-	ListNotConfirmedEmails(w http.ResponseWriter, r *http.Request, params ListNotConfirmedEmailsParams)
 	// List projects
 	// (GET /api/user-service/project)
 	ListProject(w http.ResponseWriter, r *http.Request, params ListProjectParams)
@@ -1391,6 +1401,25 @@ func (siw *ServerInterfaceWrapper) CreateConfirmation(w http.ResponseWriter, r *
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateConfirmation(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// RemainConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) RemainConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RemainConfirmation(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -2138,44 +2167,6 @@ func (siw *ServerInterfaceWrapper) ListNodeWithNotConnectedPeerUsers(w http.Resp
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListNodeWithNotConnectedPeerUsers(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ListNotConfirmedEmails operation middleware
-func (siw *ServerInterfaceWrapper) ListNotConfirmedEmails(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ListNotConfirmedEmailsParams
-
-	// ------------- Required query parameter "created_ago" -------------
-	if paramValue := r.URL.Query().Get("created_ago"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "created_ago"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "created_ago", r.URL.Query(), &params.CreatedAgo)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "created_ago", Err: err})
-		return
-	}
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListNotConfirmedEmails(w, r, params)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3159,6 +3150,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/user-service/confirmation", wrapper.CreateConfirmation)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/user-service/confirmation-to-remain", wrapper.RemainConfirmation)
+	})
+	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.DeleteConfirmation)
 	})
 	r.Group(func(r chi.Router) {
@@ -3232,9 +3226,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/node-with-not-connected-peer-users", wrapper.ListNodeWithNotConnectedPeerUsers)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/user-service/not-confirmed-emails", wrapper.ListNotConfirmedEmails)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/project", wrapper.ListProject)

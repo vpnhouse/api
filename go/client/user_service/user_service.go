@@ -217,14 +217,6 @@ type Mailing struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
-// NotConfirmedUserEmail defines model for NotConfirmedUserEmail.
-type NotConfirmedUserEmail struct {
-	Confirmation Confirmation `json:"confirmation"`
-	Email        string       `json:"email"`
-	ProjectId    string       `json:"project_id"`
-	UserId       string       `json:"user_id"`
-}
-
 // PatchAuthMethodParams defines model for PatchAuthMethodParams.
 type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
@@ -331,6 +323,23 @@ type RegisterUserRequest struct {
 	Email        *string `json:"email,omitempty"`
 	Identifier   *string `json:"identifier,omitempty"`
 	ProjectId    *string `json:"project_id,omitempty"`
+}
+
+// RemainConfirmation defines model for RemainConfirmation.
+type RemainConfirmation struct {
+	ConfiramationId string `json:"confiramation_id"`
+	Email           string `json:"email"`
+	ProjectId       string `json:"project_id"`
+	UserId          string `json:"user_id"`
+}
+
+// RemainConfirmationParams defines model for RemainConfirmationParams.
+type RemainConfirmationParams struct {
+	// period in seconds the returned confirmations do expire
+	ConfirmationExpirePeriod int64 `json:"confirmation_expire_period"`
+
+	// period in ISO8601
+	RegisteredAgo string `json:"registered_ago"`
 }
 
 // RotateConfirmationParams defines model for RotateConfirmationParams.
@@ -501,6 +510,9 @@ type ListConfirmationParams struct {
 // CreateConfirmationJSONBody defines parameters for CreateConfirmation.
 type CreateConfirmationJSONBody CreateConfirmationParams
 
+// RemainConfirmationJSONBody defines parameters for RemainConfirmation.
+type RemainConfirmationJSONBody RemainConfirmationParams
+
 // PatchConfirmationJSONBody defines parameters for PatchConfirmation.
 type PatchConfirmationJSONBody PatchConfirmationParams
 
@@ -563,11 +575,6 @@ type PatchMailingJSONBody PatchMailingParams
 
 // UpdateMailingJSONBody defines parameters for UpdateMailing.
 type UpdateMailingJSONBody UpdateMailingParams
-
-// ListNotConfirmedEmailsParams defines parameters for ListNotConfirmedEmails.
-type ListNotConfirmedEmailsParams struct {
-	CreatedAgo string `json:"created_ago"`
-}
 
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
@@ -666,6 +673,9 @@ type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
 // CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
 type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
+
+// RemainConfirmationJSONRequestBody defines body for RemainConfirmation for application/json ContentType.
+type RemainConfirmationJSONRequestBody RemainConfirmationJSONBody
 
 // PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
 type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
@@ -874,6 +884,11 @@ type ClientInterface interface {
 
 	CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RemainConfirmation request with any body
+	RemainConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RemainConfirmation(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// DeleteConfirmation request
 	DeleteConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -974,9 +989,6 @@ type ClientInterface interface {
 
 	// ListNodeWithNotConnectedPeerUsers request
 	ListNodeWithNotConnectedPeerUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListNotConfirmedEmails request
-	ListNotConfirmedEmails(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProject request
 	ListProject(ctx context.Context, params *ListProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1322,6 +1334,30 @@ func (c *Client) CreateConfirmationWithBody(ctx context.Context, contentType str
 
 func (c *Client) CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateConfirmationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemainConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemainConfirmationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemainConfirmation(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemainConfirmationRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1778,18 +1814,6 @@ func (c *Client) UpdateMailing(ctx context.Context, id string, body UpdateMailin
 
 func (c *Client) ListNodeWithNotConnectedPeerUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListNodeWithNotConnectedPeerUsersRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ListNotConfirmedEmails(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListNotConfirmedEmailsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -2865,6 +2889,46 @@ func NewCreateConfirmationRequestWithBody(server string, contentType string, bod
 	return req, nil
 }
 
+// NewRemainConfirmationRequest calls the generic RemainConfirmation builder with application/json body
+func NewRemainConfirmationRequest(server string, body RemainConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRemainConfirmationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRemainConfirmationRequestWithBody generates requests for RemainConfirmation with any type of body
+func NewRemainConfirmationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation-to-remain")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteConfirmationRequest generates requests for DeleteConfirmation
 func NewDeleteConfirmationRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -3907,49 +3971,6 @@ func NewListNodeWithNotConnectedPeerUsersRequest(server string) (*http.Request, 
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewListNotConfirmedEmailsRequest generates requests for ListNotConfirmedEmails
-func NewListNotConfirmedEmailsRequest(server string, params *ListNotConfirmedEmailsParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/user-service/not-confirmed-emails")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	queryValues := queryURL.Query()
-
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "created_ago", runtime.ParamLocationQuery, params.CreatedAgo); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
-			}
-		}
-	}
-
-	queryURL.RawQuery = queryValues.Encode()
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
@@ -5198,6 +5219,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateConfirmationWithResponse(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error)
 
+	// RemainConfirmation request with any body
+	RemainConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error)
+
+	RemainConfirmationWithResponse(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error)
+
 	// DeleteConfirmation request
 	DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error)
 
@@ -5298,9 +5324,6 @@ type ClientWithResponsesInterface interface {
 
 	// ListNodeWithNotConnectedPeerUsers request
 	ListNodeWithNotConnectedPeerUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListNodeWithNotConnectedPeerUsersResponse, error)
-
-	// ListNotConfirmedEmails request
-	ListNotConfirmedEmailsWithResponse(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*ListNotConfirmedEmailsResponse, error)
 
 	// ListProject request
 	ListProjectWithResponse(ctx context.Context, params *ListProjectParams, reqEditors ...RequestEditorFn) (*ListProjectResponse, error)
@@ -5753,6 +5776,31 @@ func (r CreateConfirmationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemainConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RemainConfirmation
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RemainConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemainConfirmationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -6395,31 +6443,6 @@ func (r ListNodeWithNotConnectedPeerUsersResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListNodeWithNotConnectedPeerUsersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ListNotConfirmedEmailsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]NotConfirmedUserEmail
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r ListNotConfirmedEmailsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListNotConfirmedEmailsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -7242,6 +7265,23 @@ func (c *ClientWithResponses) CreateConfirmationWithResponse(ctx context.Context
 	return ParseCreateConfirmationResponse(rsp)
 }
 
+// RemainConfirmationWithBodyWithResponse request with arbitrary body returning *RemainConfirmationResponse
+func (c *ClientWithResponses) RemainConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error) {
+	rsp, err := c.RemainConfirmationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemainConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) RemainConfirmationWithResponse(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error) {
+	rsp, err := c.RemainConfirmation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemainConfirmationResponse(rsp)
+}
+
 // DeleteConfirmationWithResponse request returning *DeleteConfirmationResponse
 func (c *ClientWithResponses) DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error) {
 	rsp, err := c.DeleteConfirmation(ctx, id, reqEditors...)
@@ -7569,15 +7609,6 @@ func (c *ClientWithResponses) ListNodeWithNotConnectedPeerUsersWithResponse(ctx 
 		return nil, err
 	}
 	return ParseListNodeWithNotConnectedPeerUsersResponse(rsp)
-}
-
-// ListNotConfirmedEmailsWithResponse request returning *ListNotConfirmedEmailsResponse
-func (c *ClientWithResponses) ListNotConfirmedEmailsWithResponse(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*ListNotConfirmedEmailsResponse, error) {
-	rsp, err := c.ListNotConfirmedEmails(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListNotConfirmedEmailsResponse(rsp)
 }
 
 // ListProjectWithResponse request returning *ListProjectResponse
@@ -8589,6 +8620,53 @@ func ParseCreateConfirmationResponse(rsp *http.Response) (*CreateConfirmationRes
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemainConfirmationResponse parses an HTTP response from a RemainConfirmationWithResponse call
+func ParseRemainConfirmationResponse(rsp *http.Response) (*RemainConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemainConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RemainConfirmation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
@@ -9853,53 +9931,6 @@ func ParseListNodeWithNotConnectedPeerUsersResponse(rsp *http.Response) (*ListNo
 		var dest struct {
 			AdditionalProperties map[string][]PeerUser `json:"-"`
 		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListNotConfirmedEmailsResponse parses an HTTP response from a ListNotConfirmedEmailsWithResponse call
-func ParseListNotConfirmedEmailsResponse(rsp *http.Response) (*ListNotConfirmedEmailsResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListNotConfirmedEmailsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []NotConfirmedUserEmail
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

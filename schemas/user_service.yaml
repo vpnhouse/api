@@ -1771,6 +1771,38 @@ paths:
             schema:
               $ref: '#/components/schemas/RotateConfirmationParams'
 
+  /api/user-service/confirmation-to-remain:
+    post:
+      summary: List of confirmations to remain user
+      tags:
+        - confirmation
+        - reamain
+      operationId: remain-confirmation
+      description: Gather list of verification confirmations that still not processed by user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RemainConfirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemainConfirmationParams'
+
   /api/user-service/lookup-user:
     post:
       summary: Lookup user
@@ -1942,40 +1974,6 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/PeerUser'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-
-  /api/user-service/not-confirmed-emails:
-    get:
-      parameters:
-        - schema:
-            type: string
-          name: created_ago
-          in: query
-          required: true
-      summary: List not confirmed users' emails
-      tags:
-        - list
-        - email
-        - confirmation
-      operationId: list-not-confirmed-emails
-      description: Receive list of users' emails created given period ago
-      security:
-        - ServiceKey: [ ]
-        - ServiceName: [ ]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/NotConfirmedUserEmail'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -2777,6 +2775,26 @@ components:
         updated_at:
           type: string
           format: date-time
+    RemainConfirmation:
+      title: RemainConfirmation
+      type: object
+      properties:
+        email:
+          type: string
+        confiramation_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - confiramation_id
+        - user_id
+        - project_id
     CreateConfirmationParams:
       title: CreateConfirmationParams
       type: object
@@ -2913,6 +2931,20 @@ components:
         - identifier
         - expires_at
         - platform_type
+    RemainConfirmationParams:
+      title: RotateConfirmationParams
+      type: object
+      properties:
+        registered_ago:
+          type: string
+          description: period in ISO8601 
+        confirmation_expire_period:
+          type: integer
+          format: int64
+          description: period in seconds the returned confirmations do expire
+      required:
+        - registered_ago
+        - confirmation_expire_period
     SessionToDeleteParams:
       title: SessionToDeleteParams
       type: object
@@ -3087,26 +3119,6 @@ components:
         - peer_label
         - query_id
         - params
-    NotConfirmedUserEmail:
-      title: UserEmail
-      type: object
-      properties:
-        email:
-          type: string
-        user_id:
-          type: string
-          format: uuid
-        project_id:
-          type: string
-          format: uuid
-        confirmation:
-          $ref: '#/components/schemas/Confirmation'
-
-      required:
-        - email
-        - user_id
-        - project_id
-        - confirmation
 
   securitySchemes:
     ServiceKey:
