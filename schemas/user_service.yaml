@@ -2781,7 +2781,7 @@ components:
       properties:
         email:
           type: string
-        confiramation_id:
+        confirmation_id:
           type: string
           format: uuid
         user_id:
