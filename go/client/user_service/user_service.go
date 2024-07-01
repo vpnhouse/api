@@ -217,6 +217,14 @@ type Mailing struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
+// NotConfirmedUserEmail defines model for NotConfirmedUserEmail.
+type NotConfirmedUserEmail struct {
+	Confirmation Confirmation `json:"confirmation"`
+	Email        string       `json:"email"`
+	ProjectId    string       `json:"project_id"`
+	UserId       string       `json:"user_id"`
+}
+
 // PatchAuthMethodParams defines model for PatchAuthMethodParams.
 type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
@@ -555,6 +563,11 @@ type PatchMailingJSONBody PatchMailingParams
 
 // UpdateMailingJSONBody defines parameters for UpdateMailing.
 type UpdateMailingJSONBody UpdateMailingParams
+
+// ListNotConfirmedEmailsParams defines parameters for ListNotConfirmedEmails.
+type ListNotConfirmedEmailsParams struct {
+	CreatedAgo string `json:"created_ago"`
+}
 
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
@@ -961,6 +974,9 @@ type ClientInterface interface {
 
 	// ListNodeWithNotConnectedPeerUsers request
 	ListNodeWithNotConnectedPeerUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListNotConfirmedEmails request
+	ListNotConfirmedEmails(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProject request
 	ListProject(ctx context.Context, params *ListProjectParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1762,6 +1778,18 @@ func (c *Client) UpdateMailing(ctx context.Context, id string, body UpdateMailin
 
 func (c *Client) ListNodeWithNotConnectedPeerUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListNodeWithNotConnectedPeerUsersRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListNotConfirmedEmails(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListNotConfirmedEmailsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -3888,6 +3916,49 @@ func NewListNodeWithNotConnectedPeerUsersRequest(server string) (*http.Request, 
 	return req, nil
 }
 
+// NewListNotConfirmedEmailsRequest generates requests for ListNotConfirmedEmails
+func NewListNotConfirmedEmailsRequest(server string, params *ListNotConfirmedEmailsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/not-confirmed-emails")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "created_ago", runtime.ParamLocationQuery, params.CreatedAgo); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListProjectRequest generates requests for ListProject
 func NewListProjectRequest(server string, params *ListProjectParams) (*http.Request, error) {
 	var err error
@@ -5228,6 +5299,9 @@ type ClientWithResponsesInterface interface {
 	// ListNodeWithNotConnectedPeerUsers request
 	ListNodeWithNotConnectedPeerUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListNodeWithNotConnectedPeerUsersResponse, error)
 
+	// ListNotConfirmedEmails request
+	ListNotConfirmedEmailsWithResponse(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*ListNotConfirmedEmailsResponse, error)
+
 	// ListProject request
 	ListProjectWithResponse(ctx context.Context, params *ListProjectParams, reqEditors ...RequestEditorFn) (*ListProjectResponse, error)
 
@@ -6321,6 +6395,31 @@ func (r ListNodeWithNotConnectedPeerUsersResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListNodeWithNotConnectedPeerUsersResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListNotConfirmedEmailsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]NotConfirmedUserEmail
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r ListNotConfirmedEmailsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListNotConfirmedEmailsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -7470,6 +7569,15 @@ func (c *ClientWithResponses) ListNodeWithNotConnectedPeerUsersWithResponse(ctx 
 		return nil, err
 	}
 	return ParseListNodeWithNotConnectedPeerUsersResponse(rsp)
+}
+
+// ListNotConfirmedEmailsWithResponse request returning *ListNotConfirmedEmailsResponse
+func (c *ClientWithResponses) ListNotConfirmedEmailsWithResponse(ctx context.Context, params *ListNotConfirmedEmailsParams, reqEditors ...RequestEditorFn) (*ListNotConfirmedEmailsResponse, error) {
+	rsp, err := c.ListNotConfirmedEmails(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListNotConfirmedEmailsResponse(rsp)
 }
 
 // ListProjectWithResponse request returning *ListProjectResponse
@@ -9745,6 +9853,53 @@ func ParseListNodeWithNotConnectedPeerUsersResponse(rsp *http.Response) (*ListNo
 		var dest struct {
 			AdditionalProperties map[string][]PeerUser `json:"-"`
 		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListNotConfirmedEmailsResponse parses an HTTP response from a ListNotConfirmedEmailsWithResponse call
+func ParseListNotConfirmedEmailsResponse(rsp *http.Response) (*ListNotConfirmedEmailsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListNotConfirmedEmailsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []NotConfirmedUserEmail
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

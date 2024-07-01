@@ -1949,6 +1949,41 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/user-service/not-confirmed-emails:
+    get:
+      parameters:
+        - schema:
+            type: string
+          name: created_ago
+          in: query
+          required: true
+      summary: List not confirmed users' emails
+      tags:
+        - list
+        - email
+        - confirmation
+      operationId: list-not-confirmed-emails
+      description: Receive list of users' emails created given period ago
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotConfirmedUserEmail'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+
 components:
   schemas:
     Project:
@@ -3052,6 +3087,26 @@ components:
         - peer_label
         - query_id
         - params
+    NotConfirmedUserEmail:
+      title: UserEmail
+      type: object
+      properties:
+        email:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        confirmation:
+          $ref: '#/components/schemas/Confirmation'
+
+      required:
+        - email
+        - user_id
+        - project_id
+        - confirmation
 
   securitySchemes:
     ServiceKey:

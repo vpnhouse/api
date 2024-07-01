@@ -211,6 +211,14 @@ type Mailing struct {
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
 }
 
+// NotConfirmedUserEmail defines model for NotConfirmedUserEmail.
+type NotConfirmedUserEmail struct {
+	Confirmation Confirmation `json:"confirmation"`
+	Email        string       `json:"email"`
+	ProjectId    string       `json:"project_id"`
+	UserId       string       `json:"user_id"`
+}
+
 // PatchAuthMethodParams defines model for PatchAuthMethodParams.
 type PatchAuthMethodParams struct {
 	Name      *string                 `json:"name,omitempty"`
@@ -550,6 +558,11 @@ type PatchMailingJSONBody PatchMailingParams
 // UpdateMailingJSONBody defines parameters for UpdateMailing.
 type UpdateMailingJSONBody UpdateMailingParams
 
+// ListNotConfirmedEmailsParams defines parameters for ListNotConfirmedEmails.
+type ListNotConfirmedEmailsParams struct {
+	CreatedAgo string `json:"created_ago"`
+}
+
 // ListProjectParams defines parameters for ListProject.
 type ListProjectParams struct {
 	Limit  int `json:"limit"`
@@ -845,6 +858,9 @@ type ServerInterface interface {
 	// List nodes
 	// (GET /api/user-service/node-with-not-connected-peer-users)
 	ListNodeWithNotConnectedPeerUsers(w http.ResponseWriter, r *http.Request)
+	// List not confirmed users' emails
+	// (GET /api/user-service/not-confirmed-emails)
+	ListNotConfirmedEmails(w http.ResponseWriter, r *http.Request, params ListNotConfirmedEmailsParams)
 	// List projects
 	// (GET /api/user-service/project)
 	ListProject(w http.ResponseWriter, r *http.Request, params ListProjectParams)
@@ -2131,6 +2147,44 @@ func (siw *ServerInterfaceWrapper) ListNodeWithNotConnectedPeerUsers(w http.Resp
 	handler(w, r.WithContext(ctx))
 }
 
+// ListNotConfirmedEmails operation middleware
+func (siw *ServerInterfaceWrapper) ListNotConfirmedEmails(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListNotConfirmedEmailsParams
+
+	// ------------- Required query parameter "created_ago" -------------
+	if paramValue := r.URL.Query().Get("created_ago"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "created_ago"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "created_ago", r.URL.Query(), &params.CreatedAgo)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "created_ago", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListNotConfirmedEmails(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // ListProject operation middleware
 func (siw *ServerInterfaceWrapper) ListProject(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -3178,6 +3232,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/node-with-not-connected-peer-users", wrapper.ListNodeWithNotConnectedPeerUsers)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/user-service/not-confirmed-emails", wrapper.ListNotConfirmedEmails)
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/user-service/project", wrapper.ListProject)
