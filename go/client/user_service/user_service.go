@@ -55,6 +55,7 @@ type Confirmation struct {
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -81,6 +82,7 @@ type CreateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -150,6 +152,7 @@ type FindConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -239,6 +242,7 @@ type PatchConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
@@ -321,11 +325,29 @@ type RegisterUserRequest struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// RemainConfirmation defines model for RemainConfirmation.
+type RemainConfirmation struct {
+	ConfirmationId string `json:"confirmation_id"`
+	Email          string `json:"email"`
+	ProjectId      string `json:"project_id"`
+	UserId         string `json:"user_id"`
+}
+
+// RemainConfirmationParams defines model for RemainConfirmationParams.
+type RemainConfirmationParams struct {
+	// period in seconds the returned confirmations do expire
+	ConfirmationExpirePeriod int64 `json:"confirmation_expire_period"`
+
+	// period in ISO8601
+	RegisteredAgo string `json:"registered_ago"`
+}
+
 // RotateConfirmationParams defines model for RotateConfirmationParams.
 type RotateConfirmationParams struct {
-	ExpiresAt  time.Time `json:"expires_at"`
-	Id         string    `json:"id"`
-	Identifier string    `json:"identifier"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	Id           string    `json:"id"`
+	Identifier   string    `json:"identifier"`
+	PlatformType string    `json:"platform_type"`
 }
 
 // Session defines model for Session.
@@ -381,6 +403,7 @@ type UpdateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
@@ -486,6 +509,9 @@ type ListConfirmationParams struct {
 
 // CreateConfirmationJSONBody defines parameters for CreateConfirmation.
 type CreateConfirmationJSONBody CreateConfirmationParams
+
+// RemainConfirmationJSONBody defines parameters for RemainConfirmation.
+type RemainConfirmationJSONBody RemainConfirmationParams
 
 // PatchConfirmationJSONBody defines parameters for PatchConfirmation.
 type PatchConfirmationJSONBody PatchConfirmationParams
@@ -647,6 +673,9 @@ type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 
 // CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
 type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
+
+// RemainConfirmationJSONRequestBody defines body for RemainConfirmation for application/json ContentType.
+type RemainConfirmationJSONRequestBody RemainConfirmationJSONBody
 
 // PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
 type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
@@ -854,6 +883,11 @@ type ClientInterface interface {
 	CreateConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RemainConfirmation request with any body
+	RemainConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RemainConfirmation(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteConfirmation request
 	DeleteConfirmation(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1300,6 +1334,30 @@ func (c *Client) CreateConfirmationWithBody(ctx context.Context, contentType str
 
 func (c *Client) CreateConfirmation(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateConfirmationRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemainConfirmationWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemainConfirmationRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) RemainConfirmation(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRemainConfirmationRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2812,6 +2870,46 @@ func NewCreateConfirmationRequestWithBody(server string, contentType string, bod
 	}
 
 	operationPath := fmt.Sprintf("/api/user-service/confirmation")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRemainConfirmationRequest calls the generic RemainConfirmation builder with application/json body
+func NewRemainConfirmationRequest(server string, body RemainConfirmationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRemainConfirmationRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRemainConfirmationRequestWithBody generates requests for RemainConfirmation with any type of body
+func NewRemainConfirmationRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/user-service/confirmation-to-remain")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -5121,6 +5219,11 @@ type ClientWithResponsesInterface interface {
 
 	CreateConfirmationWithResponse(ctx context.Context, body CreateConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateConfirmationResponse, error)
 
+	// RemainConfirmation request with any body
+	RemainConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error)
+
+	RemainConfirmationWithResponse(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error)
+
 	// DeleteConfirmation request
 	DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error)
 
@@ -5673,6 +5776,31 @@ func (r CreateConfirmationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateConfirmationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RemainConfirmationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]RemainConfirmation
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r RemainConfirmationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RemainConfirmationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -7137,6 +7265,23 @@ func (c *ClientWithResponses) CreateConfirmationWithResponse(ctx context.Context
 	return ParseCreateConfirmationResponse(rsp)
 }
 
+// RemainConfirmationWithBodyWithResponse request with arbitrary body returning *RemainConfirmationResponse
+func (c *ClientWithResponses) RemainConfirmationWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error) {
+	rsp, err := c.RemainConfirmationWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemainConfirmationResponse(rsp)
+}
+
+func (c *ClientWithResponses) RemainConfirmationWithResponse(ctx context.Context, body RemainConfirmationJSONRequestBody, reqEditors ...RequestEditorFn) (*RemainConfirmationResponse, error) {
+	rsp, err := c.RemainConfirmation(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRemainConfirmationResponse(rsp)
+}
+
 // DeleteConfirmationWithResponse request returning *DeleteConfirmationResponse
 func (c *ClientWithResponses) DeleteConfirmationWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteConfirmationResponse, error) {
 	rsp, err := c.DeleteConfirmation(ctx, id, reqEditors...)
@@ -8475,6 +8620,53 @@ func ParseCreateConfirmationResponse(rsp *http.Response) (*CreateConfirmationRes
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRemainConfirmationResponse parses an HTTP response from a RemainConfirmationWithResponse call
+func ParseRemainConfirmationResponse(rsp *http.Response) (*RemainConfirmationResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RemainConfirmationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []RemainConfirmation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
