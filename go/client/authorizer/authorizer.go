@@ -65,13 +65,6 @@ type AuthServiceRequest struct {
 	ServiceId string `json:"service_id"`
 }
 
-// CreateFirebaseUserRequest defines model for CreateFirebaseUserRequest.
-type CreateFirebaseUserRequest struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	ProjectId string `json:"project_id"`
-}
-
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
@@ -82,6 +75,14 @@ type CreatePurchaseContextRequest struct {
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
 type CreatePurchaseContextResp struct {
 	PurchaseContextId string `json:"purchase_context_id"`
+}
+
+// CreateUserIdentityRequest defines model for CreateUserIdentityRequest.
+type CreateUserIdentityRequest struct {
+	Email      string  `json:"email"`
+	Password   string  `json:"password"`
+	ProjectId  string  `json:"project_id"`
+	ProviderId *string `json:"provider_id,omitempty"`
 }
 
 // License defines model for License.
@@ -182,14 +183,15 @@ type TokenResp struct {
 	ExpiresAt          time.Time              `json:"expires_at"`
 }
 
-// User defines model for User.
-type User struct {
-	CreatedAt   *time.Time              `json:"created_at,omitempty"`
+// UserIdentity defines model for UserIdentity.
+type UserIdentity struct {
+	CreatedAt   time.Time               `json:"created_at"`
 	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       *string                 `json:"email,omitempty"`
-	Id          *string                 `json:"id,omitempty"`
-	ProjectId   *string                 `json:"project_id,omitempty"`
-	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+	Email       string                  `json:"email"`
+	Id          string                  `json:"id"`
+	ProjectId   string                  `json:"project_id"`
+	ProviderId  string                  `json:"provider_id"`
+	UpdatedAt   time.Time               `json:"updated_at"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
@@ -238,6 +240,11 @@ type ListProductParams struct {
 	PaymentType *string `json:"payment_type,omitempty"`
 }
 
+// GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
+type GetProviderPublicInfoParams struct {
+	Provider *string `json:"provider,omitempty"`
+}
+
 // PurgeUserJSONBody defines parameters for PurgeUser.
 type PurgeUserJSONBody PurgeUserRequest
 
@@ -256,8 +263,8 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// CreateFirebaseUserJSONBody defines parameters for CreateFirebaseUser.
-type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
+// CreateUserIdentityJSONBody defines parameters for CreateUserIdentity.
+type CreateUserIdentityJSONBody CreateUserIdentityRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
@@ -301,8 +308,8 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
-// CreateFirebaseUserJSONRequestBody defines body for CreateFirebaseUser for application/json ContentType.
-type CreateFirebaseUserJSONRequestBody CreateFirebaseUserJSONBody
+// CreateUserIdentityJSONRequestBody defines body for CreateUserIdentity for application/json ContentType.
+type CreateUserIdentityJSONRequestBody CreateUserIdentityJSONBody
 
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
@@ -433,6 +440,9 @@ type ClientInterface interface {
 	// ListProduct request
 	ListProduct(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetProviderPublicInfo request
+	GetProviderPublicInfo(ctx context.Context, params *GetProviderPublicInfoParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PurgeUser request with any body
 	PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -463,10 +473,10 @@ type ClientInterface interface {
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateFirebaseUser request with any body
-	CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// CreateUserIdentity request with any body
+	CreateUserIdentityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateFirebaseUser(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateUserIdentity(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -714,6 +724,18 @@ func (c *Client) ListProduct(ctx context.Context, params *ListProductParams, req
 	return c.Client.Do(req)
 }
 
+func (c *Client) GetProviderPublicInfo(ctx context.Context, params *GetProviderPublicInfoParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetProviderPublicInfoRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) PurgeUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPurgeUserRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -858,8 +880,8 @@ func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFirebaseUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFirebaseUserRequestWithBody(c.Server, contentType, body)
+func (c *Client) CreateUserIdentityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateUserIdentityRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -870,8 +892,8 @@ func (c *Client) CreateFirebaseUserWithBody(ctx context.Context, contentType str
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateFirebaseUser(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateFirebaseUserRequest(c.Server, body)
+func (c *Client) CreateUserIdentity(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateUserIdentityRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1484,6 +1506,53 @@ func NewListProductRequest(server string, params *ListProductParams) (*http.Requ
 	return req, nil
 }
 
+// NewGetProviderPublicInfoRequest generates requests for GetProviderPublicInfo
+func NewGetProviderPublicInfoRequest(server string, params *GetProviderPublicInfoParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/provider-public-info")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if params.Provider != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "provider", runtime.ParamLocationQuery, *params.Provider); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewPurgeUserRequest calls the generic PurgeUser builder with application/json body
 func NewPurgeUserRequest(server string, body PurgeUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1724,19 +1793,19 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewCreateFirebaseUserRequest calls the generic CreateFirebaseUser builder with application/json body
-func NewCreateFirebaseUserRequest(server string, body CreateFirebaseUserJSONRequestBody) (*http.Request, error) {
+// NewCreateUserIdentityRequest calls the generic CreateUserIdentity builder with application/json body
+func NewCreateUserIdentityRequest(server string, body CreateUserIdentityJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateFirebaseUserRequestWithBody(server, "application/json", bodyReader)
+	return NewCreateUserIdentityRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewCreateFirebaseUserRequestWithBody generates requests for CreateFirebaseUser with any type of body
-func NewCreateFirebaseUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewCreateUserIdentityRequestWithBody generates requests for CreateUserIdentity with any type of body
+func NewCreateUserIdentityRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1744,7 +1813,7 @@ func NewCreateFirebaseUserRequestWithBody(server string, contentType string, bod
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/service/firebase-user")
+	operationPath := fmt.Sprintf("/api/service/identity")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1900,6 +1969,9 @@ type ClientWithResponsesInterface interface {
 	// ListProduct request
 	ListProductWithResponse(ctx context.Context, params *ListProductParams, reqEditors ...RequestEditorFn) (*ListProductResponse, error)
 
+	// GetProviderPublicInfo request
+	GetProviderPublicInfoWithResponse(ctx context.Context, params *GetProviderPublicInfoParams, reqEditors ...RequestEditorFn) (*GetProviderPublicInfoResponse, error)
+
 	// PurgeUser request with any body
 	PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error)
 
@@ -1930,10 +2002,10 @@ type ClientWithResponsesInterface interface {
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
-	// CreateFirebaseUser request with any body
-	CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
+	// CreateUserIdentity request with any body
+	CreateUserIdentityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error)
 
-	CreateFirebaseUserWithResponse(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error)
+	CreateUserIdentityWithResponse(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error)
 
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
@@ -2272,6 +2344,32 @@ func (r ListProductResponse) StatusCode() int {
 	return 0
 }
 
+type GetProviderPublicInfoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetProviderPublicInfoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetProviderPublicInfoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type PurgeUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2424,10 +2522,10 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
-type CreateFirebaseUserResponse struct {
+type CreateUserIdentityResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *User
+	JSON200      *UserIdentity
 	JSON400      *externalRef1.Error
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
@@ -2435,7 +2533,7 @@ type CreateFirebaseUserResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r CreateFirebaseUserResponse) Status() string {
+func (r CreateUserIdentityResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2443,7 +2541,7 @@ func (r CreateFirebaseUserResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r CreateFirebaseUserResponse) StatusCode() int {
+func (r CreateUserIdentityResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2649,6 +2747,15 @@ func (c *ClientWithResponses) ListProductWithResponse(ctx context.Context, param
 	return ParseListProductResponse(rsp)
 }
 
+// GetProviderPublicInfoWithResponse request returning *GetProviderPublicInfoResponse
+func (c *ClientWithResponses) GetProviderPublicInfoWithResponse(ctx context.Context, params *GetProviderPublicInfoParams, reqEditors ...RequestEditorFn) (*GetProviderPublicInfoResponse, error) {
+	rsp, err := c.GetProviderPublicInfo(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetProviderPublicInfoResponse(rsp)
+}
+
 // PurgeUserWithBodyWithResponse request with arbitrary body returning *PurgeUserResponse
 func (c *ClientWithResponses) PurgeUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PurgeUserResponse, error) {
 	rsp, err := c.PurgeUserWithBody(ctx, contentType, body, reqEditors...)
@@ -2751,21 +2858,21 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 	return ParseTokenResponse(rsp)
 }
 
-// CreateFirebaseUserWithBodyWithResponse request with arbitrary body returning *CreateFirebaseUserResponse
-func (c *ClientWithResponses) CreateFirebaseUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error) {
-	rsp, err := c.CreateFirebaseUserWithBody(ctx, contentType, body, reqEditors...)
+// CreateUserIdentityWithBodyWithResponse request with arbitrary body returning *CreateUserIdentityResponse
+func (c *ClientWithResponses) CreateUserIdentityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error) {
+	rsp, err := c.CreateUserIdentityWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateFirebaseUserResponse(rsp)
+	return ParseCreateUserIdentityResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateFirebaseUserWithResponse(ctx context.Context, body CreateFirebaseUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateFirebaseUserResponse, error) {
-	rsp, err := c.CreateFirebaseUser(ctx, body, reqEditors...)
+func (c *ClientWithResponses) CreateUserIdentityWithResponse(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error) {
+	rsp, err := c.CreateUserIdentity(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseCreateFirebaseUserResponse(rsp)
+	return ParseCreateUserIdentityResponse(rsp)
 }
 
 // ServiceAuthenticateWithBodyWithResponse request with arbitrary body returning *ServiceAuthenticateResponse
@@ -3426,6 +3533,60 @@ func ParseListProductResponse(rsp *http.Response) (*ListProductResponse, error) 
 	return response, nil
 }
 
+// ParseGetProviderPublicInfoResponse parses an HTTP response from a GetProviderPublicInfoWithResponse call
+func ParseGetProviderPublicInfoResponse(rsp *http.Response) (*GetProviderPublicInfoResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetProviderPublicInfoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParsePurgeUserResponse parses an HTTP response from a PurgeUserWithResponse call
 func ParsePurgeUserResponse(rsp *http.Response) (*PurgeUserResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
@@ -3722,22 +3883,22 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 	return response, nil
 }
 
-// ParseCreateFirebaseUserResponse parses an HTTP response from a CreateFirebaseUserWithResponse call
-func ParseCreateFirebaseUserResponse(rsp *http.Response) (*CreateFirebaseUserResponse, error) {
+// ParseCreateUserIdentityResponse parses an HTTP response from a CreateUserIdentityWithResponse call
+func ParseCreateUserIdentityResponse(rsp *http.Response) (*CreateUserIdentityResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CreateFirebaseUserResponse{
+	response := &CreateUserIdentityResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest User
+		var dest UserIdentity
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
