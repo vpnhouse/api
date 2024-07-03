@@ -173,11 +173,12 @@ type FindSessionParams struct {
 
 // FindUserParams defines model for FindUserParams.
 type FindUserParams struct {
-	CreatedAt   *time.Time              `json:"created_at,omitempty"`
-	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       *string                 `json:"email,omitempty"`
-	ProjectId   *string                 `json:"project_id,omitempty"`
-	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
+	Description  *map[string]interface{} `json:"description,omitempty"`
+	Email        *string                 `json:"email,omitempty"`
+	ProjectId    *string                 `json:"project_id,omitempty"`
+	SelectorJson *[]byte                 `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // Invite defines model for Invite.

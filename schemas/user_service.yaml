@@ -2153,6 +2153,9 @@ components:
         updated_at:
           type: string
           format: date-time
+        selector_json:
+          type: string
+          format: byte
     AuthMethod:
       title: AuthMethod
       type: object
