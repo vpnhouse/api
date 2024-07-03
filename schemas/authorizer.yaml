@@ -138,17 +138,17 @@ paths:
       security:
         - ServiceKey: [ ]
     parameters: []
-  /api/service/user:
+  /api/service/identity:
     post:
-      summary: Create user
-      operationId: create-user
+      summary: Create user identity
+      operationId: create-user-identity
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserIdentity'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -157,12 +157,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create user
+      description: Create user identity using specified 
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: '#/components/schemas/CreateUserIdentityRequest'
             examples: { }
       tags:
         - auth
@@ -874,25 +874,25 @@ components:
       required:
         - email
         - project_id
-    CreateUserRequest:
-      title: CreateUserRequest
+    CreateUserIdentityRequest:
+      title: CreateUserIdentityRequest
       type: object
       properties:
         project_id:
           type: string
           format: uuid
+        provider_id:
+          type: string
         email:
           type: string
         password:
-          type: string
-        provider:
           type: string
       required:
         - project_id
         - email
         - password
-    User:
-      title: User
+    UserIdentity:
+      title: UserIdentity
       type: object
       properties:
         id:
@@ -901,6 +901,8 @@ components:
         project_id:
           type: string
           format: uuid
+        provider_id:
+          type: string
         email:
           type: string
         description:
@@ -911,6 +913,13 @@ components:
         updated_at:
           type: string
           format: date-time
+      required:
+        - id
+        - project_id
+        - provider_id
+        - email
+        - created_at
+        - updated_at
     Product:
       title: Product
       type: object
