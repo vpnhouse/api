@@ -624,9 +624,9 @@ paths:
       security:
         - bearer: [ ]
       parameters:
-        - provider:
+        - name: provider
+          schema:
             type: string
-          name: provider
           in: query
           required: false
       responses:
