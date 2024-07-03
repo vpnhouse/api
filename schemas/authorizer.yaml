@@ -138,10 +138,10 @@ paths:
       security:
         - ServiceKey: [ ]
     parameters: []
-  /api/service/firebase-user:
+  /api/service/user:
     post:
-      summary: Create user at firebase
-      operationId: create-firebase-user
+      summary: Create user
+      operationId: create-user
       responses:
         '200':
           description: OK
@@ -157,12 +157,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create user at firebase
+      description: Create user
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateFirebaseUserRequest'
+              $ref: '#/components/schemas/CreateUserRequest'
             examples: { }
       tags:
         - auth
@@ -576,6 +576,7 @@ paths:
 
   /api/client/firebase-public-key:
     get:
+      deprecated: true
       parameters:
         - schema:
             type: string
@@ -591,6 +592,43 @@ paths:
       description: Get firebase public key by project id or default
       security:
         - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/provider-public-info:
+    get:
+      parameters:
+        - name: provider_id
+          schema:
+            type: string
+          in: query
+      summary: Get authentication provider public info
+      tags:
+        - get
+        - provider
+        - public
+        - info
+      operationId: get-provider-public-info
+      description: Get authentication provider public info
+      security:
+        - bearer: [ ]
+      parameters:
+        - provider:
+            type: string
+          name: provider
+          in: query
+          required: false
       responses:
         '200':
           description: OK
@@ -836,8 +874,8 @@ components:
       required:
         - email
         - project_id
-    CreateFirebaseUserRequest:
-      title: CreateFirebaseUserRequest
+    CreateUserRequest:
+      title: CreateUserRequest
       type: object
       properties:
         project_id:
@@ -846,6 +884,8 @@ components:
         email:
           type: string
         password:
+          type: string
+        provider:
           type: string
       required:
         - project_id
