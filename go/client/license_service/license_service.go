@@ -4,11 +4,11 @@
 package license_service
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -25,6 +25,11 @@ const (
 	ServiceNameScopes = "ServiceName.Scopes"
 	BearerScopes      = "bearer.Scopes"
 )
+
+// AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
+type AppleServerNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
+}
 
 // ApplyParams defines model for ApplyParams.
 type ApplyParams struct {
@@ -246,8 +251,8 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt        string `json:"jws_receipt"`
-	PurchaseContextId string `json:"purchase_context_id"`
+	JwsReceipt string `json:"jws_receipt"`
+	UserId     string `json:"user_id"`
 }
 
 // Product defines model for Product.
@@ -347,6 +352,9 @@ type UserLicense struct {
 	Period     *string                  `json:"period,omitempty"`
 }
 
+// AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
+type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
+
 // ApplyForUserByEmailJSONBody defines parameters for ApplyForUserByEmail.
 type ApplyForUserByEmailJSONBody ApplyParams
 
@@ -438,6 +446,9 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
+
+// AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
+type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
 // ApplyForUserByEmailJSONRequestBody defines body for ApplyForUserByEmail for application/json ContentType.
 type ApplyForUserByEmailJSONRequestBody ApplyForUserByEmailJSONBody
@@ -569,6 +580,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// AppleServerNotifications request with any body
+	AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AppleServerNotifications(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ApplyForUserByEmail request with any body
 	ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -702,6 +718,30 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppleServerNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AppleServerNotifications(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppleServerNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ApplyForUserByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1314,6 +1354,46 @@ func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurch
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewAppleServerNotificationsRequest calls the generic AppleServerNotifications builder with application/json body
+func NewAppleServerNotificationsRequest(server string, body AppleServerNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAppleServerNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAppleServerNotificationsRequestWithBody generates requests for AppleServerNotifications with any type of body
+func NewAppleServerNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/apple-server-notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewApplyForUserByEmailRequest calls the generic ApplyForUserByEmail builder with application/json body
@@ -2729,6 +2809,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// AppleServerNotifications request with any body
+	AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
+
+	AppleServerNotificationsWithResponse(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
+
 	// ApplyForUserByEmail request with any body
 	ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error)
 
@@ -2862,6 +2947,30 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
+}
+
+type AppleServerNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r AppleServerNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AppleServerNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ApplyForUserByEmailResponse struct {
@@ -3675,6 +3784,23 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+// AppleServerNotificationsWithBodyWithResponse request with arbitrary body returning *AppleServerNotificationsResponse
+func (c *ClientWithResponses) AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error) {
+	rsp, err := c.AppleServerNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppleServerNotificationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) AppleServerNotificationsWithResponse(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error) {
+	rsp, err := c.AppleServerNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppleServerNotificationsResponse(rsp)
+}
+
 // ApplyForUserByEmailWithBodyWithResponse request with arbitrary body returning *ApplyForUserByEmailResponse
 func (c *ClientWithResponses) ApplyForUserByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyForUserByEmailResponse, error) {
 	rsp, err := c.ApplyForUserByEmailWithBody(ctx, contentType, body, reqEditors...)
@@ -4113,6 +4239,46 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
+}
+
+// ParseAppleServerNotificationsResponse parses an HTTP response from a AppleServerNotificationsWithResponse call
+func ParseAppleServerNotificationsResponse(rsp *http.Response) (*AppleServerNotificationsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AppleServerNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseApplyForUserByEmailResponse parses an HTTP response from a ApplyForUserByEmailWithResponse call
