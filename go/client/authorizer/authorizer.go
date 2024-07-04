@@ -242,7 +242,8 @@ type ListProductParams struct {
 
 // GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
 type GetProviderPublicInfoParams struct {
-	Provider *string `json:"provider,omitempty"`
+	ProjectId    string `json:"project_id"`
+	AuthMethodId string `json:"auth_method_id"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -1527,20 +1528,28 @@ func NewGetProviderPublicInfoRequest(server string, params *GetProviderPublicInf
 
 	queryValues := queryURL.Query()
 
-	if params.Provider != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "provider", runtime.ParamLocationQuery, *params.Provider); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
 			}
 		}
+	}
 
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "auth_method_id", runtime.ParamLocationQuery, params.AuthMethodId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
 	}
 
 	queryURL.RawQuery = queryValues.Encode()

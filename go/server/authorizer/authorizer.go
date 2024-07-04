@@ -236,7 +236,8 @@ type ListProductParams struct {
 
 // GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
 type GetProviderPublicInfoParams struct {
-	Provider *string `json:"provider,omitempty"`
+	ProjectId    string `json:"project_id"`
+	AuthMethodId string `json:"auth_method_id"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -746,14 +747,31 @@ func (siw *ServerInterfaceWrapper) GetProviderPublicInfo(w http.ResponseWriter, 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProviderPublicInfoParams
 
-	// ------------- Optional query parameter "provider" -------------
-	if paramValue := r.URL.Query().Get("provider"); paramValue != "" {
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "provider", r.URL.Query(), &params.Provider)
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "provider", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "auth_method_id" -------------
+	if paramValue := r.URL.Query().Get("auth_method_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "auth_method_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "auth_method_id", r.URL.Query(), &params.AuthMethodId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "auth_method_id", Err: err})
 		return
 	}
 
