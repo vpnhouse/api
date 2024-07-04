@@ -26,6 +26,11 @@ const (
 	BearerScopes     = "bearer.Scopes"
 )
 
+// AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
+type AppleServerNotificationsRequest struct {
+	SignedPayload string `json:"signed_payload"`
+}
+
 // ApplyTrialLicenseRequest defines model for ApplyTrialLicenseRequest.
 type ApplyTrialLicenseRequest struct {
 	ProductId string `json:"product_id"`
@@ -127,8 +132,7 @@ type ProcessAndroidPurchaseRequest struct {
 
 // ProcessIOSPurchaseRequest defines model for ProcessIOSPurchaseRequest.
 type ProcessIOSPurchaseRequest struct {
-	JwsReceipt        string `json:"jws_receipt"`
-	PurchaseContextId string `json:"purchase_context_id"`
+	JwsReceipt string `json:"jws_receipt"`
 }
 
 // Product defines model for Product.
@@ -187,6 +191,9 @@ type User struct {
 	ProjectId   *string                 `json:"project_id,omitempty"`
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
+
+// AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
+type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
 // ApplyTrialLicenseJSONBody defines parameters for ApplyTrialLicense.
 type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
@@ -254,6 +261,9 @@ type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
 
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
+type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
@@ -370,6 +380,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// AppleServerNotifications request with any body
+	AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AppleServerNotifications(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ApplyTrialLicense request with any body
 	ApplyTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -457,6 +472,30 @@ type ClientInterface interface {
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppleServerNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) AppleServerNotifications(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAppleServerNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ApplyTrialLicenseWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -865,6 +904,46 @@ func (c *Client) ServiceAuthenticate(ctx context.Context, body ServiceAuthentica
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewAppleServerNotificationsRequest calls the generic AppleServerNotifications builder with application/json body
+func NewAppleServerNotificationsRequest(server string, body AppleServerNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAppleServerNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewAppleServerNotificationsRequestWithBody generates requests for AppleServerNotifications with any type of body
+func NewAppleServerNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/apple-server-notifications")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewApplyTrialLicenseRequest calls the generic ApplyTrialLicense builder with application/json body
@@ -1768,6 +1847,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// AppleServerNotifications request with any body
+	AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
+
+	AppleServerNotificationsWithResponse(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
+
 	// ApplyTrialLicense request with any body
 	ApplyTrialLicenseWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApplyTrialLicenseResponse, error)
 
@@ -1855,6 +1939,30 @@ type ClientWithResponsesInterface interface {
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 
 	ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
+}
+
+type AppleServerNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r AppleServerNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AppleServerNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ApplyTrialLicenseResponse struct {
@@ -2117,6 +2225,7 @@ func (r ProcessAndroidPurchaseResponse) StatusCode() int {
 type ProcessIosPurchaseResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *TokenResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -2365,6 +2474,23 @@ func (r ServiceAuthenticateResponse) StatusCode() int {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
+}
+
+// AppleServerNotificationsWithBodyWithResponse request with arbitrary body returning *AppleServerNotificationsResponse
+func (c *ClientWithResponses) AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error) {
+	rsp, err := c.AppleServerNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppleServerNotificationsResponse(rsp)
+}
+
+func (c *ClientWithResponses) AppleServerNotificationsWithResponse(ctx context.Context, body AppleServerNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error) {
+	rsp, err := c.AppleServerNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAppleServerNotificationsResponse(rsp)
 }
 
 // ApplyTrialLicenseWithBodyWithResponse request with arbitrary body returning *ApplyTrialLicenseResponse
@@ -2657,6 +2783,46 @@ func (c *ClientWithResponses) ServiceAuthenticateWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseServiceAuthenticateResponse(rsp)
+}
+
+// ParseAppleServerNotificationsResponse parses an HTTP response from a AppleServerNotificationsWithResponse call
+func ParseAppleServerNotificationsResponse(rsp *http.Response) (*AppleServerNotificationsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AppleServerNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseApplyTrialLicenseResponse parses an HTTP response from a ApplyTrialLicenseWithResponse call
@@ -3180,6 +3346,13 @@ func ParseProcessIosPurchaseResponse(rsp *http.Response) (*ProcessIosPurchaseRes
 	}
 
 	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest TokenResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
