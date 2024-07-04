@@ -4,10 +4,10 @@
 package discovery
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -17,7 +17,8 @@ import (
 )
 
 const (
-	BearerScopes = "bearer.Scopes"
+	AuthorizerKeyScopes = "AuthorizerKey.Scopes"
+	BearerScopes        = "bearer.Scopes"
 )
 
 // Location defines model for Location.

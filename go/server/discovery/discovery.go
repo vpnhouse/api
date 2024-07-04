@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	BearerScopes = "bearer.Scopes"
+	AuthorizerKeyScopes = "AuthorizerKey.Scopes"
+	BearerScopes        = "bearer.Scopes"
 )
 
 // Location defines model for Location.
@@ -77,6 +78,8 @@ func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http
 	var err error
 
 	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	ctx = context.WithValue(ctx, AuthorizerKeyScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetCredentialsParams
