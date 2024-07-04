@@ -40,7 +40,8 @@ type Node struct {
 
 // GetCredentialsParams defines parameters for GetCredentials.
 type GetCredentialsParams struct {
-	Location *string `json:"location,omitempty"`
+	Location  *string `json:"location,omitempty"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // GetLocationsParams defines parameters for GetLocations.
@@ -196,6 +197,22 @@ func NewGetCredentialsRequest(server string, params *GetCredentialsParams) (*htt
 	if params.Location != nil {
 
 		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "location", runtime.ParamLocationQuery, *params.Location); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.ProjectId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, *params.ProjectId); err != nil {
 			return nil, err
 		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 			return nil, err
