@@ -138,17 +138,17 @@ paths:
       security:
         - ServiceKey: [ ]
     parameters: []
-  /api/service/identity:
+  /api/service/user:
     post:
-      summary: Create user identity
-      operationId: create-user-identity
+      summary: Create user
+      operationId: create-user
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserIdentity'
+                $ref: '#/components/schemas/User'
         '400':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '401':
@@ -157,12 +157,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create user identity using specified 
+      description: Create user using specified credentials
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserIdentityRequest'
+              $ref: '#/components/schemas/CreateUserRequest'
             examples: { }
       tags:
         - auth
@@ -869,8 +869,8 @@ components:
       required:
         - email
         - project_id
-    CreateUserIdentityRequest:
-      title: CreateUserIdentityRequest
+    CreateUserRequest:
+      title: CreateUserRequest
       type: object
       properties:
         project_id:
@@ -889,8 +889,8 @@ components:
         - email
         - password
         - email_verified
-    UserIdentity:
-      title: UserIdentity
+    User:
+      title: User
       type: object
       properties:
         id:

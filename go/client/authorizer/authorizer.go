@@ -77,8 +77,8 @@ type CreatePurchaseContextResp struct {
 	PurchaseContextId string `json:"purchase_context_id"`
 }
 
-// CreateUserIdentityRequest defines model for CreateUserIdentityRequest.
-type CreateUserIdentityRequest struct {
+// CreateUserRequest defines model for CreateUserRequest.
+type CreateUserRequest struct {
 	Email         string  `json:"email"`
 	EmailVerified bool    `json:"email_verified"`
 	Password      string  `json:"password"`
@@ -184,8 +184,8 @@ type TokenResp struct {
 	ExpiresAt          time.Time              `json:"expires_at"`
 }
 
-// UserIdentity defines model for UserIdentity.
-type UserIdentity struct {
+// User defines model for User.
+type User struct {
 	CreatedAt   time.Time               `json:"created_at"`
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Email       string                  `json:"email"`
@@ -264,11 +264,11 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// CreateUserIdentityJSONBody defines parameters for CreateUserIdentity.
-type CreateUserIdentityJSONBody CreateUserIdentityRequest
-
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// CreateUserJSONBody defines parameters for CreateUser.
+type CreateUserJSONBody CreateUserRequest
 
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
@@ -309,11 +309,11 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
-// CreateUserIdentityJSONRequestBody defines body for CreateUserIdentity for application/json ContentType.
-type CreateUserIdentityJSONRequestBody CreateUserIdentityJSONBody
-
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
+
+// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
+type CreateUserJSONRequestBody CreateUserJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -474,15 +474,15 @@ type ClientInterface interface {
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// CreateUserIdentity request with any body
-	CreateUserIdentityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreateUserIdentity(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateUser request with any body
+	CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -881,30 +881,6 @@ func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditor
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateUserIdentityWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateUserIdentityRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) CreateUserIdentity(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateUserIdentityRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewServiceAuthenticateRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -919,6 +895,30 @@ func (c *Client) ServiceAuthenticateWithBody(ctx context.Context, contentType st
 
 func (c *Client) ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewServiceAuthenticateRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateUserRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateUserRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1790,46 +1790,6 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewCreateUserIdentityRequest calls the generic CreateUserIdentity builder with application/json body
-func NewCreateUserIdentityRequest(server string, body CreateUserIdentityJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateUserIdentityRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreateUserIdentityRequestWithBody generates requests for CreateUserIdentity with any type of body
-func NewCreateUserIdentityRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/service/identity")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewServiceAuthenticateRequest calls the generic ServiceAuthenticate builder with application/json body
 func NewServiceAuthenticateRequest(server string, body ServiceAuthenticateJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1851,6 +1811,46 @@ func NewServiceAuthenticateRequestWithBody(server string, contentType string, bo
 	}
 
 	operationPath := fmt.Sprintf("/api/service/signin")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateUserRequest calls the generic CreateUser builder with application/json body
+func NewCreateUserRequest(server string, body CreateUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateUserRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateUserRequestWithBody generates requests for CreateUser with any type of body
+func NewCreateUserRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/service/user")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1999,15 +1999,15 @@ type ClientWithResponsesInterface interface {
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
-	// CreateUserIdentity request with any body
-	CreateUserIdentityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error)
-
-	CreateUserIdentityWithResponse(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error)
-
 	// ServiceAuthenticate request with any body
 	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 
 	ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
+
+	// CreateUser request with any body
+	CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
+
+	CreateUserWithResponse(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
 }
 
 type AppleServerNotificationsResponse struct {
@@ -2519,32 +2519,6 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
-type CreateUserIdentityResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *UserIdentity
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r CreateUserIdentityResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreateUserIdentityResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type ServiceAuthenticateResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2565,6 +2539,32 @@ func (r ServiceAuthenticateResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ServiceAuthenticateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *User
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2855,23 +2855,6 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 	return ParseTokenResponse(rsp)
 }
 
-// CreateUserIdentityWithBodyWithResponse request with arbitrary body returning *CreateUserIdentityResponse
-func (c *ClientWithResponses) CreateUserIdentityWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error) {
-	rsp, err := c.CreateUserIdentityWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateUserIdentityResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreateUserIdentityWithResponse(ctx context.Context, body CreateUserIdentityJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserIdentityResponse, error) {
-	rsp, err := c.CreateUserIdentity(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateUserIdentityResponse(rsp)
-}
-
 // ServiceAuthenticateWithBodyWithResponse request with arbitrary body returning *ServiceAuthenticateResponse
 func (c *ClientWithResponses) ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error) {
 	rsp, err := c.ServiceAuthenticateWithBody(ctx, contentType, body, reqEditors...)
@@ -2887,6 +2870,23 @@ func (c *ClientWithResponses) ServiceAuthenticateWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseServiceAuthenticateResponse(rsp)
+}
+
+// CreateUserWithBodyWithResponse request with arbitrary body returning *CreateUserResponse
+func (c *ClientWithResponses) CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserResponse, error) {
+	rsp, err := c.CreateUserWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateUserWithResponse(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateUserResponse, error) {
+	rsp, err := c.CreateUser(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateUserResponse(rsp)
 }
 
 // ParseAppleServerNotificationsResponse parses an HTTP response from a AppleServerNotificationsWithResponse call
@@ -3880,22 +3880,22 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 	return response, nil
 }
 
-// ParseCreateUserIdentityResponse parses an HTTP response from a CreateUserIdentityWithResponse call
-func ParseCreateUserIdentityResponse(rsp *http.Response) (*CreateUserIdentityResponse, error) {
+// ParseServiceAuthenticateResponse parses an HTTP response from a ServiceAuthenticateWithResponse call
+func ParseServiceAuthenticateResponse(rsp *http.Response) (*ServiceAuthenticateResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &CreateUserIdentityResponse{
+	response := &ServiceAuthenticateResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest UserIdentity
+		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3934,22 +3934,22 @@ func ParseCreateUserIdentityResponse(rsp *http.Response) (*CreateUserIdentityRes
 	return response, nil
 }
 
-// ParseServiceAuthenticateResponse parses an HTTP response from a ServiceAuthenticateWithResponse call
-func ParseServiceAuthenticateResponse(rsp *http.Response) (*ServiceAuthenticateResponse, error) {
+// ParseCreateUserResponse parses an HTTP response from a CreateUserWithResponse call
+func ParseCreateUserResponse(rsp *http.Response) (*CreateUserResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ServiceAuthenticateResponse{
+	response := &CreateUserResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResp
+		var dest User
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

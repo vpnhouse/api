@@ -71,8 +71,8 @@ type CreatePurchaseContextResp struct {
 	PurchaseContextId string `json:"purchase_context_id"`
 }
 
-// CreateUserIdentityRequest defines model for CreateUserIdentityRequest.
-type CreateUserIdentityRequest struct {
+// CreateUserRequest defines model for CreateUserRequest.
+type CreateUserRequest struct {
 	Email         string  `json:"email"`
 	EmailVerified bool    `json:"email_verified"`
 	Password      string  `json:"password"`
@@ -178,8 +178,8 @@ type TokenResp struct {
 	ExpiresAt          time.Time              `json:"expires_at"`
 }
 
-// UserIdentity defines model for UserIdentity.
-type UserIdentity struct {
+// User defines model for User.
+type User struct {
 	CreatedAt   time.Time               `json:"created_at"`
 	Description *map[string]interface{} `json:"description,omitempty"`
 	Email       string                  `json:"email"`
@@ -258,11 +258,11 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// CreateUserIdentityJSONBody defines parameters for CreateUserIdentity.
-type CreateUserIdentityJSONBody CreateUserIdentityRequest
-
 // ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
 type ServiceAuthenticateJSONBody AuthServiceRequest
+
+// CreateUserJSONBody defines parameters for CreateUser.
+type CreateUserJSONBody CreateUserRequest
 
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
@@ -303,11 +303,11 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
-// CreateUserIdentityJSONRequestBody defines body for CreateUserIdentity for application/json ContentType.
-type CreateUserIdentityJSONRequestBody CreateUserIdentityJSONBody
-
 // ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
 type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
+
+// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
+type CreateUserJSONRequestBody CreateUserJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -371,12 +371,12 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
-	// Create user identity
-	// (POST /api/service/identity)
-	CreateUserIdentity(w http.ResponseWriter, r *http.Request)
 	// Authenticate service
 	// (POST /api/service/signin)
 	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
+	// Create user
+	// (POST /api/service/user)
+	CreateUser(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -876,14 +876,14 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 	handler(w, r.WithContext(ctx))
 }
 
-// CreateUserIdentity operation middleware
-func (siw *ServerInterfaceWrapper) CreateUserIdentity(w http.ResponseWriter, r *http.Request) {
+// ServiceAuthenticate operation middleware
+func (siw *ServerInterfaceWrapper) ServiceAuthenticate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateUserIdentity(w, r)
+		siw.Handler.ServiceAuthenticate(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -893,14 +893,14 @@ func (siw *ServerInterfaceWrapper) CreateUserIdentity(w http.ResponseWriter, r *
 	handler(w, r.WithContext(ctx))
 }
 
-// ServiceAuthenticate operation middleware
-func (siw *ServerInterfaceWrapper) ServiceAuthenticate(w http.ResponseWriter, r *http.Request) {
+// CreateUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ServiceAuthenticate(w, r)
+		siw.Handler.CreateUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1084,10 +1084,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/service/identity", wrapper.CreateUserIdentity)
+		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
+		r.Post(options.BaseURL+"/api/service/user", wrapper.CreateUser)
 	})
 
 	return r
