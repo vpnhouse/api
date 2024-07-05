@@ -73,10 +73,11 @@ type CreatePurchaseContextResp struct {
 
 // CreateUserIdentityRequest defines model for CreateUserIdentityRequest.
 type CreateUserIdentityRequest struct {
-	Email      string  `json:"email"`
-	Password   string  `json:"password"`
-	ProjectId  string  `json:"project_id"`
-	ProviderId *string `json:"provider_id,omitempty"`
+	Email         string  `json:"email"`
+	EmailVerified bool    `json:"email_verified"`
+	Password      string  `json:"password"`
+	ProjectId     string  `json:"project_id"`
+	ProviderId    *string `json:"provider_id,omitempty"`
 }
 
 // License defines model for License.
@@ -236,8 +237,7 @@ type ListProductParams struct {
 
 // GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
 type GetProviderPublicInfoParams struct {
-	ProjectId    string `json:"project_id"`
-	AuthMethodId string `json:"auth_method_id"`
+	Provider *string `json:"provider,omitempty"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -747,31 +747,14 @@ func (siw *ServerInterfaceWrapper) GetProviderPublicInfo(w http.ResponseWriter, 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProviderPublicInfoParams
 
-	// ------------- Required query parameter "project_id" -------------
-	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+	// ------------- Optional query parameter "provider" -------------
+	if paramValue := r.URL.Query().Get("provider"); paramValue != "" {
 
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
-		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	err = runtime.BindQueryParameter("form", true, false, "provider", r.URL.Query(), &params.Provider)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
-		return
-	}
-
-	// ------------- Required query parameter "auth_method_id" -------------
-	if paramValue := r.URL.Query().Get("auth_method_id"); paramValue != "" {
-
-	} else {
-		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "auth_method_id"})
-		return
-	}
-
-	err = runtime.BindQueryParameter("form", true, true, "auth_method_id", r.URL.Query(), &params.AuthMethodId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "auth_method_id", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "provider", Err: err})
 		return
 	}
 
