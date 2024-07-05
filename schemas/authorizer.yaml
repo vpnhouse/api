@@ -867,6 +867,9 @@ components:
         project_id:
           type: string
           format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
         provider_id:
           type: string
         email:

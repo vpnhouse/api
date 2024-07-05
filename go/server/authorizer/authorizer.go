@@ -174,13 +174,14 @@ type TokenResp struct {
 
 // User defines model for User.
 type User struct {
-	CreatedAt   time.Time               `json:"created_at"`
-	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       string                  `json:"email"`
-	Id          string                  `json:"id"`
-	ProjectId   string                  `json:"project_id"`
-	ProviderId  string                  `json:"provider_id"`
-	UpdatedAt   time.Time               `json:"updated_at"`
+	AuthMethodId   string                  `json:"auth_method_id"`
+	AuthProviderId string                  `json:"auth_provider_id"`
+	CreatedAt      time.Time               `json:"created_at"`
+	Description    *map[string]interface{} `json:"description,omitempty"`
+	Email          string                  `json:"email"`
+	Id             string                  `json:"id"`
+	ProjectId      string                  `json:"project_id"`
+	UpdatedAt      time.Time               `json:"updated_at"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
