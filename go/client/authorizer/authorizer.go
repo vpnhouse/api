@@ -59,12 +59,6 @@ type AuthResp struct {
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
 }
 
-// AuthServiceRequest defines model for AuthServiceRequest.
-type AuthServiceRequest struct {
-	Project   string `json:"project"`
-	ServiceId string `json:"service_id"`
-}
-
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
@@ -264,9 +258,6 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
-type ServiceAuthenticateJSONBody AuthServiceRequest
-
 // CreateUserJSONBody defines parameters for CreateUser.
 type CreateUserJSONBody CreateUserRequest
 
@@ -308,9 +299,6 @@ type RegisterJSONRequestBody RegisterJSONBody
 
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
-
-// ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
-type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
 
 // CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
 type CreateUserJSONRequestBody CreateUserJSONBody
@@ -473,11 +461,6 @@ type ClientInterface interface {
 	TokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ServiceAuthenticate request with any body
-	ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateUser request with any body
 	CreateUserWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -871,30 +854,6 @@ func (c *Client) TokenWithBody(ctx context.Context, contentType string, body io.
 
 func (c *Client) Token(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewTokenRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ServiceAuthenticateWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewServiceAuthenticateRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) ServiceAuthenticate(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewServiceAuthenticateRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1790,46 +1749,6 @@ func NewTokenRequestWithBody(server string, contentType string, body io.Reader) 
 	return req, nil
 }
 
-// NewServiceAuthenticateRequest calls the generic ServiceAuthenticate builder with application/json body
-func NewServiceAuthenticateRequest(server string, body ServiceAuthenticateJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewServiceAuthenticateRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewServiceAuthenticateRequestWithBody generates requests for ServiceAuthenticate with any type of body
-func NewServiceAuthenticateRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/service/signin")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 // NewCreateUserRequest calls the generic CreateUser builder with application/json body
 func NewCreateUserRequest(server string, body CreateUserJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -1998,11 +1917,6 @@ type ClientWithResponsesInterface interface {
 	TokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TokenResponse, error)
 
 	TokenWithResponse(ctx context.Context, body TokenJSONRequestBody, reqEditors ...RequestEditorFn) (*TokenResponse, error)
-
-	// ServiceAuthenticate request with any body
-	ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
-
-	ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error)
 
 	// CreateUser request with any body
 	CreateUserWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateUserResponse, error)
@@ -2519,32 +2433,6 @@ func (r TokenResponse) StatusCode() int {
 	return 0
 }
 
-type ServiceAuthenticateResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *AuthResp
-	JSON400      *externalRef1.Error
-	JSON401      *externalRef1.Error
-	JSON403      *externalRef1.Error
-	JSON500      *externalRef1.Error
-}
-
-// Status returns HTTPResponse.Status
-func (r ServiceAuthenticateResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ServiceAuthenticateResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type CreateUserResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2853,23 +2741,6 @@ func (c *ClientWithResponses) TokenWithResponse(ctx context.Context, body TokenJ
 		return nil, err
 	}
 	return ParseTokenResponse(rsp)
-}
-
-// ServiceAuthenticateWithBodyWithResponse request with arbitrary body returning *ServiceAuthenticateResponse
-func (c *ClientWithResponses) ServiceAuthenticateWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error) {
-	rsp, err := c.ServiceAuthenticateWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseServiceAuthenticateResponse(rsp)
-}
-
-func (c *ClientWithResponses) ServiceAuthenticateWithResponse(ctx context.Context, body ServiceAuthenticateJSONRequestBody, reqEditors ...RequestEditorFn) (*ServiceAuthenticateResponse, error) {
-	rsp, err := c.ServiceAuthenticate(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseServiceAuthenticateResponse(rsp)
 }
 
 // CreateUserWithBodyWithResponse request with arbitrary body returning *CreateUserResponse
@@ -3842,60 +3713,6 @@ func ParseTokenResponse(rsp *http.Response) (*TokenResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest TokenResp
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest externalRef1.Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseServiceAuthenticateResponse parses an HTTP response from a ServiceAuthenticateWithResponse call
-func ParseServiceAuthenticateResponse(rsp *http.Response) (*ServiceAuthenticateResponse, error) {
-	bodyBytes, err := ioutil.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ServiceAuthenticateResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest AuthResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

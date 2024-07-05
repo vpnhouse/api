@@ -105,39 +105,6 @@ paths:
       security:
         - bearer: []
     parameters: []
-
-  /api/service/signin:
-    post:
-      summary: Authenticate service
-      operationId: service-authenticate
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResp'
-        '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Authenticate service and provide access token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthServiceRequest'
-            examples: {}
-      tags:
-        - auth
-        - service
-      security:
-        - ServiceKey: [ ]
-    parameters: []
   /api/service/user:
     post:
       summary: Create user
