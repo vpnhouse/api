@@ -843,8 +843,9 @@ components:
         project_id:
           type: string
           format: uuid
-        provider_id:
+        auth_method_id:
           type: string
+          format: uuid
         email:
           type: string
         password:

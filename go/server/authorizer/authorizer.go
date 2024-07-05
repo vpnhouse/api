@@ -67,11 +67,11 @@ type CreatePurchaseContextResp struct {
 
 // CreateUserRequest defines model for CreateUserRequest.
 type CreateUserRequest struct {
+	AuthMethodId  *string `json:"auth_method_id,omitempty"`
 	Email         string  `json:"email"`
 	EmailVerified bool    `json:"email_verified"`
 	Password      string  `json:"password"`
 	ProjectId     string  `json:"project_id"`
-	ProviderId    *string `json:"provider_id,omitempty"`
 }
 
 // License defines model for License.
