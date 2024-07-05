@@ -624,12 +624,6 @@ paths:
       description: Get authentication provider public info
       security:
         - bearer: [ ]
-      parameters:
-        - name: provider
-          schema:
-            type: string
-          in: query
-          required: false
       responses:
         '200':
           description: OK
@@ -888,10 +882,13 @@ components:
           type: string
         password:
           type: string
+        email_verified:
+          type: boolean
       required:
         - project_id
         - email
         - password
+        - email_verified
     UserIdentity:
       title: UserIdentity
       type: object

@@ -237,7 +237,7 @@ type ListProductParams struct {
 
 // GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
 type GetProviderPublicInfoParams struct {
-	Provider *string `json:"provider,omitempty"`
+	ProviderId string `json:"provider_id"`
 }
 
 // PurgeUserJSONBody defines parameters for PurgeUser.
@@ -747,14 +747,17 @@ func (siw *ServerInterfaceWrapper) GetProviderPublicInfo(w http.ResponseWriter, 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetProviderPublicInfoParams
 
-	// ------------- Optional query parameter "provider" -------------
-	if paramValue := r.URL.Query().Get("provider"); paramValue != "" {
+	// ------------- Required query parameter "provider_id" -------------
+	if paramValue := r.URL.Query().Get("provider_id"); paramValue != "" {
 
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "provider_id"})
+		return
 	}
 
-	err = runtime.BindQueryParameter("form", true, false, "provider", r.URL.Query(), &params.Provider)
+	err = runtime.BindQueryParameter("form", true, true, "provider_id", r.URL.Query(), &params.ProviderId)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "provider", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "provider_id", Err: err})
 		return
 	}
 
