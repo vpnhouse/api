@@ -856,7 +856,7 @@ components:
         - project_id
         - email
         - password
-        - email_verified
+        - email_confirmed
     User:
       title: User
       type: object

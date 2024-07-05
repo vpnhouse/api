@@ -75,7 +75,7 @@ type CreatePurchaseContextResp struct {
 type CreateUserRequest struct {
 	AuthMethodId   *string `json:"auth_method_id,omitempty"`
 	Email          string  `json:"email"`
-	EmailConfirmed *bool   `json:"email_confirmed,omitempty"`
+	EmailConfirmed bool    `json:"email_confirmed"`
 	Password       string  `json:"password"`
 	ProjectId      string  `json:"project_id"`
 }
