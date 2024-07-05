@@ -850,7 +850,7 @@ components:
           type: string
         password:
           type: string
-        email_verified:
+        email_confirmed:
           type: boolean
       required:
         - project_id
