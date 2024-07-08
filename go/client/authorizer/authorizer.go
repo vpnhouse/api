@@ -180,14 +180,14 @@ type TokenResp struct {
 
 // User defines model for User.
 type User struct {
-	AuthMethodId   string                  `json:"auth_method_id"`
-	AuthProviderId string                  `json:"auth_provider_id"`
-	CreatedAt      time.Time               `json:"created_at"`
-	Description    *map[string]interface{} `json:"description,omitempty"`
-	Email          string                  `json:"email"`
-	Id             string                  `json:"id"`
-	ProjectId      string                  `json:"project_id"`
-	UpdatedAt      time.Time               `json:"updated_at"`
+	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
+	CreatedAt    time.Time               `json:"created_at"`
+	Description  *map[string]interface{} `json:"description,omitempty"`
+	Email        string                  `json:"email"`
+	Id           string                  `json:"id"`
+	ProjectId    string                  `json:"project_id"`
+	ProviderId   string                  `json:"provider_id"`
+	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
@@ -198,9 +198,10 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
-	ConfirmationId string `json:"confirmation_id"`
-	PlatformType   string `json:"platform_type"`
-	ProjectId      string `json:"project_id"`
+	ConfirmationId string  `json:"confirmation_id"`
+	PlatformType   string  `json:"platform_type"`
+	ProjectId      string  `json:"project_id"`
+	AuthMethodId   *string `json:"auth_method_id,omitempty"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -1024,6 +1025,22 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 				queryValues.Add(k, v2)
 			}
 		}
+	}
+
+	if params.AuthMethodId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "auth_method_id", runtime.ParamLocationQuery, *params.AuthMethodId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
 	}
 
 	queryURL.RawQuery = queryValues.Encode()

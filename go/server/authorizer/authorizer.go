@@ -174,14 +174,14 @@ type TokenResp struct {
 
 // User defines model for User.
 type User struct {
-	AuthMethodId   string                  `json:"auth_method_id"`
-	AuthProviderId string                  `json:"auth_provider_id"`
-	CreatedAt      time.Time               `json:"created_at"`
-	Description    *map[string]interface{} `json:"description,omitempty"`
-	Email          string                  `json:"email"`
-	Id             string                  `json:"id"`
-	ProjectId      string                  `json:"project_id"`
-	UpdatedAt      time.Time               `json:"updated_at"`
+	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
+	CreatedAt    time.Time               `json:"created_at"`
+	Description  *map[string]interface{} `json:"description,omitempty"`
+	Email        string                  `json:"email"`
+	Id           string                  `json:"id"`
+	ProjectId    string                  `json:"project_id"`
+	ProviderId   string                  `json:"provider_id"`
+	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
@@ -192,9 +192,10 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
-	ConfirmationId string `json:"confirmation_id"`
-	PlatformType   string `json:"platform_type"`
-	ProjectId      string `json:"project_id"`
+	ConfirmationId string  `json:"confirmation_id"`
+	PlatformType   string  `json:"platform_type"`
+	ProjectId      string  `json:"project_id"`
+	AuthMethodId   *string `json:"auth_method_id,omitempty"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -454,6 +455,17 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "auth_method_id" -------------
+	if paramValue := r.URL.Query().Get("auth_method_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "auth_method_id", r.URL.Query(), &params.AuthMethodId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "auth_method_id", Err: err})
 		return
 	}
 
