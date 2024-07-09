@@ -2731,6 +2731,12 @@ components:
           type: boolean
         email:
           type: string
+        project_id:
+          type: string
+          format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
         expires_at:
           type: string
           format: date-time

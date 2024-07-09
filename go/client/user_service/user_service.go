@@ -48,6 +48,7 @@ type AuthMethod struct {
 
 // Confirmation defines model for Confirmation.
 type Confirmation struct {
+	AuthMethodId   *string    `json:"auth_method_id,omitempty"`
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 	Email          *string    `json:"email,omitempty"`
@@ -55,6 +56,7 @@ type Confirmation struct {
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	ProjectId      *string    `json:"project_id,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
