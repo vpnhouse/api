@@ -210,11 +210,6 @@ paths:
           name: project_id
           in: query
           required: true
-        - schema:
-            type: string
-          name: auth_method_id
-          in: query
-          required: false
       summary: Confirm email
       operationId: confirm
       responses:

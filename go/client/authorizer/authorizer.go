@@ -198,10 +198,9 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
-	ConfirmationId string  `json:"confirmation_id"`
-	PlatformType   string  `json:"platform_type"`
-	ProjectId      string  `json:"project_id"`
-	AuthMethodId   *string `json:"auth_method_id,omitempty"`
+	ConfirmationId string `json:"confirmation_id"`
+	PlatformType   string `json:"platform_type"`
+	ProjectId      string `json:"project_id"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -1025,22 +1024,6 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 				queryValues.Add(k, v2)
 			}
 		}
-	}
-
-	if params.AuthMethodId != nil {
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "auth_method_id", runtime.ParamLocationQuery, *params.AuthMethodId); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
 	}
 
 	queryURL.RawQuery = queryValues.Encode()

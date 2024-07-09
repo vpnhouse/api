@@ -2757,6 +2757,12 @@ components:
         email:
           type: string
           nullable: true
+        project_id:
+          type: string
+          nullable: true
+        auth_method_id:
+          type: string
+          nullable: true
         expires_at:
           type: string
           format: date-time
@@ -2782,6 +2788,12 @@ components:
           type: boolean
           nullable: true
         email:
+          type: string
+          nullable: true
+        project_id:
+          type: string
+          nullable: true
+        auth_method_id:
           type: string
           nullable: true
         expires_at:
@@ -2812,6 +2824,12 @@ components:
         email:
           type: string
           nullable: true
+        project_id:
+          type: string
+          nullable: true
+        auth_method_id:
+          type: string
+          nullable: true
         expires_at:
           type: string
           format: date-time
@@ -2834,6 +2852,12 @@ components:
           type: boolean
         email:
           type: string
+        project_id:
+          type: string
+          nullable: true
+        auth_method_id:
+          type: string
+          nullable: true
         created_at:
           type: string
           format: date-time

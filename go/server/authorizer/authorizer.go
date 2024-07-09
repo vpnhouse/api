@@ -192,10 +192,9 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
-	ConfirmationId string  `json:"confirmation_id"`
-	PlatformType   string  `json:"platform_type"`
-	ProjectId      string  `json:"project_id"`
-	AuthMethodId   *string `json:"auth_method_id,omitempty"`
+	ConfirmationId string `json:"confirmation_id"`
+	PlatformType   string `json:"platform_type"`
+	ProjectId      string `json:"project_id"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -455,17 +454,6 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "auth_method_id" -------------
-	if paramValue := r.URL.Query().Get("auth_method_id"); paramValue != "" {
-
-	}
-
-	err = runtime.BindQueryParameter("form", true, false, "auth_method_id", r.URL.Query(), &params.AuthMethodId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "auth_method_id", Err: err})
 		return
 	}
 
