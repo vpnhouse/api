@@ -71,6 +71,7 @@ components:
             - "INVALID_CONFIGURATION"
             - "TOO_LONG"
             - "TOO_EARLY"
+            - "NO_LICENSE"
         error:
           type: string
           description: User-friendly error description.
