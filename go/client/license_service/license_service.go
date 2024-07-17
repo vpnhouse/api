@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +28,7 @@ const (
 
 // AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
 type AppleServerNotificationsRequest struct {
-	SignedPayload string `json:"signed_payload"`
+	SignedPayload string `json:"signedPayload"`
 }
 
 // ApplyParams defines model for ApplyParams.
