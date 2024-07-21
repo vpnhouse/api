@@ -26,6 +26,8 @@ const (
 
 	ErrorResultINVALIDCONFIGURATION ErrorResult = "INVALID_CONFIGURATION"
 
+	ErrorResultNOLICENSE ErrorResult = "NO_LICENSE"
+
 	ErrorResultNOTFOUND ErrorResult = "NOT_FOUND"
 
 	ErrorResultSERVICEUNAVAILABLE ErrorResult = "SERVICE_UNAVAILABLE"
