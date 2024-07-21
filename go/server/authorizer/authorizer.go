@@ -53,19 +53,6 @@ type AuthResp struct {
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
 }
 
-// AuthServiceRequest defines model for AuthServiceRequest.
-type AuthServiceRequest struct {
-	Project   string `json:"project"`
-	ServiceId string `json:"service_id"`
-}
-
-// CreateFirebaseUserRequest defines model for CreateFirebaseUserRequest.
-type CreateFirebaseUserRequest struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	ProjectId string `json:"project_id"`
-}
-
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
@@ -76,6 +63,15 @@ type CreatePurchaseContextRequest struct {
 // CreatePurchaseContextResp defines model for CreatePurchaseContextResp.
 type CreatePurchaseContextResp struct {
 	PurchaseContextId string `json:"purchase_context_id"`
+}
+
+// CreateUserRequest defines model for CreateUserRequest.
+type CreateUserRequest struct {
+	AuthMethodId   *string `json:"auth_method_id,omitempty"`
+	Email          string  `json:"email"`
+	EmailConfirmed bool    `json:"email_confirmed"`
+	Password       string  `json:"password"`
+	ProjectId      string  `json:"project_id"`
 }
 
 // License defines model for License.
@@ -178,12 +174,14 @@ type TokenResp struct {
 
 // User defines model for User.
 type User struct {
-	CreatedAt   *time.Time              `json:"created_at,omitempty"`
-	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       *string                 `json:"email,omitempty"`
-	Id          *string                 `json:"id,omitempty"`
-	ProjectId   *string                 `json:"project_id,omitempty"`
-	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+	AuthMethodId *string                 `json:"auth_method_id,omitempty"`
+	CreatedAt    time.Time               `json:"created_at"`
+	Description  *map[string]interface{} `json:"description,omitempty"`
+	Email        string                  `json:"email"`
+	Id           string                  `json:"id"`
+	ProjectId    string                  `json:"project_id"`
+	ProviderId   string                  `json:"provider_id"`
+	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
@@ -232,6 +230,11 @@ type ListProductParams struct {
 	PaymentType *string `json:"payment_type,omitempty"`
 }
 
+// GetProviderPublicInfoParams defines parameters for GetProviderPublicInfo.
+type GetProviderPublicInfoParams struct {
+	ProviderId string `json:"provider_id"`
+}
+
 // PurgeUserJSONBody defines parameters for PurgeUser.
 type PurgeUserJSONBody PurgeUserRequest
 
@@ -250,11 +253,8 @@ type RegisterJSONBody AuthRequest
 // TokenJSONBody defines parameters for Token.
 type TokenJSONBody TokenRequest
 
-// CreateFirebaseUserJSONBody defines parameters for CreateFirebaseUser.
-type CreateFirebaseUserJSONBody CreateFirebaseUserRequest
-
-// ServiceAuthenticateJSONBody defines parameters for ServiceAuthenticate.
-type ServiceAuthenticateJSONBody AuthServiceRequest
+// CreateUserJSONBody defines parameters for CreateUser.
+type CreateUserJSONBody CreateUserRequest
 
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
@@ -295,11 +295,8 @@ type RegisterJSONRequestBody RegisterJSONBody
 // TokenJSONRequestBody defines body for Token for application/json ContentType.
 type TokenJSONRequestBody TokenJSONBody
 
-// CreateFirebaseUserJSONRequestBody defines body for CreateFirebaseUser for application/json ContentType.
-type CreateFirebaseUserJSONRequestBody CreateFirebaseUserJSONBody
-
-// ServiceAuthenticateJSONRequestBody defines body for ServiceAuthenticate for application/json ContentType.
-type ServiceAuthenticateJSONRequestBody ServiceAuthenticateJSONBody
+// CreateUserJSONRequestBody defines body for CreateUser for application/json ContentType.
+type CreateUserJSONRequestBody CreateUserJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -342,6 +339,9 @@ type ServerInterface interface {
 	// List product
 	// (GET /api/client/product)
 	ListProduct(w http.ResponseWriter, r *http.Request, params ListProductParams)
+	// Get authentication provider public info
+	// (GET /api/client/provider-public-info)
+	GetProviderPublicInfo(w http.ResponseWriter, r *http.Request, params GetProviderPublicInfoParams)
 	// Purge a specific user by id
 	// (POST /api/client/purge-user)
 	PurgeUser(w http.ResponseWriter, r *http.Request)
@@ -360,12 +360,9 @@ type ServerInterface interface {
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
-	// Create user at firebase
-	// (POST /api/service/firebase-user)
-	CreateFirebaseUser(w http.ResponseWriter, r *http.Request)
-	// Authenticate service
-	// (POST /api/service/signin)
-	ServiceAuthenticate(w http.ResponseWriter, r *http.Request)
+	// Create user
+	// (POST /api/service/user)
+	CreateUser(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -725,6 +722,42 @@ func (siw *ServerInterfaceWrapper) ListProduct(w http.ResponseWriter, r *http.Re
 	handler(w, r.WithContext(ctx))
 }
 
+// GetProviderPublicInfo operation middleware
+func (siw *ServerInterfaceWrapper) GetProviderPublicInfo(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetProviderPublicInfoParams
+
+	// ------------- Required query parameter "provider_id" -------------
+	if paramValue := r.URL.Query().Get("provider_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "provider_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "provider_id", r.URL.Query(), &params.ProviderId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "provider_id", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetProviderPublicInfo(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // PurgeUser operation middleware
 func (siw *ServerInterfaceWrapper) PurgeUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -829,31 +862,14 @@ func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request)
 	handler(w, r.WithContext(ctx))
 }
 
-// CreateFirebaseUser operation middleware
-func (siw *ServerInterfaceWrapper) CreateFirebaseUser(w http.ResponseWriter, r *http.Request) {
+// CreateUser operation middleware
+func (siw *ServerInterfaceWrapper) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateFirebaseUser(w, r)
-	}
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler(w, r.WithContext(ctx))
-}
-
-// ServiceAuthenticate operation middleware
-func (siw *ServerInterfaceWrapper) ServiceAuthenticate(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
-
-	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ServiceAuthenticate(w, r)
+		siw.Handler.CreateUser(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1016,6 +1032,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/api/client/product", wrapper.ListProduct)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/provider-public-info", wrapper.GetProviderPublicInfo)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/purge-user", wrapper.PurgeUser)
 	})
 	r.Group(func(r chi.Router) {
@@ -1034,10 +1053,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/service/firebase-user", wrapper.CreateFirebaseUser)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/service/signin", wrapper.ServiceAuthenticate)
+		r.Post(options.BaseURL+"/api/service/user", wrapper.CreateUser)
 	})
 
 	return r
