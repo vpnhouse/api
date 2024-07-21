@@ -1026,10 +1026,10 @@ components:
         title: AppleServerNotificationsRequest
         type: object
         properties:
-          signed_payload:
+          signedPayload:
             type: string
         required:
-            - signed_payload
+            - signedPayload
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object
