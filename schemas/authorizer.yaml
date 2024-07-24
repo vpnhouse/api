@@ -664,7 +664,7 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
 
   /api/admin/licenses-by-email:
-    get:
+    post:
       summary: List licenses by email
       tags:
         - list
@@ -674,6 +674,11 @@ paths:
       description: List licenses by email
       security:
         - AdminKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurgeUserRequest'
       responses:
         '200':
           description: OK
@@ -1104,6 +1109,18 @@ components:
         - user_id
         - project_id
         - api_key
+    ListLicensesByEmailRequest:
+      title: ListLicensesByEmailRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+      required:
+          - email
+          - project_id
 
   securitySchemes:
     bearer:

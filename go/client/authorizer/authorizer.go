@@ -191,6 +191,9 @@ type User struct {
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
+// ListLicensesByEmailJSONBody defines parameters for ListLicensesByEmail.
+type ListLicensesByEmailJSONBody PurgeUserRequest
+
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
@@ -262,6 +265,9 @@ type TokenJSONBody TokenRequest
 
 // CreateUserJSONBody defines parameters for CreateUser.
 type CreateUserJSONBody CreateUserRequest
+
+// ListLicensesByEmailJSONRequestBody defines body for ListLicensesByEmail for application/json ContentType.
+type ListLicensesByEmailJSONRequestBody ListLicensesByEmailJSONBody
 
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
@@ -378,8 +384,10 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// ListLicensesByEmail request
-	ListLicensesByEmail(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListLicensesByEmail request with any body
+	ListLicensesByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ListLicensesByEmail(ctx context.Context, body ListLicensesByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AppleServerNotifications request with any body
 	AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -473,8 +481,20 @@ type ClientInterface interface {
 	CreateUser(ctx context.Context, body CreateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) ListLicensesByEmail(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListLicensesByEmailRequest(c.Server)
+func (c *Client) ListLicensesByEmailWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLicensesByEmailRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ListLicensesByEmail(ctx context.Context, body ListLicensesByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLicensesByEmailRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -905,8 +925,19 @@ func (c *Client) CreateUser(ctx context.Context, body CreateUserJSONRequestBody,
 	return c.Client.Do(req)
 }
 
-// NewListLicensesByEmailRequest generates requests for ListLicensesByEmail
-func NewListLicensesByEmailRequest(server string) (*http.Request, error) {
+// NewListLicensesByEmailRequest calls the generic ListLicensesByEmail builder with application/json body
+func NewListLicensesByEmailRequest(server string, body ListLicensesByEmailJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewListLicensesByEmailRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewListLicensesByEmailRequestWithBody generates requests for ListLicensesByEmail with any type of body
+func NewListLicensesByEmailRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -924,10 +955,12 @@ func NewListLicensesByEmailRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	req, err := http.NewRequest("POST", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1876,8 +1909,10 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// ListLicensesByEmail request
-	ListLicensesByEmailWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error)
+	// ListLicensesByEmail request with any body
+	ListLicensesByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error)
+
+	ListLicensesByEmailWithResponse(ctx context.Context, body ListLicensesByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error)
 
 	// AppleServerNotifications request with any body
 	AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
@@ -2533,9 +2568,17 @@ func (r CreateUserResponse) StatusCode() int {
 	return 0
 }
 
-// ListLicensesByEmailWithResponse request returning *ListLicensesByEmailResponse
-func (c *ClientWithResponses) ListLicensesByEmailWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error) {
-	rsp, err := c.ListLicensesByEmail(ctx, reqEditors...)
+// ListLicensesByEmailWithBodyWithResponse request with arbitrary body returning *ListLicensesByEmailResponse
+func (c *ClientWithResponses) ListLicensesByEmailWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error) {
+	rsp, err := c.ListLicensesByEmailWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListLicensesByEmailResponse(rsp)
+}
+
+func (c *ClientWithResponses) ListLicensesByEmailWithResponse(ctx context.Context, body ListLicensesByEmailJSONRequestBody, reqEditors ...RequestEditorFn) (*ListLicensesByEmailResponse, error) {
+	rsp, err := c.ListLicensesByEmail(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

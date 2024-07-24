@@ -185,6 +185,9 @@ type User struct {
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
+// ListLicensesByEmailJSONBody defines parameters for ListLicensesByEmail.
+type ListLicensesByEmailJSONBody PurgeUserRequest
+
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
@@ -257,6 +260,9 @@ type TokenJSONBody TokenRequest
 // CreateUserJSONBody defines parameters for CreateUser.
 type CreateUserJSONBody CreateUserRequest
 
+// ListLicensesByEmailJSONRequestBody defines body for ListLicensesByEmail for application/json ContentType.
+type ListLicensesByEmailJSONRequestBody ListLicensesByEmailJSONBody
+
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
@@ -302,7 +308,7 @@ type CreateUserJSONRequestBody CreateUserJSONBody
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// List licenses by email
-	// (GET /api/admin/licenses-by-email)
+	// (POST /api/admin/licenses-by-email)
 	ListLicensesByEmail(w http.ResponseWriter, r *http.Request)
 	// Apple server notifications
 	// (POST /api/client/apple-server-notifications)
@@ -1014,7 +1020,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/admin/licenses-by-email", wrapper.ListLicensesByEmail)
+		r.Post(options.BaseURL+"/api/admin/licenses-by-email", wrapper.ListLicensesByEmail)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/apple-server-notifications", wrapper.AppleServerNotifications)
