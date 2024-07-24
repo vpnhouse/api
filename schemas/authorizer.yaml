@@ -678,7 +678,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PurgeUserRequest'
+              $ref: '#/components/schemas/ListLicensesByEmailRequest'
       responses:
         '200':
           description: OK

@@ -97,6 +97,12 @@ type License struct {
 	UserId       *string                  `json:"user_id,omitempty"`
 }
 
+// ListLicensesByEmailRequest defines model for ListLicensesByEmailRequest.
+type ListLicensesByEmailRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
 	Email          string  `json:"email"`
@@ -192,7 +198,7 @@ type User struct {
 }
 
 // ListLicensesByEmailJSONBody defines parameters for ListLicensesByEmail.
-type ListLicensesByEmailJSONBody PurgeUserRequest
+type ListLicensesByEmailJSONBody ListLicensesByEmailRequest
 
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
