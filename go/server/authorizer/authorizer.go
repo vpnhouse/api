@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	AdminKeyScopes   = "AdminKey.Scopes"
 	ServiceKeyScopes = "ServiceKey.Scopes"
 	BasicScopes      = "basic.Scopes"
 	BearerScopes     = "bearer.Scopes"
@@ -300,6 +301,9 @@ type CreateUserJSONRequestBody CreateUserJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// List licenses by email
+	// (GET /api/admin/licenses-by-email)
+	ListLicensesByEmail(w http.ResponseWriter, r *http.Request)
 	// Apple server notifications
 	// (POST /api/client/apple-server-notifications)
 	AppleServerNotifications(w http.ResponseWriter, r *http.Request)
@@ -373,6 +377,23 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// ListLicensesByEmail operation middleware
+func (siw *ServerInterfaceWrapper) ListLicensesByEmail(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, AdminKeyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLicensesByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // AppleServerNotifications operation middleware
 func (siw *ServerInterfaceWrapper) AppleServerNotifications(w http.ResponseWriter, r *http.Request) {
@@ -992,6 +1013,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/admin/licenses-by-email", wrapper.ListLicensesByEmail)
+	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/apple-server-notifications", wrapper.AppleServerNotifications)
 	})
