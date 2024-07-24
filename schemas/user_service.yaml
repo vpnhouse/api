@@ -1771,6 +1771,38 @@ paths:
             schema:
               $ref: '#/components/schemas/RotateConfirmationParams'
 
+  /api/user-service/confirmation-to-remain:
+    post:
+      summary: List of confirmations to remain user
+      tags:
+        - confirmation
+        - reamain
+      operationId: remain-confirmation
+      description: Gather list of verification confirmations that still not processed by user
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RemainConfirmation'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemainConfirmationParams'
+
   /api/user-service/lookup-user:
     post:
       summary: Lookup user
@@ -1949,6 +1981,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+
 components:
   schemas:
     Project:
@@ -2120,6 +2153,9 @@ components:
         updated_at:
           type: string
           format: date-time
+        selector_json:
+          type: string
+          format: byte
     AuthMethod:
       title: AuthMethod
       type: object
@@ -2729,6 +2765,8 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
         email:
           type: string
         expires_at:
@@ -2740,6 +2778,26 @@ components:
         updated_at:
           type: string
           format: date-time
+    RemainConfirmation:
+      title: RemainConfirmation
+      type: object
+      properties:
+        email:
+          type: string
+        confirmation_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+      required:
+        - email
+        - confirmation_id
+        - user_id
+        - project_id
     CreateConfirmationParams:
       title: CreateConfirmationParams
       type: object
@@ -2754,6 +2812,9 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2765,6 +2826,7 @@ components:
         - email
         - firebase_id
         - confirmed
+        - platform_type
         - email
         - expires_at
     UpdateConfirmationParams:
@@ -2781,6 +2843,9 @@ components:
         confirmed:
           type: boolean
           nullable: true
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2795,6 +2860,7 @@ components:
       required:
         - firebase_id
         - confirmed
+        - platform_type
         - email
         - expires_at
         - updated_at
@@ -2809,6 +2875,9 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
+          nullable: true
         email:
           type: string
           nullable: true
@@ -2832,6 +2901,8 @@ components:
           format: uuid
         confirmed:
           type: boolean
+        platform_type:
+          type: string
         email:
           type: string
         created_at:
@@ -2855,10 +2926,28 @@ components:
         expires_at:
           type: string
           format: date-time
+        platform_type:
+          type: string
+          format: string
       required:
         - id
         - identifier
         - expires_at
+        - platform_type
+    RemainConfirmationParams:
+      title: RotateConfirmationParams
+      type: object
+      properties:
+        registered_ago:
+          type: string
+          description: period in ISO8601 
+        confirmation_expire_period:
+          type: integer
+          format: int64
+          description: period in seconds the returned confirmations do expire
+      required:
+        - registered_ago
+        - confirmation_expire_period
     SessionToDeleteParams:
       title: SessionToDeleteParams
       type: object
