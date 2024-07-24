@@ -951,7 +951,7 @@ func NewListLicensesByEmailRequestWithBody(server string, contentType string, bo
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/admin/licenses-by-email")
+	operationPath := fmt.Sprintf("/api/admin/list-licenses-by-email")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}

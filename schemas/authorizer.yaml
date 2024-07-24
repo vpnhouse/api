@@ -663,7 +663,7 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
-  /api/admin/licenses-by-email:
+  /api/admin/list-licenses-by-email:
     post:
       summary: List licenses by email
       tags:

@@ -314,7 +314,7 @@ type CreateUserJSONRequestBody CreateUserJSONBody
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// List licenses by email
-	// (POST /api/admin/licenses-by-email)
+	// (POST /api/admin/list-licenses-by-email)
 	ListLicensesByEmail(w http.ResponseWriter, r *http.Request)
 	// Apple server notifications
 	// (POST /api/client/apple-server-notifications)
@@ -1026,7 +1026,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/admin/licenses-by-email", wrapper.ListLicensesByEmail)
+		r.Post(options.BaseURL+"/api/admin/list-licenses-by-email", wrapper.ListLicensesByEmail)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/apple-server-notifications", wrapper.AppleServerNotifications)
