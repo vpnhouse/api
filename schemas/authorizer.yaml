@@ -663,6 +663,42 @@ paths:
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
 
+  /api/admin/list-licenses-by-email:
+    post:
+      summary: List licenses by email
+      tags:
+        - list
+        - licenses
+        - email
+      operationId: list-licenses-by-email
+      description: List licenses by email
+      security:
+        - AdminKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListLicensesByEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
 components:
   schemas:
     AuthRequest:
@@ -1073,6 +1109,18 @@ components:
         - user_id
         - project_id
         - api_key
+    ListLicensesByEmailRequest:
+      title: ListLicensesByEmailRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+      required:
+          - email
+          - project_id
 
   securitySchemes:
     bearer:
@@ -1083,6 +1131,10 @@ components:
       scheme: basic
     ServiceKey:
       name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    AdminKey:
+      name: X-PROJECT-ADMIN-KEY
       type: apiKey
       in: header
 tags:

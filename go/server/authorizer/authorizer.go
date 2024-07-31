@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	AdminKeyScopes   = "AdminKey.Scopes"
 	ServiceKeyScopes = "ServiceKey.Scopes"
 	BasicScopes      = "basic.Scopes"
 	BearerScopes     = "bearer.Scopes"
@@ -88,6 +89,12 @@ type License struct {
 	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
 	StartAt      *time.Time               `json:"start_at,omitempty"`
 	UserId       *string                  `json:"user_id,omitempty"`
+}
+
+// ListLicensesByEmailRequest defines model for ListLicensesByEmailRequest.
+type ListLicensesByEmailRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
 }
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
@@ -184,6 +191,9 @@ type User struct {
 	UpdatedAt    time.Time               `json:"updated_at"`
 }
 
+// ListLicensesByEmailJSONBody defines parameters for ListLicensesByEmail.
+type ListLicensesByEmailJSONBody ListLicensesByEmailRequest
+
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
@@ -256,6 +266,9 @@ type TokenJSONBody TokenRequest
 // CreateUserJSONBody defines parameters for CreateUser.
 type CreateUserJSONBody CreateUserRequest
 
+// ListLicensesByEmailJSONRequestBody defines body for ListLicensesByEmail for application/json ContentType.
+type ListLicensesByEmailJSONRequestBody ListLicensesByEmailJSONBody
+
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
@@ -300,6 +313,9 @@ type CreateUserJSONRequestBody CreateUserJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// List licenses by email
+	// (POST /api/admin/list-licenses-by-email)
+	ListLicensesByEmail(w http.ResponseWriter, r *http.Request)
 	// Apple server notifications
 	// (POST /api/client/apple-server-notifications)
 	AppleServerNotifications(w http.ResponseWriter, r *http.Request)
@@ -373,6 +389,23 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// ListLicensesByEmail operation middleware
+func (siw *ServerInterfaceWrapper) ListLicensesByEmail(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, AdminKeyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListLicensesByEmail(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // AppleServerNotifications operation middleware
 func (siw *ServerInterfaceWrapper) AppleServerNotifications(w http.ResponseWriter, r *http.Request) {
@@ -992,6 +1025,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/admin/list-licenses-by-email", wrapper.ListLicensesByEmail)
+	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/apple-server-notifications", wrapper.AppleServerNotifications)
 	})
