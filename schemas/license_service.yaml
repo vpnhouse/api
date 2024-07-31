@@ -1050,8 +1050,8 @@ paths:
       summary: Send email with offer to pay in crypto currencies
       tags:
         - crypto
-      operationId: apply-trial-license
-      description: Apply trial license
+      operationId: send-pay-in-crypto
+      description: Send pay in crypto offer
       security:
         - { }
         - bearer: [ ]
