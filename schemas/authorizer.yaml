@@ -105,43 +105,10 @@ paths:
       security:
         - bearer: []
     parameters: []
-
-  /api/service/signin:
+  /api/service/user:
     post:
-      summary: Authenticate service
-      operationId: service-authenticate
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResp'
-        '400':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '401':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '403':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-        '500':
-          $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Authenticate service and provide access token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthServiceRequest'
-            examples: {}
-      tags:
-        - auth
-        - service
-      security:
-        - ServiceKey: [ ]
-    parameters: []
-  /api/service/firebase-user:
-    post:
-      summary: Create user at firebase
-      operationId: create-firebase-user
+      summary: Create user
+      operationId: create-user
       responses:
         '200':
           description: OK
@@ -157,12 +124,12 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
-      description: Create user at firebase
+      description: Create user using specified credentials
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateFirebaseUserRequest'
+              $ref: '#/components/schemas/CreateUserRequest'
             examples: { }
       tags:
         - auth
@@ -576,6 +543,7 @@ paths:
 
   /api/client/firebase-public-key:
     get:
+      deprecated: true
       parameters:
         - schema:
             type: string
@@ -589,6 +557,38 @@ paths:
         - key
       operationId: get-firebase-public-key
       description: Get firebase public key by project id or default
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/client/provider-public-info:
+    get:
+      parameters:
+        - name: provider_id
+          schema:
+            type: string
+          in: query
+          required: true
+      summary: Get authentication provider public info
+      tags:
+        - get
+        - provider
+        - public
+        - info
+      operationId: get-provider-public-info
+      description: Get authentication provider public info
       security:
         - bearer: [ ]
       responses:
@@ -659,6 +659,42 @@ paths:
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+  /api/admin/list-licenses-by-email:
+    post:
+      summary: List licenses by email
+      tags:
+        - list
+        - licenses
+        - email
+      operationId: list-licenses-by-email
+      description: List licenses by email
+      security:
+        - AdminKey: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListLicensesByEmailRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/License'
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
@@ -836,21 +872,27 @@ components:
       required:
         - email
         - project_id
-    CreateFirebaseUserRequest:
-      title: CreateFirebaseUserRequest
+    CreateUserRequest:
+      title: CreateUserRequest
       type: object
       properties:
         project_id:
+          type: string
+          format: uuid
+        auth_method_id:
           type: string
           format: uuid
         email:
           type: string
         password:
           type: string
+        email_confirmed:
+          type: boolean
       required:
         - project_id
         - email
         - password
+        - email_confirmed
     User:
       title: User
       type: object
@@ -861,6 +903,11 @@ components:
         project_id:
           type: string
           format: uuid
+        auth_method_id:
+          type: string
+          format: uuid
+        provider_id:
+          type: string
         email:
           type: string
         description:
@@ -871,6 +918,13 @@ components:
         updated_at:
           type: string
           format: date-time
+      required:
+        - id
+        - project_id
+        - provider_id
+        - email
+        - created_at
+        - updated_at
     Product:
       title: Product
       type: object
@@ -1055,6 +1109,18 @@ components:
         - user_id
         - project_id
         - api_key
+    ListLicensesByEmailRequest:
+      title: ListLicensesByEmailRequest
+      type: object
+      properties:
+        email:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+      required:
+          - email
+          - project_id
 
   securitySchemes:
     bearer:
@@ -1065,6 +1131,10 @@ components:
       scheme: basic
     ServiceKey:
       name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    AdminKey:
+      name: X-PROJECT-ADMIN-KEY
       type: apiKey
       in: header
 tags:

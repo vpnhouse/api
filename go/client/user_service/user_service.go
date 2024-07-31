@@ -4,11 +4,11 @@
 package user_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -48,6 +48,7 @@ type AuthMethod struct {
 
 // Confirmation defines model for Confirmation.
 type Confirmation struct {
+	AuthMethodId   *string    `json:"auth_method_id,omitempty"`
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 	Email          *string    `json:"email,omitempty"`
@@ -55,6 +56,7 @@ type Confirmation struct {
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	ProjectId      *string    `json:"project_id,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -76,11 +78,13 @@ type CreateAuthParams struct {
 
 // CreateConfirmationParams defines model for CreateConfirmationParams.
 type CreateConfirmationParams struct {
+	AuthMethodId   *string    `json:"auth_method_id"`
 	Confirmed      *bool      `json:"confirmed"`
 	Email          *string    `json:"email"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	ProjectId      *string    `json:"project_id"`
 }
 
 // CreateInviteParams defines model for CreateInviteParams.
@@ -144,12 +148,14 @@ type FindAuthParams struct {
 
 // FindConfirmationParams defines model for FindConfirmationParams.
 type FindConfirmationParams struct {
+	AuthMethodId   *string    `json:"auth_method_id"`
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	CreatedAt      *time.Time `json:"created_at,omitempty"`
 	Email          *string    `json:"email,omitempty"`
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
 
@@ -234,11 +240,13 @@ type PatchAuthParams struct {
 
 // PatchConfirmationParams defines model for PatchConfirmationParams.
 type PatchConfirmationParams struct {
+	AuthMethodId   *string    `json:"auth_method_id"`
 	Confirmed      *bool      `json:"confirmed,omitempty"`
 	Email          *string    `json:"email"`
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 
@@ -376,11 +384,13 @@ type UpdateAuthParams struct {
 
 // UpdateConfirmationParams defines model for UpdateConfirmationParams.
 type UpdateConfirmationParams struct {
+	AuthMethodId   *string    `json:"auth_method_id"`
 	Confirmed      *bool      `json:"confirmed"`
 	Email          *string    `json:"email"`
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
 

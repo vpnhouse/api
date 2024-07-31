@@ -346,6 +346,12 @@ type UserLicense struct {
 	Period     *string                  `json:"period,omitempty"`
 }
 
+// GetAnonymousEntitlementsParams defines parameters for GetAnonymousEntitlements.
+type GetAnonymousEntitlementsParams struct {
+	ProjectId    string `json:"project_id"`
+	PlatformType string `json:"platform_type"`
+}
+
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
@@ -503,6 +509,9 @@ type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get anonymous entitlements
+	// (GET /api/license-service/anonymous-entitlements)
+	GetAnonymousEntitlements(w http.ResponseWriter, r *http.Request, params GetAnonymousEntitlementsParams)
 	// Apple server notifications
 	// (POST /api/license-service/apple-server-notifications)
 	AppleServerNotifications(w http.ResponseWriter, r *http.Request)
@@ -612,6 +621,54 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// GetAnonymousEntitlements operation middleware
+func (siw *ServerInterfaceWrapper) GetAnonymousEntitlements(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAnonymousEntitlementsParams
+
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Required query parameter "platform_type" -------------
+	if paramValue := r.URL.Query().Get("platform_type"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "platform_type"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "platform_type", r.URL.Query(), &params.PlatformType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "platform_type", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetAnonymousEntitlements(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // AppleServerNotifications operation middleware
 func (siw *ServerInterfaceWrapper) AppleServerNotifications(w http.ResponseWriter, r *http.Request) {
@@ -1672,6 +1729,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/anonymous-entitlements", wrapper.GetAnonymousEntitlements)
+	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/apple-server-notifications", wrapper.AppleServerNotifications)
 	})
