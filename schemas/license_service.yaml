@@ -1050,19 +1050,15 @@ paths:
       summary: Send email with offer to pay in crypto currencies
       tags:
         - crypto
+        - license
       operationId: send-pay-in-crypto
       description: Send pay in crypto offer
       security:
         - { }
         - bearer: [ ]
       responses:
-        responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/License'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -1901,3 +1897,4 @@ tags:
   - name: product
   - name: purchase
   - name: license
+  - name: crypto
