@@ -42,6 +42,7 @@ paths:
     parameters: []
   /api/client/signup:
     post:
+      deprecated: true
       summary: Register user
       operationId: register
       responses:
