@@ -289,6 +289,12 @@ type Purchase struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// SendPayInCryptoRequest defines model for SendPayInCryptoRequest.
+type SendPayInCryptoRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -447,6 +453,9 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
+// SendPayInCryptoJSONBody defines parameters for SendPayInCrypto.
+type SendPayInCryptoJSONBody SendPayInCryptoRequest
+
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
@@ -506,6 +515,9 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
+
+// SendPayInCryptoJSONRequestBody defines body for SendPayInCrypto for application/json ContentType.
+type SendPayInCryptoJSONRequestBody SendPayInCryptoJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -611,6 +623,9 @@ type ServerInterface interface {
 	// Update purchase
 	// (PUT /api/license-service/purchase/{id})
 	UpdatePurchase(w http.ResponseWriter, r *http.Request, id string)
+	// Send email with offer to pay in crypto currencies
+	// (POST /api/license-service/send-pay-in-crypto)
+	SendPayInCrypto(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -1616,6 +1631,23 @@ func (siw *ServerInterfaceWrapper) UpdatePurchase(w http.ResponseWriter, r *http
 	handler(w, r.WithContext(ctx))
 }
 
+// SendPayInCrypto operation middleware
+func (siw *ServerInterfaceWrapper) SendPayInCrypto(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendPayInCrypto(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -1830,6 +1862,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/api/license-service/purchase/{id}", wrapper.UpdatePurchase)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/license-service/send-pay-in-crypto", wrapper.SendPayInCrypto)
 	})
 
 	return r

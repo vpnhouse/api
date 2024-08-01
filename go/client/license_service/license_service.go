@@ -295,6 +295,12 @@ type Purchase struct {
 	UserId           *string                 `json:"user_id,omitempty"`
 }
 
+// SendPayInCryptoRequest defines model for SendPayInCryptoRequest.
+type SendPayInCryptoRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -453,6 +459,9 @@ type PatchPurchaseJSONBody PatchPurchaseParams
 // UpdatePurchaseJSONBody defines parameters for UpdatePurchase.
 type UpdatePurchaseJSONBody UpdatePurchaseParams
 
+// SendPayInCryptoJSONBody defines parameters for SendPayInCrypto.
+type SendPayInCryptoJSONBody SendPayInCryptoRequest
+
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
@@ -512,6 +521,9 @@ type PatchPurchaseJSONRequestBody PatchPurchaseJSONBody
 
 // UpdatePurchaseJSONRequestBody defines body for UpdatePurchase for application/json ContentType.
 type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
+
+// SendPayInCryptoJSONRequestBody defines body for SendPayInCrypto for application/json ContentType.
+type SendPayInCryptoJSONRequestBody SendPayInCryptoJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -727,6 +739,11 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendPayInCrypto request with any body
+	SendPayInCryptoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendPayInCrypto(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetAnonymousEntitlements(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1367,6 +1384,30 @@ func (c *Client) UpdatePurchaseWithBody(ctx context.Context, id string, contentT
 
 func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdatePurchaseRequest(c.Server, id, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPayInCryptoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPayInCryptoRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPayInCrypto(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPayInCryptoRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2842,6 +2883,46 @@ func NewUpdatePurchaseRequestWithBody(server string, id string, contentType stri
 	return req, nil
 }
 
+// NewSendPayInCryptoRequest calls the generic SendPayInCrypto builder with application/json body
+func NewSendPayInCryptoRequest(server string, body SendPayInCryptoJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendPayInCryptoRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendPayInCryptoRequestWithBody generates requests for SendPayInCrypto with any type of body
+func NewSendPayInCryptoRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/send-pay-in-crypto")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -3026,6 +3107,11 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
+
+	// SendPayInCrypto request with any body
+	SendPayInCryptoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error)
+
+	SendPayInCryptoWithResponse(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error)
 }
 
 type GetAnonymousEntitlementsResponse struct {
@@ -3889,6 +3975,30 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+type SendPayInCryptoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendPayInCryptoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendPayInCryptoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetAnonymousEntitlementsWithResponse request returning *GetAnonymousEntitlementsResponse
 func (c *ClientWithResponses) GetAnonymousEntitlementsWithResponse(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*GetAnonymousEntitlementsResponse, error) {
 	rsp, err := c.GetAnonymousEntitlements(ctx, params, reqEditors...)
@@ -4353,6 +4463,23 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
+}
+
+// SendPayInCryptoWithBodyWithResponse request with arbitrary body returning *SendPayInCryptoResponse
+func (c *ClientWithResponses) SendPayInCryptoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error) {
+	rsp, err := c.SendPayInCryptoWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPayInCryptoResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendPayInCryptoWithResponse(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error) {
+	rsp, err := c.SendPayInCrypto(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPayInCryptoResponse(rsp)
 }
 
 // ParseGetAnonymousEntitlementsResponse parses an HTTP response from a GetAnonymousEntitlementsWithResponse call
@@ -6017,6 +6144,46 @@ func ParseUpdatePurchaseResponse(rsp *http.Response) (*UpdatePurchaseResponse, e
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendPayInCryptoResponse parses an HTTP response from a SendPayInCryptoWithResponse call
+func ParseSendPayInCryptoResponse(rsp *http.Response) (*SendPayInCryptoResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendPayInCryptoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
