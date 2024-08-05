@@ -754,6 +754,43 @@ paths:
       tags:
         - entitlements
         - get
+
+  /api/license-service/anonymous-entitlements:
+    get:
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          name: project_id
+          in: query
+          required: true
+        - schema:
+            type: string
+          name: platform_type
+          in: query
+          required: true
+      summary: Get anonymous entitlements
+      operationId: get-anonymous-entitlements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Get anonymous entitlements
+      tags:
+        - entitlements
+        - anonymous
+        - get
   
   /api/license-service/payment-link:
     get:
@@ -1779,10 +1816,10 @@ components:
       title: AppleServerNotificationsRequest
       type: object
       properties:
-        signed_payload:
+        signedPayload:
           type: string
       required:
-        - signed_payload
+        - signedPayload
     ApplyTrialLicenseRequest:
       title: ApplyTrialLicenseRequest
       type: object

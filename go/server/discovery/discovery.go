@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	BearerScopes = "bearer.Scopes"
+	AuthorizerKeyScopes = "AuthorizerKey.Scopes"
+	BearerScopes        = "bearer.Scopes"
 )
 
 // Location defines model for Location.
@@ -35,7 +36,8 @@ type Node struct {
 
 // GetCredentialsParams defines parameters for GetCredentials.
 type GetCredentialsParams struct {
-	Location *string `json:"location,omitempty"`
+	Location  *string `json:"location,omitempty"`
+	ProjectId *string `json:"project_id,omitempty"`
 }
 
 // GetLocationsParams defines parameters for GetLocations.
@@ -78,6 +80,8 @@ func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http
 
 	ctx = context.WithValue(ctx, BearerScopes, []string{""})
 
+	ctx = context.WithValue(ctx, AuthorizerKeyScopes, []string{""})
+
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetCredentialsParams
 
@@ -89,6 +93,17 @@ func (siw *ServerInterfaceWrapper) GetCredentials(w http.ResponseWriter, r *http
 	err = runtime.BindQueryParameter("form", true, false, "location", r.URL.Query(), &params.Location)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "location", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
 		return
 	}
 

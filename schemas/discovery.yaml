@@ -61,12 +61,20 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
       operationId: get-credentials
       description: Return credentials to connect for specific location
+      security:
+        - bearer: []
+        - AuthorizerKey: []
       parameters:
         - schema:
             type: string
             example: US
           in: query
           name: location
+        - schema:
+            type: string
+            format: uuid
+          in: query
+          name: project_id
     parameters: []
   /api/client/optimal:
     get:
@@ -156,6 +164,10 @@ components:
     bearer:
       type: http
       scheme: bearer
+    AuthorizerKey:
+      name: X-VPNHOUSE-AUTHORIZER-KEY
+      type: apiKey
+      in: header
 tags:
   - name: client
   - name: discovery

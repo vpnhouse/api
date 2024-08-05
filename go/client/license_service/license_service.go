@@ -4,11 +4,11 @@
 package license_service
 
 import (
-    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +28,7 @@ const (
 
 // AppleServerNotificationsRequest defines model for AppleServerNotificationsRequest.
 type AppleServerNotificationsRequest struct {
-	SignedPayload string `json:"signed_payload"`
+	SignedPayload string `json:"signedPayload"`
 }
 
 // ApplyParams defines model for ApplyParams.
@@ -352,6 +352,12 @@ type UserLicense struct {
 	Period     *string                  `json:"period,omitempty"`
 }
 
+// GetAnonymousEntitlementsParams defines parameters for GetAnonymousEntitlements.
+type GetAnonymousEntitlementsParams struct {
+	ProjectId    string `json:"project_id"`
+	PlatformType string `json:"platform_type"`
+}
+
 // AppleServerNotificationsJSONBody defines parameters for AppleServerNotifications.
 type AppleServerNotificationsJSONBody AppleServerNotificationsRequest
 
@@ -580,6 +586,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetAnonymousEntitlements request
+	GetAnonymousEntitlements(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// AppleServerNotifications request with any body
 	AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -718,6 +727,18 @@ type ClientInterface interface {
 	UpdatePurchaseWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdatePurchase(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetAnonymousEntitlements(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetAnonymousEntitlementsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) AppleServerNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -1354,6 +1375,61 @@ func (c *Client) UpdatePurchase(ctx context.Context, id string, body UpdatePurch
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetAnonymousEntitlementsRequest generates requests for GetAnonymousEntitlements
+func NewGetAnonymousEntitlementsRequest(server string, params *GetAnonymousEntitlementsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/license-service/anonymous-entitlements")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, params.PlatformType); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewAppleServerNotificationsRequest calls the generic AppleServerNotifications builder with application/json body
@@ -2809,6 +2885,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetAnonymousEntitlements request
+	GetAnonymousEntitlementsWithResponse(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*GetAnonymousEntitlementsResponse, error)
+
 	// AppleServerNotifications request with any body
 	AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error)
 
@@ -2947,6 +3026,32 @@ type ClientWithResponsesInterface interface {
 	UpdatePurchaseWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
 
 	UpdatePurchaseWithResponse(ctx context.Context, id string, body UpdatePurchaseJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePurchaseResponse, error)
+}
+
+type GetAnonymousEntitlementsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetAnonymousEntitlementsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetAnonymousEntitlementsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type AppleServerNotificationsResponse struct {
@@ -3784,6 +3889,15 @@ func (r UpdatePurchaseResponse) StatusCode() int {
 	return 0
 }
 
+// GetAnonymousEntitlementsWithResponse request returning *GetAnonymousEntitlementsResponse
+func (c *ClientWithResponses) GetAnonymousEntitlementsWithResponse(ctx context.Context, params *GetAnonymousEntitlementsParams, reqEditors ...RequestEditorFn) (*GetAnonymousEntitlementsResponse, error) {
+	rsp, err := c.GetAnonymousEntitlements(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetAnonymousEntitlementsResponse(rsp)
+}
+
 // AppleServerNotificationsWithBodyWithResponse request with arbitrary body returning *AppleServerNotificationsResponse
 func (c *ClientWithResponses) AppleServerNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AppleServerNotificationsResponse, error) {
 	rsp, err := c.AppleServerNotificationsWithBody(ctx, contentType, body, reqEditors...)
@@ -4239,6 +4353,60 @@ func (c *ClientWithResponses) UpdatePurchaseWithResponse(ctx context.Context, id
 		return nil, err
 	}
 	return ParseUpdatePurchaseResponse(rsp)
+}
+
+// ParseGetAnonymousEntitlementsResponse parses an HTTP response from a GetAnonymousEntitlementsWithResponse call
+func ParseGetAnonymousEntitlementsResponse(rsp *http.Response) (*GetAnonymousEntitlementsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetAnonymousEntitlementsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseAppleServerNotificationsResponse parses an HTTP response from a AppleServerNotificationsWithResponse call
