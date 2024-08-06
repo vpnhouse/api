@@ -54,6 +54,12 @@ type AuthResp struct {
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
 }
 
+// CrashLogRequest defines model for CrashLogRequest.
+type CrashLogRequest struct {
+	// Base64 encoded crash log JSON message
+	LogMsg string `json:"log_msg"`
+}
+
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
@@ -207,6 +213,9 @@ type ConfirmParams struct {
 	ProjectId      string `json:"project_id"`
 }
 
+// SendCrashLogJSONBody defines parameters for SendCrashLog.
+type SendCrashLogJSONBody CrashLogRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -275,6 +284,9 @@ type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
 
+// SendCrashLogJSONRequestBody defines body for SendCrashLog for application/json ContentType.
+type SendCrashLogJSONRequestBody SendCrashLogJSONBody
+
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
 
@@ -325,6 +337,9 @@ type ServerInterface interface {
 	// Confirm email
 	// (GET /api/client/confirm)
 	Confirm(w http.ResponseWriter, r *http.Request, params ConfirmParams)
+	// Send crash log
+	// (POST /api/client/crashlog)
+	SendCrashLog(w http.ResponseWriter, r *http.Request)
 	// Create purchase context
 	// (POST /api/client/create-purchase-context)
 	CreatePurchaseContext(w http.ResponseWriter, r *http.Request)
@@ -492,6 +507,23 @@ func (siw *ServerInterfaceWrapper) Confirm(w http.ResponseWriter, r *http.Reques
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.Confirm(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// SendCrashLog operation middleware
+func (siw *ServerInterfaceWrapper) SendCrashLog(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendCrashLog(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1036,6 +1068,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client/confirm", wrapper.Confirm)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/crashlog", wrapper.SendCrashLog)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/create-purchase-context", wrapper.CreatePurchaseContext)
