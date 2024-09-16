@@ -60,6 +60,12 @@ type AuthResp struct {
 	RefreshToken       *string                 `json:"refresh_token,omitempty"`
 }
 
+// CrashLogRequest defines model for CrashLogRequest.
+type CrashLogRequest struct {
+	// Base64 encoded crash log JSON message
+	LogMsg string `json:"log_msg"`
+}
+
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
 	Email     string `json:"email"`
@@ -213,6 +219,9 @@ type ConfirmParams struct {
 	ProjectId      string  `json:"project_id"`
 }
 
+// SendCrashLogJSONBody defines parameters for SendCrashLog.
+type SendCrashLogJSONBody CrashLogRequest
+
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
 type CreatePurchaseContextJSONBody CreatePurchaseContextRequest
 
@@ -280,6 +289,9 @@ type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
 // ApplyTrialLicenseJSONRequestBody defines body for ApplyTrialLicense for application/json ContentType.
 type ApplyTrialLicenseJSONRequestBody ApplyTrialLicenseJSONBody
+
+// SendCrashLogJSONRequestBody defines body for SendCrashLog for application/json ContentType.
+type SendCrashLogJSONRequestBody SendCrashLogJSONBody
 
 // CreatePurchaseContextJSONRequestBody defines body for CreatePurchaseContext for application/json ContentType.
 type CreatePurchaseContextJSONRequestBody CreatePurchaseContextJSONBody
@@ -407,6 +419,11 @@ type ClientInterface interface {
 
 	// Confirm request
 	Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendCrashLog request with any body
+	SendCrashLogWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendCrashLog(ctx context.Context, body SendCrashLogJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreatePurchaseContext request with any body
 	CreatePurchaseContextWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -561,6 +578,30 @@ func (c *Client) ApplyTrialLicense(ctx context.Context, body ApplyTrialLicenseJS
 
 func (c *Client) Confirm(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewConfirmRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendCrashLogWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendCrashLogRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendCrashLog(ctx context.Context, body SendCrashLogJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendCrashLogRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1118,6 +1159,46 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewSendCrashLogRequest calls the generic SendCrashLog builder with application/json body
+func NewSendCrashLogRequest(server string, body SendCrashLogJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendCrashLogRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendCrashLogRequestWithBody generates requests for SendCrashLog with any type of body
+func NewSendCrashLogRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/crashlog")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1937,6 +2018,11 @@ type ClientWithResponsesInterface interface {
 	// Confirm request
 	ConfirmWithResponse(ctx context.Context, params *ConfirmParams, reqEditors ...RequestEditorFn) (*ConfirmResponse, error)
 
+	// SendCrashLog request with any body
+	SendCrashLogWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendCrashLogResponse, error)
+
+	SendCrashLogWithResponse(ctx context.Context, body SendCrashLogJSONRequestBody, reqEditors ...RequestEditorFn) (*SendCrashLogResponse, error)
+
 	// CreatePurchaseContext request with any body
 	CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error)
 
@@ -2112,6 +2198,30 @@ func (r ConfirmResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ConfirmResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SendCrashLogResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendCrashLogResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendCrashLogResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2638,6 +2748,23 @@ func (c *ClientWithResponses) ConfirmWithResponse(ctx context.Context, params *C
 	return ParseConfirmResponse(rsp)
 }
 
+// SendCrashLogWithBodyWithResponse request with arbitrary body returning *SendCrashLogResponse
+func (c *ClientWithResponses) SendCrashLogWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendCrashLogResponse, error) {
+	rsp, err := c.SendCrashLogWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendCrashLogResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendCrashLogWithResponse(ctx context.Context, body SendCrashLogJSONRequestBody, reqEditors ...RequestEditorFn) (*SendCrashLogResponse, error) {
+	rsp, err := c.SendCrashLog(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendCrashLogResponse(rsp)
+}
+
 // CreatePurchaseContextWithBodyWithResponse request with arbitrary body returning *CreatePurchaseContextResponse
 func (c *ClientWithResponses) CreatePurchaseContextWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePurchaseContextResponse, error) {
 	rsp, err := c.CreatePurchaseContextWithBody(ctx, contentType, body, reqEditors...)
@@ -3072,6 +3199,46 @@ func ParseConfirmResponse(rsp *http.Response) (*ConfirmResponse, error) {
 		}
 		response.JSON400 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendCrashLogResponse parses an HTTP response from a SendCrashLogWithResponse call
+func ParseSendCrashLogResponse(rsp *http.Response) (*SendCrashLogResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendCrashLogResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
