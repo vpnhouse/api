@@ -4,11 +4,11 @@
 package authorizer
 
 import (
+    externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	externalRef1 "github.com/vpnhouse/api/go/server/common"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -208,9 +208,9 @@ type ApplyTrialLicenseJSONBody ApplyTrialLicenseRequest
 
 // ConfirmParams defines parameters for Confirm.
 type ConfirmParams struct {
-	ConfirmationId string `json:"confirmation_id"`
-	PlatformType   string `json:"platform_type"`
-	ProjectId      string `json:"project_id"`
+	ConfirmationId string  `json:"confirmation_id"`
+	PlatformType   *string `json:"platform_type,omitempty"`
+	ProjectId      string  `json:"project_id"`
 }
 
 // CreatePurchaseContextJSONBody defines parameters for CreatePurchaseContext.
@@ -1084,16 +1084,20 @@ func NewConfirmRequest(server string, params *ConfirmParams) (*http.Request, err
 		}
 	}
 
-	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, params.PlatformType); err != nil {
-		return nil, err
-	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-		return nil, err
-	} else {
-		for k, v := range parsed {
-			for _, v2 := range v {
-				queryValues.Add(k, v2)
+	if params.PlatformType != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "platform_type", runtime.ParamLocationQuery, *params.PlatformType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
 			}
 		}
+
 	}
 
 	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {

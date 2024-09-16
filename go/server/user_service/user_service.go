@@ -50,6 +50,7 @@ type Confirmation struct {
 	Id             *string    `json:"id,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	ProjectId      *string    `json:"project_id,omitempty"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
@@ -78,6 +79,7 @@ type CreateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 	ProjectId      *string    `json:"project_id"`
 }
 
@@ -149,6 +151,7 @@ type FindConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type,omitempty"`
 	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
 }
@@ -170,11 +173,12 @@ type FindSessionParams struct {
 
 // FindUserParams defines model for FindUserParams.
 type FindUserParams struct {
-	CreatedAt   *time.Time              `json:"created_at,omitempty"`
-	Description *map[string]interface{} `json:"description,omitempty"`
-	Email       *string                 `json:"email,omitempty"`
-	ProjectId   *string                 `json:"project_id,omitempty"`
-	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
+	CreatedAt    *time.Time              `json:"created_at,omitempty"`
+	Description  *map[string]interface{} `json:"description,omitempty"`
+	Email        *string                 `json:"email,omitempty"`
+	ProjectId    *string                 `json:"project_id,omitempty"`
+	SelectorJson *[]byte                 `json:"selector_json,omitempty"`
+	UpdatedAt    *time.Time              `json:"updated_at,omitempty"`
 }
 
 // Invite defines model for Invite.
@@ -240,6 +244,7 @@ type PatchConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at,omitempty"`
 	Identifier     *string    `json:"identifier,omitempty"`
 	InstallationId *string    `json:"installation_id,omitempty"`
+	PlatformType   *string    `json:"platform_type"`
 	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
@@ -323,11 +328,29 @@ type RegisterUserRequest struct {
 	ProjectId    *string `json:"project_id,omitempty"`
 }
 
+// RemainConfirmation defines model for RemainConfirmation.
+type RemainConfirmation struct {
+	ConfirmationId string `json:"confirmation_id"`
+	Email          string `json:"email"`
+	ProjectId      string `json:"project_id"`
+	UserId         string `json:"user_id"`
+}
+
+// RemainConfirmationParams defines model for RemainConfirmationParams.
+type RemainConfirmationParams struct {
+	// period in seconds the returned confirmations do expire
+	ConfirmationExpirePeriod int64 `json:"confirmation_expire_period"`
+
+	// period in ISO8601
+	RegisteredAgo string `json:"registered_ago"`
+}
+
 // RotateConfirmationParams defines model for RotateConfirmationParams.
 type RotateConfirmationParams struct {
-	ExpiresAt  time.Time `json:"expires_at"`
-	Id         string    `json:"id"`
-	Identifier string    `json:"identifier"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	Id           string    `json:"id"`
+	Identifier   string    `json:"identifier"`
+	PlatformType string    `json:"platform_type"`
 }
 
 // Session defines model for Session.
@@ -384,6 +407,7 @@ type UpdateConfirmationParams struct {
 	ExpiresAt      *time.Time `json:"expires_at"`
 	Identifier     *string    `json:"identifier"`
 	InstallationId *string    `json:"installation_id"`
+	PlatformType   *string    `json:"platform_type"`
 	ProjectId      *string    `json:"project_id"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
@@ -490,6 +514,9 @@ type ListConfirmationParams struct {
 
 // CreateConfirmationJSONBody defines parameters for CreateConfirmation.
 type CreateConfirmationJSONBody CreateConfirmationParams
+
+// RemainConfirmationJSONBody defines parameters for RemainConfirmation.
+type RemainConfirmationJSONBody RemainConfirmationParams
 
 // PatchConfirmationJSONBody defines parameters for PatchConfirmation.
 type PatchConfirmationJSONBody PatchConfirmationParams
@@ -652,6 +679,9 @@ type UpdateAuthJSONRequestBody UpdateAuthJSONBody
 // CreateConfirmationJSONRequestBody defines body for CreateConfirmation for application/json ContentType.
 type CreateConfirmationJSONRequestBody CreateConfirmationJSONBody
 
+// RemainConfirmationJSONRequestBody defines body for RemainConfirmation for application/json ContentType.
+type RemainConfirmationJSONRequestBody RemainConfirmationJSONBody
+
 // PatchConfirmationJSONRequestBody defines body for PatchConfirmation for application/json ContentType.
 type PatchConfirmationJSONRequestBody PatchConfirmationJSONBody
 
@@ -774,6 +804,9 @@ type ServerInterface interface {
 	// Create confirmation
 	// (POST /api/user-service/confirmation)
 	CreateConfirmation(w http.ResponseWriter, r *http.Request)
+	// List of confirmations to remain user
+	// (POST /api/user-service/confirmation-to-remain)
+	RemainConfirmation(w http.ResponseWriter, r *http.Request)
 	// Delete a confirmation
 	// (DELETE /api/user-service/confirmation/{id})
 	DeleteConfirmation(w http.ResponseWriter, r *http.Request, id string)
@@ -1379,6 +1412,25 @@ func (siw *ServerInterfaceWrapper) CreateConfirmation(w http.ResponseWriter, r *
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.CreateConfirmation(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// RemainConfirmation operation middleware
+func (siw *ServerInterfaceWrapper) RemainConfirmation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.RemainConfirmation(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -3107,6 +3159,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/user-service/confirmation", wrapper.CreateConfirmation)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/user-service/confirmation-to-remain", wrapper.RemainConfirmation)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/user-service/confirmation/{id}", wrapper.DeleteConfirmation)
