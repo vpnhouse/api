@@ -168,6 +168,12 @@ type PurgeUserRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// SendPayInCryptoRequest defines model for SendPayInCryptoRequest.
+type SendPayInCryptoRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -266,6 +272,9 @@ type PurgeUserJSONBody PurgeUserRequest
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
+// SendPayInCryptoJSONBody defines parameters for SendPayInCrypto.
+type SendPayInCryptoJSONBody SendPayInCryptoRequest
+
 // SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
 type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
@@ -313,6 +322,9 @@ type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+
+// SendPayInCryptoJSONRequestBody defines body for SendPayInCrypto for application/json ContentType.
+type SendPayInCryptoJSONRequestBody SendPayInCryptoJSONBody
 
 // SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
 type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
@@ -477,6 +489,11 @@ type ClientInterface interface {
 	SendConfirmationLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendPayInCrypto request with any body
+	SendPayInCryptoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendPayInCrypto(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -842,6 +859,30 @@ func (c *Client) SendConfirmationLinkWithBody(ctx context.Context, contentType s
 
 func (c *Client) SendConfirmationLink(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendConfirmationLinkRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPayInCryptoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPayInCryptoRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPayInCrypto(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPayInCryptoRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1757,6 +1798,46 @@ func NewSendConfirmationLinkRequestWithBody(server string, contentType string, b
 	return req, nil
 }
 
+// NewSendPayInCryptoRequest calls the generic SendPayInCrypto builder with application/json body
+func NewSendPayInCryptoRequest(server string, body SendPayInCryptoJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendPayInCryptoRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendPayInCryptoRequestWithBody generates requests for SendPayInCrypto with any type of body
+func NewSendPayInCryptoRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/send-pay-in-crypto")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewSendRestoreLinkRequest calls the generic SendRestoreLink builder with application/json body
 func NewSendRestoreLinkRequest(server string, body SendRestoreLinkJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -2075,6 +2156,11 @@ type ClientWithResponsesInterface interface {
 	SendConfirmationLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
 
 	SendConfirmationLinkWithResponse(ctx context.Context, body SendConfirmationLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*SendConfirmationLinkResponse, error)
+
+	// SendPayInCrypto request with any body
+	SendPayInCryptoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error)
+
+	SendPayInCryptoWithResponse(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error)
 
 	// SendRestoreLink request with any body
 	SendRestoreLinkWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendRestoreLinkResponse, error)
@@ -2559,6 +2645,31 @@ func (r SendConfirmationLinkResponse) StatusCode() int {
 	return 0
 }
 
+type SendPayInCryptoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SendPayInCryptoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendPayInCryptoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SendRestoreLinkResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2936,6 +3047,23 @@ func (c *ClientWithResponses) SendConfirmationLinkWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseSendConfirmationLinkResponse(rsp)
+}
+
+// SendPayInCryptoWithBodyWithResponse request with arbitrary body returning *SendPayInCryptoResponse
+func (c *ClientWithResponses) SendPayInCryptoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error) {
+	rsp, err := c.SendPayInCryptoWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPayInCryptoResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendPayInCryptoWithResponse(ctx context.Context, body SendPayInCryptoJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPayInCryptoResponse, error) {
+	rsp, err := c.SendPayInCrypto(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPayInCryptoResponse(rsp)
 }
 
 // SendRestoreLinkWithBodyWithResponse request with arbitrary body returning *SendRestoreLinkResponse
@@ -3868,6 +3996,53 @@ func ParseSendConfirmationLinkResponse(rsp *http.Response) (*SendConfirmationLin
 	}
 
 	response := &SendConfirmationLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendPayInCryptoResponse parses an HTTP response from a SendPayInCryptoWithResponse call
+func ParseSendPayInCryptoResponse(rsp *http.Response) (*SendPayInCryptoResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendPayInCryptoResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

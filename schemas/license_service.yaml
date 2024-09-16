@@ -1045,6 +1045,32 @@ paths:
             schema:
               $ref: '#/components/schemas/ApplyTrialLicenseRequest'
 
+  /api/license-service/send-pay-in-crypto:
+    post:
+      summary: Send email with offer to pay in crypto currencies
+      tags:
+        - crypto
+        - license
+      operationId: send-pay-in-crypto
+      description: Send pay in crypto offer
+      security:
+        - { }
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendPayInCryptoRequest'
+
 components:
   schemas:
     Product:
@@ -1837,6 +1863,18 @@ components:
         - project_id
         - product_id
         - user_id
+    SendPayInCryptoRequest:
+      title: SendPayInCryptoRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+      required:
+        - project_id
+        - email
 
   securitySchemes:
     ServiceKey:
@@ -1859,3 +1897,4 @@ tags:
   - name: product
   - name: purchase
   - name: license
+  - name: crypto

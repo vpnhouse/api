@@ -162,6 +162,12 @@ type PurgeUserRequest struct {
 	UserId    string `json:"user_id"`
 }
 
+// SendPayInCryptoRequest defines model for SendPayInCryptoRequest.
+type SendPayInCryptoRequest struct {
+	Email     string `json:"email"`
+	ProjectId string `json:"project_id"`
+}
+
 // SendRestoreLinkRequest defines model for SendRestoreLinkRequest.
 type SendRestoreLinkRequest struct {
 	Email     string `json:"email"`
@@ -260,6 +266,9 @@ type PurgeUserJSONBody PurgeUserRequest
 // SendConfirmationLinkJSONBody defines parameters for SendConfirmationLink.
 type SendConfirmationLinkJSONBody AuthRequest
 
+// SendPayInCryptoJSONBody defines parameters for SendPayInCrypto.
+type SendPayInCryptoJSONBody SendPayInCryptoRequest
+
 // SendRestoreLinkJSONBody defines parameters for SendRestoreLink.
 type SendRestoreLinkJSONBody SendRestoreLinkRequest
 
@@ -307,6 +316,9 @@ type PurgeUserJSONRequestBody PurgeUserJSONBody
 
 // SendConfirmationLinkJSONRequestBody defines body for SendConfirmationLink for application/json ContentType.
 type SendConfirmationLinkJSONRequestBody SendConfirmationLinkJSONBody
+
+// SendPayInCryptoJSONRequestBody defines body for SendPayInCrypto for application/json ContentType.
+type SendPayInCryptoJSONRequestBody SendPayInCryptoJSONBody
 
 // SendRestoreLinkJSONRequestBody defines body for SendRestoreLink for application/json ContentType.
 type SendRestoreLinkJSONRequestBody SendRestoreLinkJSONBody
@@ -379,6 +391,9 @@ type ServerInterface interface {
 	// Send confirmation link
 	// (POST /api/client/send-confirmation-link)
 	SendConfirmationLink(w http.ResponseWriter, r *http.Request)
+	// Send pay in crypto offer
+	// (POST /api/client/send-pay-in-crypto)
+	SendPayInCrypto(w http.ResponseWriter, r *http.Request)
 	// Send restore link
 	// (POST /api/client/send-restore-link)
 	SendRestoreLink(w http.ResponseWriter, r *http.Request)
@@ -854,6 +869,21 @@ func (siw *ServerInterfaceWrapper) SendConfirmationLink(w http.ResponseWriter, r
 	handler(w, r.WithContext(ctx))
 }
 
+// SendPayInCrypto operation middleware
+func (siw *ServerInterfaceWrapper) SendPayInCrypto(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.SendPayInCrypto(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // SendRestoreLink operation middleware
 func (siw *ServerInterfaceWrapper) SendRestoreLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1107,6 +1137,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-confirmation-link", wrapper.SendConfirmationLink)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/client/send-pay-in-crypto", wrapper.SendPayInCrypto)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/send-restore-link", wrapper.SendRestoreLink)
