@@ -13,6 +13,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 )
 
 const (
@@ -105,6 +107,16 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// GetClientFeaturesParams defines parameters for GetClientFeatures.
+type GetClientFeaturesParams struct {
+	ProjectId       string  `json:"project_id"`
+	ClientType      *string `json:"client_type,omitempty"`
+	ClientVersion   *string `json:"client_version,omitempty"`
+	ClientDeviceId  *string `json:"client_device_id,omitempty"`
+	ClientOsVersion *string `json:"client_os_version,omitempty"`
+	ClientTimezone  *string `json:"client_timezone,omitempty"`
+}
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -178,6 +190,9 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// GetClientFeatures request
+	GetClientFeatures(ctx context.Context, params *GetClientFeaturesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUser request
 	GetUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -198,6 +213,18 @@ type ClientInterface interface {
 
 	// ListUserSession request
 	ListUserSession(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) GetClientFeatures(ctx context.Context, params *GetClientFeaturesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetClientFeaturesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) GetUser(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -282,6 +309,129 @@ func (c *Client) ListUserSession(ctx context.Context, reqEditors ...RequestEdito
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewGetClientFeaturesRequest generates requests for GetClientFeatures
+func NewGetClientFeaturesRequest(server string, params *GetClientFeaturesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client-service/client_features")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	queryValues := queryURL.Query()
+
+	if queryFrag, err := runtime.StyleParamWithLocation("form", true, "project_id", runtime.ParamLocationQuery, params.ProjectId); err != nil {
+		return nil, err
+	} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+		return nil, err
+	} else {
+		for k, v := range parsed {
+			for _, v2 := range v {
+				queryValues.Add(k, v2)
+			}
+		}
+	}
+
+	if params.ClientType != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_type", runtime.ParamLocationQuery, *params.ClientType); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.ClientVersion != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_version", runtime.ParamLocationQuery, *params.ClientVersion); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.ClientDeviceId != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_device_id", runtime.ParamLocationQuery, *params.ClientDeviceId); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.ClientOsVersion != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_os_version", runtime.ParamLocationQuery, *params.ClientOsVersion); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	if params.ClientTimezone != nil {
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "client_timezone", runtime.ParamLocationQuery, *params.ClientTimezone); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+	}
+
+	queryURL.RawQuery = queryValues.Encode()
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewGetUserRequest generates requests for GetUser
@@ -516,6 +666,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// GetClientFeatures request
+	GetClientFeaturesWithResponse(ctx context.Context, params *GetClientFeaturesParams, reqEditors ...RequestEditorFn) (*GetClientFeaturesResponse, error)
+
 	// GetUser request
 	GetUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserResponse, error)
 
@@ -536,6 +689,31 @@ type ClientWithResponsesInterface interface {
 
 	// ListUserSession request
 	ListUserSessionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListUserSessionResponse, error)
+}
+
+type GetClientFeaturesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r GetClientFeaturesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetClientFeaturesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type GetUserResponse struct {
@@ -713,6 +891,15 @@ func (r ListUserSessionResponse) StatusCode() int {
 	return 0
 }
 
+// GetClientFeaturesWithResponse request returning *GetClientFeaturesResponse
+func (c *ClientWithResponses) GetClientFeaturesWithResponse(ctx context.Context, params *GetClientFeaturesParams, reqEditors ...RequestEditorFn) (*GetClientFeaturesResponse, error) {
+	rsp, err := c.GetClientFeatures(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetClientFeaturesResponse(rsp)
+}
+
 // GetUserWithResponse request returning *GetUserResponse
 func (c *ClientWithResponses) GetUserWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUserResponse, error) {
 	rsp, err := c.GetUser(ctx, reqEditors...)
@@ -774,6 +961,53 @@ func (c *ClientWithResponses) ListUserSessionWithResponse(ctx context.Context, r
 		return nil, err
 	}
 	return ParseListUserSessionResponse(rsp)
+}
+
+// ParseGetClientFeaturesResponse parses an HTTP response from a GetClientFeaturesWithResponse call
+func ParseGetClientFeaturesResponse(rsp *http.Response) (*GetClientFeaturesResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetClientFeaturesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseGetUserResponse parses an HTTP response from a GetUserWithResponse call

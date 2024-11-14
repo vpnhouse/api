@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/deepmap/oapi-codegen/pkg/runtime"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -102,8 +103,21 @@ type User struct {
 	UpdatedAt   *time.Time              `json:"updated_at,omitempty"`
 }
 
+// GetClientFeaturesParams defines parameters for GetClientFeatures.
+type GetClientFeaturesParams struct {
+	ProjectId       string  `json:"project_id"`
+	ClientType      *string `json:"client_type,omitempty"`
+	ClientVersion   *string `json:"client_version,omitempty"`
+	ClientDeviceId  *string `json:"client_device_id,omitempty"`
+	ClientOsVersion *string `json:"client_os_version,omitempty"`
+	ClientTimezone  *string `json:"client_timezone,omitempty"`
+}
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Get client-features
+	// (GET /api/client-service/client_features)
+	GetClientFeatures(w http.ResponseWriter, r *http.Request, params GetClientFeaturesParams)
 	// Get user
 	// (GET /api/client-service/user)
 	GetUser(w http.ResponseWriter, r *http.Request)
@@ -135,6 +149,95 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
+
+// GetClientFeatures operation middleware
+func (siw *ServerInterfaceWrapper) GetClientFeatures(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetClientFeaturesParams
+
+	// ------------- Required query parameter "project_id" -------------
+	if paramValue := r.URL.Query().Get("project_id"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "project_id"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "project_id", r.URL.Query(), &params.ProjectId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "project_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "client_type" -------------
+	if paramValue := r.URL.Query().Get("client_type"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "client_type", r.URL.Query(), &params.ClientType)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "client_type", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "client_version" -------------
+	if paramValue := r.URL.Query().Get("client_version"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "client_version", r.URL.Query(), &params.ClientVersion)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "client_version", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "client_device_id" -------------
+	if paramValue := r.URL.Query().Get("client_device_id"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "client_device_id", r.URL.Query(), &params.ClientDeviceId)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "client_device_id", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "client_os_version" -------------
+	if paramValue := r.URL.Query().Get("client_os_version"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "client_os_version", r.URL.Query(), &params.ClientOsVersion)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "client_os_version", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "client_timezone" -------------
+	if paramValue := r.URL.Query().Get("client_timezone"); paramValue != "" {
+
+	}
+
+	err = runtime.BindQueryParameter("form", true, false, "client_timezone", r.URL.Query(), &params.ClientTimezone)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "client_timezone", Err: err})
+		return
+	}
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetClientFeatures(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
 
 // GetUser operation middleware
 func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -368,6 +471,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client-service/client_features", wrapper.GetClientFeatures)
+	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/client-service/user", wrapper.GetUser)
 	})
