@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	BearerScopes = "bearer.Scopes"
+	ServiceKeyScopes  = "ServiceKey.Scopes"
+	ServiceNameScopes = "ServiceName.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // Auth defines model for Auth.
@@ -155,6 +157,10 @@ func (siw *ServerInterfaceWrapper) GetClientFeatures(w http.ResponseWriter, r *h
 	ctx := r.Context()
 
 	var err error
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetClientFeaturesParams

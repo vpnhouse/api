@@ -18,7 +18,9 @@ import (
 )
 
 const (
-	BearerScopes = "bearer.Scopes"
+	ServiceKeyScopes  = "ServiceKey.Scopes"
+	ServiceNameScopes = "ServiceName.Scopes"
+	BearerScopes      = "bearer.Scopes"
 )
 
 // Auth defines model for Auth.

@@ -233,6 +233,9 @@ paths:
       tags:
         - client_features
         - get
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
 
 components:
   schemas:
@@ -417,6 +420,14 @@ components:
     bearer:
       type: http
       scheme: bearer
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    ServiceName:
+      name: X-VPNHOUSE-SERVICE
+      type: apiKey
+      in: header
 
 tags:
   - name: get
