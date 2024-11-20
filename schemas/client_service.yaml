@@ -185,6 +185,57 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+  /api/client-service/client_features:
+    get:
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: client_type
+          in: query
+          schema:
+            type: string
+        - name: client_version
+          in: query
+          schema:
+            type: string
+        - name: client_device_id
+          in: query
+          schema:
+            type: string
+        - name: client_os_version
+          in: query
+          schema:
+            type: string
+        - name: client_timezone
+          in: query
+          schema:
+            type: string
+      summary: Get client-features
+      operationId: get-client-features
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      description: Get client features
+      tags:
+        - client_features
+        - get
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
 
 components:
   schemas:
@@ -369,6 +420,14 @@ components:
     bearer:
       type: http
       scheme: bearer
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    ServiceName:
+      name: X-VPNHOUSE-SERVICE
+      type: apiKey
+      in: header
 
 tags:
   - name: get

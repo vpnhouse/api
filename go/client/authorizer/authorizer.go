@@ -52,6 +52,7 @@ type AuthRequest struct {
 // AuthResp defines model for AuthResp.
 type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
+	ClientFeatures     *map[string]interface{} `json:"client_features,omitempty"`
 	CreatedAt          *time.Time              `json:"created_at,omitempty"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
 	Email              *string                 `json:"email,omitempty"`
@@ -189,12 +190,13 @@ type TokenRequest struct {
 
 // TokenResp defines model for TokenResp.
 type TokenResp struct {
-	AccessToken        string                 `json:"access_token"`
-	CreatedAt          time.Time              `json:"created_at"`
-	DiscoveryAddresses *[]string              `json:"discovery_addresses,omitempty"`
-	Email              *string                `json:"email,omitempty"`
-	Entitlements       map[string]interface{} `json:"entitlements"`
-	ExpiresAt          time.Time              `json:"expires_at"`
+	AccessToken        string                  `json:"access_token"`
+	ClientFeatures     *map[string]interface{} `json:"client_features,omitempty"`
+	CreatedAt          time.Time               `json:"created_at"`
+	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
+	Email              *string                 `json:"email,omitempty"`
+	Entitlements       map[string]interface{}  `json:"entitlements"`
+	ExpiresAt          time.Time               `json:"expires_at"`
 }
 
 // User defines model for User.

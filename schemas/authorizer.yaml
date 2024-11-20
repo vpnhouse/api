@@ -867,6 +867,8 @@ components:
           format: date-time
         entitlements:
           type: object
+        client_features:
+          type: object
         email:
           type: string
       required:
@@ -899,6 +901,8 @@ components:
           type: string
           format: date-time
         entitlements:
+          type: object
+        client_features:
           type: object
         email:
           type: string
