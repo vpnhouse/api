@@ -295,6 +295,15 @@ type SendPayInCryptoRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// SubscriptionResp defines model for SubscriptionResp.
+type SubscriptionResp struct {
+	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
+	Id               string                 `json:"id"`
+	Name             string                 `json:"name"`
+	RenewAt          time.Time              `json:"renew_at"`
+	Tariff           string                 `json:"tariff"`
+}
+
 // SubscriptionsRequest defines model for SubscriptionsRequest.
 type SubscriptionsRequest struct {
 	ProjectId string `json:"project_id"`

@@ -421,6 +421,32 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
+  /api/client/subscriptions:
+    post:
+      summary: Get user active subscriptions
+      tags:
+        - get
+        - subscriptions
+      operationId: subscriptions
+      description: Get user active subscriptions
+      security:
+        - bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
   /api/client/apply-trial-license:
     post:
       summary: Apply trial license
@@ -1070,6 +1096,28 @@ components:
           type: string
       required:
         - payment_url
+    SubscriptionResp:
+      title: SubscriptionResp
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        tariff:
+          type: string
+        renew_at:
+          type: string
+          format: date-time
+        entitlements_json:
+          type: object
+      required:
+        - id
+        - name
+        - tariff
+        - renew_at
+        - entitlements_json
     PaymentLinkRequest:
       title: PaymentLinkRequest
       type: object

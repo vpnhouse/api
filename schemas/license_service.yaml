@@ -843,7 +843,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PaymentDetailsResp'
+                  $ref: '#/components/schemas/SubscriptionResp'
         '401':
           $ref: 'common.yaml#/components/responses/ResponseError'
         '403':
@@ -1810,6 +1810,29 @@ components:
       required:
         - project_id
         - user_id
+    SubscriptionResp:
+      title: SubscriptionResp
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        tariff:
+          type: string
+        renew_at:
+          type: string
+          format: date-time
+        entitlements_json:
+          type: object
+      required:
+        - id
+        - name
+        - tariff
+        - renew_at
+        - entitlements_json
+    
     PaymentDetailsResp:
       title: PaymentDetailsResp
       type: object

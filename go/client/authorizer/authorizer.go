@@ -181,6 +181,15 @@ type SendRestoreLinkRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// SubscriptionResp defines model for SubscriptionResp.
+type SubscriptionResp struct {
+	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
+	Id               string                 `json:"id"`
+	Name             string                 `json:"name"`
+	RenewAt          time.Time              `json:"renew_at"`
+	Tariff           string                 `json:"tariff"`
+}
+
 // TokenRequest defines model for TokenRequest.
 type TokenRequest struct {
 	InstallationId string `json:"installation_id"`
@@ -511,6 +520,9 @@ type ClientInterface interface {
 	RegisterWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	Register(ctx context.Context, body RegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// Subscriptions request
+	Subscriptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// Token request with any body
 	TokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -957,6 +969,18 @@ func (c *Client) RegisterWithBody(ctx context.Context, contentType string, body 
 
 func (c *Client) Register(ctx context.Context, body RegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRegisterRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) Subscriptions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSubscriptionsRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1960,6 +1984,33 @@ func NewRegisterRequestWithBody(server string, contentType string, body io.Reade
 	return req, nil
 }
 
+// NewSubscriptionsRequest generates requests for Subscriptions
+func NewSubscriptionsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/client/subscriptions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewTokenRequest calls the generic Token builder with application/json body
 func NewTokenRequest(server string, body TokenJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -2178,6 +2229,9 @@ type ClientWithResponsesInterface interface {
 	RegisterWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RegisterResponse, error)
 
 	RegisterWithResponse(ctx context.Context, body RegisterJSONRequestBody, reqEditors ...RequestEditorFn) (*RegisterResponse, error)
+
+	// Subscriptions request
+	SubscriptionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SubscriptionsResponse, error)
 
 	// Token request with any body
 	TokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*TokenResponse, error)
@@ -2749,6 +2803,31 @@ func (r RegisterResponse) StatusCode() int {
 	return 0
 }
 
+type SubscriptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *[]SubscriptionResp
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r SubscriptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SubscriptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type TokenResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -3117,6 +3196,15 @@ func (c *ClientWithResponses) RegisterWithResponse(ctx context.Context, body Reg
 		return nil, err
 	}
 	return ParseRegisterResponse(rsp)
+}
+
+// SubscriptionsWithResponse request returning *SubscriptionsResponse
+func (c *ClientWithResponses) SubscriptionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SubscriptionsResponse, error) {
+	rsp, err := c.Subscriptions(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSubscriptionsResponse(rsp)
 }
 
 // TokenWithBodyWithResponse request with arbitrary body returning *TokenResponse
@@ -4211,6 +4299,53 @@ func ParseRegisterResponse(rsp *http.Response) (*RegisterResponse, error) {
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSubscriptionsResponse parses an HTTP response from a SubscriptionsWithResponse call
+func ParseSubscriptionsResponse(rsp *http.Response) (*SubscriptionsResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SubscriptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []SubscriptionResp
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest externalRef1.Error

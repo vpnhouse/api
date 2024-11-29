@@ -301,6 +301,15 @@ type SendPayInCryptoRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// SubscriptionResp defines model for SubscriptionResp.
+type SubscriptionResp struct {
+	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
+	Id               string                 `json:"id"`
+	Name             string                 `json:"name"`
+	RenewAt          time.Time              `json:"renew_at"`
+	Tariff           string                 `json:"tariff"`
+}
+
 // SubscriptionsRequest defines model for SubscriptionsRequest.
 type SubscriptionsRequest struct {
 	ProjectId string `json:"project_id"`
@@ -4088,7 +4097,7 @@ func (r SendPayInCryptoResponse) StatusCode() int {
 type SubscriptionsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *[]PaymentDetailsResp
+	JSON200      *[]SubscriptionResp
 	JSON401      *externalRef1.Error
 	JSON403      *externalRef1.Error
 	JSON500      *externalRef1.Error
@@ -6340,7 +6349,7 @@ func ParseSubscriptionsResponse(rsp *http.Response) (*SubscriptionsResponse, err
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []PaymentDetailsResp
+		var dest []SubscriptionResp
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
