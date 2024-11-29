@@ -295,6 +295,12 @@ type SendPayInCryptoRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// SubscriptionsRequest defines model for SubscriptionsRequest.
+type SubscriptionsRequest struct {
+	ProjectId string `json:"project_id"`
+	UserId    string `json:"user_id"`
+}
+
 // UpdateLicenseParams defines model for UpdateLicenseParams.
 type UpdateLicenseParams struct {
 	Disabled         *bool                   `json:"disabled"`
@@ -456,6 +462,9 @@ type UpdatePurchaseJSONBody UpdatePurchaseParams
 // SendPayInCryptoJSONBody defines parameters for SendPayInCrypto.
 type SendPayInCryptoJSONBody SendPayInCryptoRequest
 
+// SubscriptionsJSONBody defines parameters for Subscriptions.
+type SubscriptionsJSONBody SubscriptionsRequest
+
 // AppleServerNotificationsJSONRequestBody defines body for AppleServerNotifications for application/json ContentType.
 type AppleServerNotificationsJSONRequestBody AppleServerNotificationsJSONBody
 
@@ -518,6 +527,9 @@ type UpdatePurchaseJSONRequestBody UpdatePurchaseJSONBody
 
 // SendPayInCryptoJSONRequestBody defines body for SendPayInCrypto for application/json ContentType.
 type SendPayInCryptoJSONRequestBody SendPayInCryptoJSONBody
+
+// SubscriptionsJSONRequestBody defines body for Subscriptions for application/json ContentType.
+type SubscriptionsJSONRequestBody SubscriptionsJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
@@ -626,6 +638,9 @@ type ServerInterface interface {
 	// Send email with offer to pay in crypto currencies
 	// (POST /api/license-service/send-pay-in-crypto)
 	SendPayInCrypto(w http.ResponseWriter, r *http.Request)
+	// Get user active subscriptions
+	// (GET /api/license-service/subscriptions)
+	Subscriptions(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -1648,6 +1663,25 @@ func (siw *ServerInterfaceWrapper) SendPayInCrypto(w http.ResponseWriter, r *htt
 	handler(w, r.WithContext(ctx))
 }
 
+// Subscriptions operation middleware
+func (siw *ServerInterfaceWrapper) Subscriptions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
+
+	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Subscriptions(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -1865,6 +1899,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/license-service/send-pay-in-crypto", wrapper.SendPayInCrypto)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/license-service/subscriptions", wrapper.Subscriptions)
 	})
 
 	return r

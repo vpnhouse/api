@@ -823,6 +823,39 @@ paths:
           $ref: 'common.yaml#/components/responses/ResponseError'
         '500':
           $ref: 'common.yaml#/components/responses/ResponseError'
+  
+  /api/license-service/subscriptions:
+    get:
+      summary: Get user active subscriptions
+      tags:
+        - get
+        - subscriptions
+      operationId: subscriptions
+      description: Get user active subscriptions
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDetailsResp'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionsRequest'
+
 
   /api/license-service/payment-details:
     get:
@@ -1764,6 +1797,19 @@ components:
         - email
         - project_id
         - product_id
+    SubscriptionsRequest:
+      title: SubscriptionsRequest
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - project_id
+        - user_id
     PaymentDetailsResp:
       title: PaymentDetailsResp
       type: object
