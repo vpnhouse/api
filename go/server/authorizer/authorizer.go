@@ -175,6 +175,15 @@ type SendRestoreLinkRequest struct {
 	ProjectId string `json:"project_id"`
 }
 
+// SubscriptionResp defines model for SubscriptionResp.
+type SubscriptionResp struct {
+	EntitlementsJson map[string]interface{} `json:"entitlements_json"`
+	Id               string                 `json:"id"`
+	Name             string                 `json:"name"`
+	RenewAt          time.Time              `json:"renew_at"`
+	Tariff           string                 `json:"tariff"`
+}
+
 // TokenRequest defines model for TokenRequest.
 type TokenRequest struct {
 	InstallationId string `json:"installation_id"`
@@ -405,6 +414,9 @@ type ServerInterface interface {
 	// Register user
 	// (POST /api/client/signup)
 	Register(w http.ResponseWriter, r *http.Request)
+	// Get user active subscriptions
+	// (GET /api/client/subscriptions)
+	Subscriptions(w http.ResponseWriter, r *http.Request)
 	// Refresh access token
 	// (POST /api/client/token)
 	Token(w http.ResponseWriter, r *http.Request)
@@ -939,6 +951,23 @@ func (siw *ServerInterfaceWrapper) Register(w http.ResponseWriter, r *http.Reque
 	handler(w, r.WithContext(ctx))
 }
 
+// Subscriptions operation middleware
+func (siw *ServerInterfaceWrapper) Subscriptions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, BearerScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.Subscriptions(w, r)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
 // Token operation middleware
 func (siw *ServerInterfaceWrapper) Token(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1151,6 +1180,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/signup", wrapper.Register)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/client/subscriptions", wrapper.Subscriptions)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)
