@@ -415,7 +415,7 @@ type ServerInterface interface {
 	// (POST /api/client/signup)
 	Register(w http.ResponseWriter, r *http.Request)
 	// Get user active subscriptions
-	// (POST /api/client/subscriptions)
+	// (GET /api/client/subscriptions)
 	Subscriptions(w http.ResponseWriter, r *http.Request)
 	// Refresh access token
 	// (POST /api/client/token)
@@ -1182,7 +1182,7 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Post(options.BaseURL+"/api/client/signup", wrapper.Register)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/client/subscriptions", wrapper.Subscriptions)
+		r.Get(options.BaseURL+"/api/client/subscriptions", wrapper.Subscriptions)
 	})
 	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/api/client/token", wrapper.Token)

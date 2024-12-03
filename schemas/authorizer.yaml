@@ -422,7 +422,7 @@ paths:
               $ref: '#/components/schemas/PaymentDetailsRequest'
 
   /api/client/subscriptions:
-    post:
+    get:
       summary: Get user active subscriptions
       tags:
         - get
