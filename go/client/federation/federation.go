@@ -42,6 +42,33 @@ type Node struct {
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
 
+// NodeAction defines model for NodeAction.
+type NodeAction struct {
+	AddRestriction    *NodeActionAddRestriction `json:"add_restriction,omitempty"`
+	DeleteRestriction *NodeActionDelRestriction `json:"delete_restriction,omitempty"`
+}
+
+// NodeActionAddRestriction defines model for NodeActionAddRestriction.
+type NodeActionAddRestriction struct {
+	InstallationId *string   `json:"installation_id,omitempty"`
+	RestrictedTo   time.Time `json:"restricted_to"`
+	SessionId      *string   `json:"session_id,omitempty"`
+	UserId         *string   `json:"user_id,omitempty"`
+}
+
+// NodeActionDelRestriction defines model for NodeActionDelRestriction.
+type NodeActionDelRestriction struct {
+	InstallationId *string `json:"installation_id,omitempty"`
+	SessionId      *string `json:"session_id,omitempty"`
+	UserId         *string `json:"user_id,omitempty"`
+}
+
+// NodeActionRequest defines model for NodeActionRequest.
+type NodeActionRequest struct {
+	Action NodeAction `json:"action"`
+	Node   *string    `json:"node,omitempty"`
+}
+
 // NodeRecord defines model for NodeRecord.
 type NodeRecord struct {
 	Id   string `json:"id"`
@@ -75,6 +102,9 @@ type ListNodesParams struct {
 	State   *NodeState `json:"state,omitempty"`
 }
 
+// NodesActionJSONBody defines parameters for NodesAction.
+type NodesActionJSONBody NodeActionRequest
+
 // UpdateNodeJSONBody defines parameters for UpdateNode.
 type UpdateNodeJSONBody Node
 
@@ -92,6 +122,9 @@ type UpdateKeyJSONRequestBody UpdateKeyJSONBody
 
 // SetNodeLabelJSONRequestBody defines body for SetNodeLabel for application/json ContentType.
 type SetNodeLabelJSONRequestBody SetNodeLabelJSONBody
+
+// NodesActionJSONRequestBody defines body for NodesAction for application/json ContentType.
+type NodesActionJSONRequestBody NodesActionJSONBody
 
 // UpdateNodeJSONRequestBody defines body for UpdateNode for application/json ContentType.
 type UpdateNodeJSONRequestBody UpdateNodeJSONBody
@@ -208,6 +241,11 @@ type ClientInterface interface {
 
 	// ListNodes request
 	ListNodes(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// NodesAction request with any body
+	NodesActionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	NodesAction(ctx context.Context, body NodesActionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteNode request
 	DeleteNode(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -364,6 +402,30 @@ func (c *Client) SetNodeLabel(ctx context.Context, id string, label string, body
 
 func (c *Client) ListNodes(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListNodesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) NodesActionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewNodesActionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) NodesAction(ctx context.Context, body NodesActionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewNodesActionRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -888,6 +950,46 @@ func NewListNodesRequest(server string, params *ListNodesParams) (*http.Request,
 	return req, nil
 }
 
+// NewNodesActionRequest calls the generic NodesAction builder with application/json body
+func NewNodesActionRequest(server string, body NodesActionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewNodesActionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewNodesActionRequestWithBody generates requests for NodesAction with any type of body
+func NewNodesActionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/federation/nodes/action")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewDeleteNodeRequest generates requests for DeleteNode
 func NewDeleteNodeRequest(server string, id string) (*http.Request, error) {
 	var err error
@@ -1286,6 +1388,11 @@ type ClientWithResponsesInterface interface {
 	// ListNodes request
 	ListNodesWithResponse(ctx context.Context, params *ListNodesParams, reqEditors ...RequestEditorFn) (*ListNodesResponse, error)
 
+	// NodesAction request with any body
+	NodesActionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*NodesActionResponse, error)
+
+	NodesActionWithResponse(ctx context.Context, body NodesActionJSONRequestBody, reqEditors ...RequestEditorFn) (*NodesActionResponse, error)
+
 	// DeleteNode request
 	DeleteNodeWithResponse(ctx context.Context, id string, reqEditors ...RequestEditorFn) (*DeleteNodeResponse, error)
 
@@ -1540,6 +1647,33 @@ func (r ListNodesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListNodesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type NodesActionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *map[string]interface{}
+	JSON400      *externalRef1.Error
+	JSON401      *externalRef1.Error
+	JSON403      *externalRef1.Error
+	JSON409      *externalRef1.Error
+	JSON500      *externalRef1.Error
+}
+
+// Status returns HTTPResponse.Status
+func (r NodesActionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r NodesActionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1846,6 +1980,23 @@ func (c *ClientWithResponses) ListNodesWithResponse(ctx context.Context, params 
 		return nil, err
 	}
 	return ParseListNodesResponse(rsp)
+}
+
+// NodesActionWithBodyWithResponse request with arbitrary body returning *NodesActionResponse
+func (c *ClientWithResponses) NodesActionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*NodesActionResponse, error) {
+	rsp, err := c.NodesActionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseNodesActionResponse(rsp)
+}
+
+func (c *ClientWithResponses) NodesActionWithResponse(ctx context.Context, body NodesActionJSONRequestBody, reqEditors ...RequestEditorFn) (*NodesActionResponse, error) {
+	rsp, err := c.NodesAction(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseNodesActionResponse(rsp)
 }
 
 // DeleteNodeWithResponse request returning *DeleteNodeResponse
@@ -2376,6 +2527,67 @@ func ParseListNodesResponse(rsp *http.Response) (*ListNodesResponse, error) {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseNodesActionResponse parses an HTTP response from a NodesActionWithResponse call
+func ParseNodesActionResponse(rsp *http.Response) (*NodesActionResponse, error) {
+	bodyBytes, err := ioutil.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &NodesActionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest externalRef1.Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest externalRef1.Error
