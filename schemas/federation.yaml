@@ -43,7 +43,6 @@ paths:
         in: query
         schema:
           $ref: '#/components/schemas/NodeState'
-
   '/api/federation/nodes/{id}':
     parameters:
       - schema:
@@ -475,6 +474,34 @@ paths:
             schema:
               type: string
               format: binary
+  /api/federation/nodes/action:
+    post:
+      summary: Send action to nodes
+      operationId: nodes-action
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '403':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '409':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeActionRequest'
+
 components:
   schemas:
     NodeState:
@@ -560,6 +587,50 @@ components:
       required:
         - id
         - key
+    NodeActionRequest:
+      title: NodeAction
+      type: object
+      properties:
+        node:
+          type: string
+        action:
+          $ref: '#/components/schemas/NodeAction'
+      required:
+        - action
+    NodeAction:
+      title: NodeAction
+      type: object
+      properties:
+        add_restriction:
+          $ref: '#/components/schemas/NodeActionAddRestriction'
+        delete_restriction:
+          $ref: '#/components/schemas/NodeActionDelRestriction'
+    NodeActionAddRestriction:
+      title: NodeActionAddRestriction
+      type: object
+      properties:
+        user_id:
+          type: string
+        session_id:
+          type: string
+        installation_id:
+          type: string
+        restricted_to:
+          type: string
+          format: date-time
+          example: '2021-05-28T13:23:15Z'
+      required:
+        - restricted_to
+    NodeActionDelRestriction:
+      title: NodeActionDelRestriction
+      type: object
+      properties:
+        user_id:
+          type: string
+        session_id:
+          type: string
+        installation_id:
+          type: string
 
   securitySchemes:
     ManagementKey:

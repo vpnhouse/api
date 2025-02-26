@@ -36,6 +36,33 @@ type Node struct {
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
 
+// NodeAction defines model for NodeAction.
+type NodeAction struct {
+	AddRestriction    *NodeActionAddRestriction `json:"add_restriction,omitempty"`
+	DeleteRestriction *NodeActionDelRestriction `json:"delete_restriction,omitempty"`
+}
+
+// NodeActionAddRestriction defines model for NodeActionAddRestriction.
+type NodeActionAddRestriction struct {
+	InstallationId *string   `json:"installation_id,omitempty"`
+	RestrictedTo   time.Time `json:"restricted_to"`
+	SessionId      *string   `json:"session_id,omitempty"`
+	UserId         *string   `json:"user_id,omitempty"`
+}
+
+// NodeActionDelRestriction defines model for NodeActionDelRestriction.
+type NodeActionDelRestriction struct {
+	InstallationId *string `json:"installation_id,omitempty"`
+	SessionId      *string `json:"session_id,omitempty"`
+	UserId         *string `json:"user_id,omitempty"`
+}
+
+// NodeActionRequest defines model for NodeActionRequest.
+type NodeActionRequest struct {
+	Action NodeAction `json:"action"`
+	Node   *string    `json:"node,omitempty"`
+}
+
 // NodeRecord defines model for NodeRecord.
 type NodeRecord struct {
 	Id   string `json:"id"`
@@ -69,6 +96,9 @@ type ListNodesParams struct {
 	State   *NodeState `json:"state,omitempty"`
 }
 
+// NodesActionJSONBody defines parameters for NodesAction.
+type NodesActionJSONBody NodeActionRequest
+
 // UpdateNodeJSONBody defines parameters for UpdateNode.
 type UpdateNodeJSONBody Node
 
@@ -86,6 +116,9 @@ type UpdateKeyJSONRequestBody UpdateKeyJSONBody
 
 // SetNodeLabelJSONRequestBody defines body for SetNodeLabel for application/json ContentType.
 type SetNodeLabelJSONRequestBody SetNodeLabelJSONBody
+
+// NodesActionJSONRequestBody defines body for NodesAction for application/json ContentType.
+type NodesActionJSONRequestBody NodesActionJSONBody
 
 // UpdateNodeJSONRequestBody defines body for UpdateNode for application/json ContentType.
 type UpdateNodeJSONRequestBody UpdateNodeJSONBody
@@ -128,6 +161,9 @@ type ServerInterface interface {
 	// List nodes
 	// (GET /api/federation/nodes)
 	ListNodes(w http.ResponseWriter, r *http.Request, params ListNodesParams)
+	// Send action to nodes
+	// (POST /api/federation/nodes/action)
+	NodesAction(w http.ResponseWriter, r *http.Request)
 	// Delete node
 	// (DELETE /api/federation/nodes/{id})
 	DeleteNode(w http.ResponseWriter, r *http.Request, id string)
@@ -427,6 +463,23 @@ func (siw *ServerInterfaceWrapper) ListNodes(w http.ResponseWriter, r *http.Requ
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ListNodes(w, r, params)
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler(w, r.WithContext(ctx))
+}
+
+// NodesAction operation middleware
+func (siw *ServerInterfaceWrapper) NodesAction(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	ctx = context.WithValue(ctx, ManagementKeyScopes, []string{""})
+
+	var handler = func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.NodesAction(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -799,6 +852,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/federation/nodes", wrapper.ListNodes)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/federation/nodes/action", wrapper.NodesAction)
 	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/api/federation/nodes/{id}", wrapper.DeleteNode)
