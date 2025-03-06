@@ -113,13 +113,17 @@ components:
       type: object
       x-examples:
         example-1:
-          value:
-            id: 40ae2017-df2b-4828-a450-3b9766a3b001
-            connection_addresses:
-              - 'https://vpn-node-abc.project.org'
-            connection_ips:
-              - '1.2.3.4'
-              - '2.3.4.5'
+          id: node-dev-1
+          connection_addresses:
+            - 'https://vpn-node-dev-1.project.org'
+          dns:
+            - hostname: vpn-node-dev-1.project.org
+              ipv4:
+                - 192.168.0.1
+              ipv6:
+                - '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+      required:
+        - id
       properties:
         id:
           type: string
@@ -130,13 +134,28 @@ components:
           items:
             type: string
             example: 'https://vpn-node-dev-1.project.org'
-        connection_ips:
+        dns:
           type: array
-          description: "list of node IP addresses"
+          description: "list of DNS entries for this node"
           items:
-            type: string
-      required:
-        - id
+            type: object
+            required:
+              - hostname
+              - ipv4
+            properties:
+              hostname:
+                type: string
+                format: hostname
+              ipv4:
+                type: array
+                items:
+                  type: string
+                  format: ipv4
+              ipv6:
+                type: array
+                items:
+                  type: string
+                  format: ipv6
     Location:
       title: Locations
       type: object
