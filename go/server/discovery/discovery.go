@@ -29,9 +29,13 @@ type Node struct {
 	// list of node URLs (including schema)
 	ConnectionAddresses *[]string `json:"connection_addresses,omitempty"`
 
-	// list of node IP addresses
-	ConnectionIps *[]string `json:"connection_ips,omitempty"`
-	Id            string    `json:"id"`
+	// list of DNS entries for this node
+	Dns *[]struct {
+		Hostname string    `json:"hostname"`
+		Ipv4     []string  `json:"ipv4"`
+		Ipv6     *[]string `json:"ipv6,omitempty"`
+	} `json:"dns,omitempty"`
+	Id string `json:"id"`
 }
 
 // GetCredentialsParams defines parameters for GetCredentials.
