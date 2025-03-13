@@ -31,7 +31,7 @@ type Location struct {
 // Node defines model for Node.
 type Node struct {
 	// list of node URLs (including schema)
-	ConnectionAddresses *[]string `json:"connection_addresses,omitempty"`
+	ConnectionAddresses []string `json:"connection_addresses"`
 
 	// list of DNS entries for this node
 	Dns *[]struct {
