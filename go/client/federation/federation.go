@@ -38,6 +38,7 @@ type Node struct {
 	Created   *time.Time              `json:"created,omitempty"`
 	Healthy   *bool                   `json:"healthy,omitempty"`
 	Labels    *map[string]interface{} `json:"labels,omitempty"`
+	Parent    *string                 `json:"parent,omitempty"`
 	State     *NodeState              `json:"state,omitempty"`
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
