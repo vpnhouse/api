@@ -14,6 +14,8 @@ const (
 
 	ErrorResultCONFIGURATIONREQUIRED ErrorResult = "CONFIGURATION_REQUIRED"
 
+	ErrorResultEMAILNOTCONFIRMED ErrorResult = "EMAIL_NOT_CONFIRMED"
+
 	ErrorResultENTRYEXISTS ErrorResult = "ENTRY_EXISTS"
 
 	ErrorResultFORBIDDEN ErrorResult = "FORBIDDEN"
