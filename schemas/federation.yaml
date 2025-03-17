@@ -512,6 +512,12 @@ components:
     Node:
       title: Node
       type: object
+      required:
+        - addresses
+        - labels
+        - created
+        - updated
+        - priority
       properties:
         alias_of:
           type: string
@@ -521,6 +527,9 @@ components:
           items:
             type: string
             format: uri
+        priority:
+          type: integer
+          example: 2
         labels:
           type: object
         state:
