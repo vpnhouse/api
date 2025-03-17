@@ -513,7 +513,7 @@ components:
       title: Node
       type: object
       properties:
-        parent:
+        alias_of:
           type: string
           example: "my-pretty-node.somewhere.org"
         addresses:

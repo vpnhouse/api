@@ -35,10 +35,10 @@ const (
 // Node defines model for Node.
 type Node struct {
 	Addresses *[]string               `json:"addresses,omitempty"`
+	AliasOf   *string                 `json:"alias_of,omitempty"`
 	Created   *time.Time              `json:"created,omitempty"`
 	Healthy   *bool                   `json:"healthy,omitempty"`
 	Labels    *map[string]interface{} `json:"labels,omitempty"`
-	Parent    *string                 `json:"parent,omitempty"`
 	State     *NodeState              `json:"state,omitempty"`
 	Updated   *time.Time              `json:"updated,omitempty"`
 }
