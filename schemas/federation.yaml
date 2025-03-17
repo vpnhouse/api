@@ -513,6 +513,9 @@ components:
       title: Node
       type: object
       properties:
+        alias_of:
+          type: string
+          example: "my-pretty-node.somewhere.org"
         addresses:
           type: array
           items:
@@ -539,6 +542,7 @@ components:
       properties:
         id:
           type: string
+          example: "my-pretty-node.somewhere.org"
         node:
           $ref: '#/components/schemas/Node'
       required:
@@ -549,7 +553,7 @@ components:
           id: string
           node:
             addresses:
-              - 'http://example.com'
+              - 'my-pretty-node.somewhere.org'
             labels: {}
             state: enabled
             healthy: true
