@@ -512,12 +512,6 @@ components:
     Node:
       title: Node
       type: object
-      required:
-        - addresses
-        - labels
-        - created
-        - updated
-        - priority
       properties:
         alias_of:
           type: string
