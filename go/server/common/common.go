@@ -26,6 +26,8 @@ const (
 
 	ErrorResultINVALIDCONFIGURATION ErrorResult = "INVALID_CONFIGURATION"
 
+	ErrorResultLIMITEXCEEDED ErrorResult = "LIMIT_EXCEEDED"
+
 	ErrorResultNOLICENSE ErrorResult = "NO_LICENSE"
 
 	ErrorResultNOTFOUND ErrorResult = "NOT_FOUND"
