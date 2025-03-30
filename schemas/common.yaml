@@ -72,6 +72,7 @@ components:
             - "TOO_LONG"
             - "TOO_EARLY"
             - "NO_LICENSE"
+            - "EMAIL_NOT_CONFIRMED"
         error:
           type: string
           description: User-friendly error description.
