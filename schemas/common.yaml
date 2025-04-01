@@ -72,6 +72,7 @@ components:
             - "TOO_LONG"
             - "TOO_EARLY"
             - "NO_LICENSE"
+            - "LIMIT_EXCEEDED"
         error:
           type: string
           description: User-friendly error description.
