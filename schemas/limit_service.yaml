@@ -1,0 +1,87 @@
+openapi: 3.0.3
+
+info:
+  title: limit-service
+  version: '1.0'
+  contact:
+    email: support@vpnhouse.net
+  description: limit-service API
+paths:
+  /api/limit-service/config:
+    get:
+      summary: List limit configs
+      tags:
+        - list
+        - limit_config
+      operationId: list-limit-config
+      description: Receive full list of limit configs
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LimitConfig'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+
+    post:
+      summary: Update one ore more config limits
+      tags:
+        - update
+        - limit_config
+      operationId: update-limit-config
+      description: Update limit config
+      security:
+        - ServiceKey: [ ]
+        - ServiceName: [ ]
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '401':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+        '500':
+          $ref: 'common.yaml#/components/responses/ResponseError'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLimitConfigParams'
+
+components:
+  schemas:
+    LimitConfig:
+      title: LimitConfig
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        daily_limits:
+          type: object
+          additionalProperties:
+            type: string
+    UpdateLimitConfigParams:
+      title: UpdateLimitConfigParams
+      type: array
+      items:
+        $ref: '#/components/schemas/LimitConfig'
+
+  securitySchemes:
+    ServiceKey:
+      name: X-VPNHOUSE-SERVICE-KEY
+      type: apiKey
+      in: header
+    ServiceName:
+      name: X-VPNHOUSE-SERVICE
+      type: apiKey
+      in: header
