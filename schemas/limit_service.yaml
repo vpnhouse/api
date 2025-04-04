@@ -67,9 +67,23 @@ components:
           type: string
           format: uuid
         daily_limits:
-          type: object
-          additionalProperties:
-            type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyLimit'
+      required:
+          - project_id
+          - daily_limits
+    DailyLimit:
+      title: DailyLimit
+      type: object
+      properties:
+        auth_method:
+          type: string
+        limit:
+          type: integer
+      required:
+          - auth_method
+          - limit
     UpdateLimitConfigParams:
       title: UpdateLimitConfigParams
       type: array

@@ -5,7 +5,6 @@ package limit_service
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -17,15 +16,16 @@ const (
 	ServiceNameScopes = "ServiceName.Scopes"
 )
 
-// LimitConfig defines model for LimitConfig.
-type LimitConfig struct {
-	DailyLimits *LimitConfig_DailyLimits `json:"daily_limits,omitempty"`
-	ProjectId   *string                  `json:"project_id,omitempty"`
+// DailyLimit defines model for DailyLimit.
+type DailyLimit struct {
+	AuthMethod string `json:"auth_method"`
+	Limit      int    `json:"limit"`
 }
 
-// LimitConfig_DailyLimits defines model for LimitConfig.DailyLimits.
-type LimitConfig_DailyLimits struct {
-	AdditionalProperties map[string]string `json:"-"`
+// LimitConfig defines model for LimitConfig.
+type LimitConfig struct {
+	DailyLimits []DailyLimit `json:"daily_limits"`
+	ProjectId   string       `json:"project_id"`
 }
 
 // UpdateLimitConfigParams defines model for UpdateLimitConfigParams.
@@ -36,59 +36,6 @@ type UpdateLimitConfigJSONBody UpdateLimitConfigParams
 
 // UpdateLimitConfigJSONRequestBody defines body for UpdateLimitConfig for application/json ContentType.
 type UpdateLimitConfigJSONRequestBody UpdateLimitConfigJSONBody
-
-// Getter for additional properties for LimitConfig_DailyLimits. Returns the specified
-// element and whether it was found
-func (a LimitConfig_DailyLimits) Get(fieldName string) (value string, found bool) {
-	if a.AdditionalProperties != nil {
-		value, found = a.AdditionalProperties[fieldName]
-	}
-	return
-}
-
-// Setter for additional properties for LimitConfig_DailyLimits
-func (a *LimitConfig_DailyLimits) Set(fieldName string, value string) {
-	if a.AdditionalProperties == nil {
-		a.AdditionalProperties = make(map[string]string)
-	}
-	a.AdditionalProperties[fieldName] = value
-}
-
-// Override default JSON handling for LimitConfig_DailyLimits to handle AdditionalProperties
-func (a *LimitConfig_DailyLimits) UnmarshalJSON(b []byte) error {
-	object := make(map[string]json.RawMessage)
-	err := json.Unmarshal(b, &object)
-	if err != nil {
-		return err
-	}
-
-	if len(object) != 0 {
-		a.AdditionalProperties = make(map[string]string)
-		for fieldName, fieldBuf := range object {
-			var fieldVal string
-			err := json.Unmarshal(fieldBuf, &fieldVal)
-			if err != nil {
-				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
-			}
-			a.AdditionalProperties[fieldName] = fieldVal
-		}
-	}
-	return nil
-}
-
-// Override default JSON handling for LimitConfig_DailyLimits to handle AdditionalProperties
-func (a LimitConfig_DailyLimits) MarshalJSON() ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-
-	for fieldName, field := range a.AdditionalProperties {
-		object[fieldName], err = json.Marshal(field)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
-		}
-	}
-	return json.Marshal(object)
-}
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
