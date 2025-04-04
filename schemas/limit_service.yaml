@@ -86,9 +86,14 @@ components:
           - limit
     UpdateLimitConfigParams:
       title: UpdateLimitConfigParams
-      type: array
-      items:
-        $ref: '#/components/schemas/LimitConfig'
+      type: object
+      properties:
+        updates:
+          type: array
+          items:
+            $ref: '#/components/schemas/LimitConfig'
+      required:
+        - updates
 
   securitySchemes:
     ServiceKey:

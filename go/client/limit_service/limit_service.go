@@ -34,7 +34,9 @@ type LimitConfig struct {
 }
 
 // UpdateLimitConfigParams defines model for UpdateLimitConfigParams.
-type UpdateLimitConfigParams []LimitConfig
+type UpdateLimitConfigParams struct {
+	Updates []LimitConfig `json:"updates"`
+}
 
 // UpdateLimitConfigJSONBody defines parameters for UpdateLimitConfig.
 type UpdateLimitConfigJSONBody UpdateLimitConfigParams
