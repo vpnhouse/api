@@ -81,6 +81,8 @@ components:
           type: string
         limit:
           type: integer
+          format: int64
+          min: 0
       required:
           - auth_method
           - limit

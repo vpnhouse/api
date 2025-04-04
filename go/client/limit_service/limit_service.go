@@ -24,7 +24,7 @@ const (
 // DailyLimit defines model for DailyLimit.
 type DailyLimit struct {
 	AuthMethod string `json:"auth_method"`
-	Limit      int    `json:"limit"`
+	Limit      int64  `json:"limit"`
 }
 
 // LimitConfig defines model for LimitConfig.
