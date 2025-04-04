@@ -48,6 +48,7 @@ type AuthResp struct {
 	AccessToken        string                  `json:"access_token"`
 	ClientFeatures     *map[string]interface{} `json:"client_features,omitempty"`
 	CreatedAt          *time.Time              `json:"created_at,omitempty"`
+	DailyLimit         *int64                  `json:"daily_limit,omitempty"`
 	DiscoveryAddresses *[]string               `json:"discovery_addresses,omitempty"`
 	Email              *string                 `json:"email,omitempty"`
 	Entitlements       *map[string]interface{} `json:"entitlements,omitempty"`
