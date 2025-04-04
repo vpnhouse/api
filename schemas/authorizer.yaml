@@ -897,6 +897,10 @@ components:
           type: object
         email:
           type: string
+        daily_limit:
+          type: integer
+          format: int64
+          min: 0
       required:
         - access_token
     TokenRequest:
