@@ -86,16 +86,6 @@ components:
       required:
           - auth_method
           - limit
-    UpdateLimitConfigParams:
-      title: UpdateLimitConfigParams
-      type: object
-      properties:
-        updates:
-          type: array
-          items:
-            $ref: '#/components/schemas/LimitConfig'
-      required:
-        - updates
 
   securitySchemes:
     ServiceKey:
