@@ -7,7 +7,7 @@ info:
     email: support@vpnhouse.net
   description: limit-service API
 paths:
-  /api/limit-service/config:
+  /api/limit-service/projects/limits:
     get:
       summary: List limit configs
       tags:
