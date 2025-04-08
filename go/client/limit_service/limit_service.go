@@ -33,16 +33,11 @@ type LimitConfig struct {
 	ProjectId   string       `json:"project_id"`
 }
 
-// UpdateLimitConfigParams defines model for UpdateLimitConfigParams.
-type UpdateLimitConfigParams struct {
-	Updates []LimitConfig `json:"updates"`
-}
+// UpdateProjectLimitJSONBody defines parameters for UpdateProjectLimit.
+type UpdateProjectLimitJSONBody []LimitConfig
 
-// UpdateLimitConfigJSONBody defines parameters for UpdateLimitConfig.
-type UpdateLimitConfigJSONBody UpdateLimitConfigParams
-
-// UpdateLimitConfigJSONRequestBody defines body for UpdateLimitConfig for application/json ContentType.
-type UpdateLimitConfigJSONRequestBody UpdateLimitConfigJSONBody
+// UpdateProjectLimitJSONRequestBody defines body for UpdateProjectLimit for application/json ContentType.
+type UpdateProjectLimitJSONRequestBody UpdateProjectLimitJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -117,17 +112,17 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
-	// ListLimitConfig request
-	ListLimitConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// ListProjectLimit request
+	ListProjectLimit(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateLimitConfig request with any body
-	UpdateLimitConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateProjectLimit request with any body
+	UpdateProjectLimitWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdateLimitConfig(ctx context.Context, body UpdateLimitConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateProjectLimit(ctx context.Context, body UpdateProjectLimitJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) ListLimitConfig(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListLimitConfigRequest(c.Server)
+func (c *Client) ListProjectLimit(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectLimitRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +133,8 @@ func (c *Client) ListLimitConfig(ctx context.Context, reqEditors ...RequestEdito
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateLimitConfigWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateLimitConfigRequestWithBody(c.Server, contentType, body)
+func (c *Client) UpdateProjectLimitWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProjectLimitRequestWithBody(c.Server, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -150,8 +145,8 @@ func (c *Client) UpdateLimitConfigWithBody(ctx context.Context, contentType stri
 	return c.Client.Do(req)
 }
 
-func (c *Client) UpdateLimitConfig(ctx context.Context, body UpdateLimitConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateLimitConfigRequest(c.Server, body)
+func (c *Client) UpdateProjectLimit(ctx context.Context, body UpdateProjectLimitJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProjectLimitRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -162,8 +157,8 @@ func (c *Client) UpdateLimitConfig(ctx context.Context, body UpdateLimitConfigJS
 	return c.Client.Do(req)
 }
 
-// NewListLimitConfigRequest generates requests for ListLimitConfig
-func NewListLimitConfigRequest(server string) (*http.Request, error) {
+// NewListProjectLimitRequest generates requests for ListProjectLimit
+func NewListProjectLimitRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -171,7 +166,7 @@ func NewListLimitConfigRequest(server string) (*http.Request, error) {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/limit-service/config")
+	operationPath := fmt.Sprintf("/api/limit-service/projects/limit")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -189,19 +184,19 @@ func NewListLimitConfigRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewUpdateLimitConfigRequest calls the generic UpdateLimitConfig builder with application/json body
-func NewUpdateLimitConfigRequest(server string, body UpdateLimitConfigJSONRequestBody) (*http.Request, error) {
+// NewUpdateProjectLimitRequest calls the generic UpdateProjectLimit builder with application/json body
+func NewUpdateProjectLimitRequest(server string, body UpdateProjectLimitJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdateLimitConfigRequestWithBody(server, "application/json", bodyReader)
+	return NewUpdateProjectLimitRequestWithBody(server, "application/json", bodyReader)
 }
 
-// NewUpdateLimitConfigRequestWithBody generates requests for UpdateLimitConfig with any type of body
-func NewUpdateLimitConfigRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+// NewUpdateProjectLimitRequestWithBody generates requests for UpdateProjectLimit with any type of body
+func NewUpdateProjectLimitRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -209,7 +204,7 @@ func NewUpdateLimitConfigRequestWithBody(server string, contentType string, body
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/api/limit-service/config")
+	operationPath := fmt.Sprintf("/api/limit-service/projects/limit")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -272,16 +267,16 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
-	// ListLimitConfig request
-	ListLimitConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLimitConfigResponse, error)
+	// ListProjectLimit request
+	ListProjectLimitWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectLimitResponse, error)
 
-	// UpdateLimitConfig request with any body
-	UpdateLimitConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateLimitConfigResponse, error)
+	// UpdateProjectLimit request with any body
+	UpdateProjectLimitWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProjectLimitResponse, error)
 
-	UpdateLimitConfigWithResponse(ctx context.Context, body UpdateLimitConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateLimitConfigResponse, error)
+	UpdateProjectLimitWithResponse(ctx context.Context, body UpdateProjectLimitJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProjectLimitResponse, error)
 }
 
-type ListLimitConfigResponse struct {
+type ListProjectLimitResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]LimitConfig
@@ -290,7 +285,7 @@ type ListLimitConfigResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r ListLimitConfigResponse) Status() string {
+func (r ListProjectLimitResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -298,14 +293,14 @@ func (r ListLimitConfigResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r ListLimitConfigResponse) StatusCode() int {
+func (r ListProjectLimitResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type UpdateLimitConfigResponse struct {
+type UpdateProjectLimitResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON400      *externalRef1.Error
@@ -314,7 +309,7 @@ type UpdateLimitConfigResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r UpdateLimitConfigResponse) Status() string {
+func (r UpdateProjectLimitResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -322,48 +317,48 @@ func (r UpdateLimitConfigResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r UpdateLimitConfigResponse) StatusCode() int {
+func (r UpdateProjectLimitResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-// ListLimitConfigWithResponse request returning *ListLimitConfigResponse
-func (c *ClientWithResponses) ListLimitConfigWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListLimitConfigResponse, error) {
-	rsp, err := c.ListLimitConfig(ctx, reqEditors...)
+// ListProjectLimitWithResponse request returning *ListProjectLimitResponse
+func (c *ClientWithResponses) ListProjectLimitWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListProjectLimitResponse, error) {
+	rsp, err := c.ListProjectLimit(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseListLimitConfigResponse(rsp)
+	return ParseListProjectLimitResponse(rsp)
 }
 
-// UpdateLimitConfigWithBodyWithResponse request with arbitrary body returning *UpdateLimitConfigResponse
-func (c *ClientWithResponses) UpdateLimitConfigWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateLimitConfigResponse, error) {
-	rsp, err := c.UpdateLimitConfigWithBody(ctx, contentType, body, reqEditors...)
+// UpdateProjectLimitWithBodyWithResponse request with arbitrary body returning *UpdateProjectLimitResponse
+func (c *ClientWithResponses) UpdateProjectLimitWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProjectLimitResponse, error) {
+	rsp, err := c.UpdateProjectLimitWithBody(ctx, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUpdateLimitConfigResponse(rsp)
+	return ParseUpdateProjectLimitResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdateLimitConfigWithResponse(ctx context.Context, body UpdateLimitConfigJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateLimitConfigResponse, error) {
-	rsp, err := c.UpdateLimitConfig(ctx, body, reqEditors...)
+func (c *ClientWithResponses) UpdateProjectLimitWithResponse(ctx context.Context, body UpdateProjectLimitJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProjectLimitResponse, error) {
+	rsp, err := c.UpdateProjectLimit(ctx, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUpdateLimitConfigResponse(rsp)
+	return ParseUpdateProjectLimitResponse(rsp)
 }
 
-// ParseListLimitConfigResponse parses an HTTP response from a ListLimitConfigWithResponse call
-func ParseListLimitConfigResponse(rsp *http.Response) (*ListLimitConfigResponse, error) {
+// ParseListProjectLimitResponse parses an HTTP response from a ListProjectLimitWithResponse call
+func ParseListProjectLimitResponse(rsp *http.Response) (*ListProjectLimitResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &ListLimitConfigResponse{
+	response := &ListProjectLimitResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -395,15 +390,15 @@ func ParseListLimitConfigResponse(rsp *http.Response) (*ListLimitConfigResponse,
 	return response, nil
 }
 
-// ParseUpdateLimitConfigResponse parses an HTTP response from a UpdateLimitConfigWithResponse call
-func ParseUpdateLimitConfigResponse(rsp *http.Response) (*UpdateLimitConfigResponse, error) {
+// ParseUpdateProjectLimitResponse parses an HTTP response from a UpdateProjectLimitWithResponse call
+func ParseUpdateProjectLimitResponse(rsp *http.Response) (*UpdateProjectLimitResponse, error) {
 	bodyBytes, err := ioutil.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &UpdateLimitConfigResponse{
+	response := &UpdateProjectLimitResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

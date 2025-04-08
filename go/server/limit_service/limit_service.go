@@ -28,25 +28,20 @@ type LimitConfig struct {
 	ProjectId   string       `json:"project_id"`
 }
 
-// UpdateLimitConfigParams defines model for UpdateLimitConfigParams.
-type UpdateLimitConfigParams struct {
-	Updates []LimitConfig `json:"updates"`
-}
+// UpdateProjectLimitJSONBody defines parameters for UpdateProjectLimit.
+type UpdateProjectLimitJSONBody []LimitConfig
 
-// UpdateLimitConfigJSONBody defines parameters for UpdateLimitConfig.
-type UpdateLimitConfigJSONBody UpdateLimitConfigParams
-
-// UpdateLimitConfigJSONRequestBody defines body for UpdateLimitConfig for application/json ContentType.
-type UpdateLimitConfigJSONRequestBody UpdateLimitConfigJSONBody
+// UpdateProjectLimitJSONRequestBody defines body for UpdateProjectLimit for application/json ContentType.
+type UpdateProjectLimitJSONRequestBody UpdateProjectLimitJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// List limit configs
-	// (GET /api/limit-service/config)
-	ListLimitConfig(w http.ResponseWriter, r *http.Request)
+	// (GET /api/limit-service/projects/limit)
+	ListProjectLimit(w http.ResponseWriter, r *http.Request)
 	// Update one ore more config limits
-	// (POST /api/limit-service/config)
-	UpdateLimitConfig(w http.ResponseWriter, r *http.Request)
+	// (POST /api/limit-service/projects/limit)
+	UpdateProjectLimit(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -58,8 +53,8 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(http.HandlerFunc) http.HandlerFunc
 
-// ListLimitConfig operation middleware
-func (siw *ServerInterfaceWrapper) ListLimitConfig(w http.ResponseWriter, r *http.Request) {
+// ListProjectLimit operation middleware
+func (siw *ServerInterfaceWrapper) ListProjectLimit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
@@ -67,7 +62,7 @@ func (siw *ServerInterfaceWrapper) ListLimitConfig(w http.ResponseWriter, r *htt
 	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.ListLimitConfig(w, r)
+		siw.Handler.ListProjectLimit(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -77,8 +72,8 @@ func (siw *ServerInterfaceWrapper) ListLimitConfig(w http.ResponseWriter, r *htt
 	handler(w, r.WithContext(ctx))
 }
 
-// UpdateLimitConfig operation middleware
-func (siw *ServerInterfaceWrapper) UpdateLimitConfig(w http.ResponseWriter, r *http.Request) {
+// UpdateProjectLimit operation middleware
+func (siw *ServerInterfaceWrapper) UpdateProjectLimit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	ctx = context.WithValue(ctx, ServiceKeyScopes, []string{""})
@@ -86,7 +81,7 @@ func (siw *ServerInterfaceWrapper) UpdateLimitConfig(w http.ResponseWriter, r *h
 	ctx = context.WithValue(ctx, ServiceNameScopes, []string{""})
 
 	var handler = func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateLimitConfig(w, r)
+		siw.Handler.UpdateProjectLimit(w, r)
 	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -210,10 +205,10 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/limit-service/config", wrapper.ListLimitConfig)
+		r.Get(options.BaseURL+"/api/limit-service/projects/limit", wrapper.ListProjectLimit)
 	})
 	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/limit-service/config", wrapper.UpdateLimitConfig)
+		r.Post(options.BaseURL+"/api/limit-service/projects/limit", wrapper.UpdateProjectLimit)
 	})
 
 	return r

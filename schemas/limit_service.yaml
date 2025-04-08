@@ -7,13 +7,13 @@ info:
     email: support@vpnhouse.net
   description: limit-service API
 paths:
-  /api/limit-service/projects/limits:
+  /api/limit-service/projects/limit:
     get:
       summary: List limit configs
       tags:
         - list
         - limit_config
-      operationId: list-limit-config
+      operationId: list-project-limit
       description: Receive full list of limit configs
       security:
         - ServiceKey: [ ]
@@ -37,8 +37,8 @@ paths:
       tags:
         - update
         - limit_config
-      operationId: update-limit-config
-      description: Update limit config
+      operationId: update-project-limit
+      description: Update limit configs
       security:
         - ServiceKey: [ ]
         - ServiceName: [ ]
