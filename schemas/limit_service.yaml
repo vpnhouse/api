@@ -55,7 +55,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateLimitConfigParams'
+              type: array
+              items:
+                $ref: '#/components/schemas/LimitConfig'
 
 components:
   schemas:
