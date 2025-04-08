@@ -22,6 +22,15 @@ END
 for conf_name in *.conf; do
     schema_name="../schemas/${conf_name%%.*}.yaml"
     echo "$schema_name..."
+
+    fn="$(basename ${conf_name%.*})"
+    gen_type="${fn##*.}"
+    if [ $gen_type = "client" ]; then
+        mkdir -p "../go/client/${fn%.*}"
+    else
+        mkdir -p "../go/server/$fn"
+    fi
+
     oapi-codegen -config "$conf_name" "$schema_name"
 done
 
@@ -34,7 +43,8 @@ set -- "../go/client/authorizer/authorizer.go" \
     "../go/client/license_service/license_service.go" \
     "../go/client/project_service/project_service.go" \
     "../go/client/user_service/user_service.go" \
-    "../go/client/tunnel_mgmt/tunnel.go"
+    "../go/client/tunnel_mgmt/tunnel.go" \
+    "../go/client/limit_service/limit_service.go"
 
 # Loop through the array of targets
 for target; do
