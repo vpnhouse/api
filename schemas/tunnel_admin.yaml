@@ -478,6 +478,33 @@ components:
           readOnly: true
       required:
         - access_token
+    ProtocolStats:
+      title: TrafficStats
+      type: object
+      description: Represents traffic and peer stats for specific protocol
+      properties:
+        peers_total:
+          type: integer
+          description: 'Totally allocated peers for protocol'
+        peers_active:
+          type: integer
+          description: 'Recently active peers count'
+        traffic_up:
+          type: integer
+          format: int64
+          description: 'Upstream traffc accross all peers in bytes'
+        traffic_down:
+          type: integer
+          format: int64
+          description: 'Downstream traffic accross all peers in bytes'
+        speed_up:
+          type: integer
+          format: int64
+          description: 'Upload speed accross all peers in bytes per second'
+        speed_down:
+          type: integer
+          format: int64
+          description: 'Download speed accross all peers in bytes per second'
     ServiceStatus:
       title: ServiceStatusResponse
       type: object
@@ -486,28 +513,14 @@ components:
         restart_required:
           type: boolean
           description: 'Indicate, whether service requires restart to apply latest settings.'
-        peers_total:
-          type: integer
-        peers_connected:
-          type: integer
-        peers_active_1h:
-          type: integer
-        peers_active_1d:
-          type: integer
-        traffic_up:
-          type: integer
-          format: int64
-        traffic_down:
-          type: integer
-          format: int64
-        traffic_up_speed:
-          type: integer
-          format: int64
-          description: 'Upload speed accross all peers in bytes per second'
-        traffic_down_speed:
-          type: integer
-          format: int64
-          description: 'Download speed accross all peers in bytes per second'
+        stats_global:
+          $ref: '#/components/schemas/ProtocolStats'
+        stats_wireguard:
+          $ref: '#/components/schemas/ProtocolStats'
+        stats_iprose:
+          $ref: '#/components/schemas/ProtocolStats'
+        stats_proxy:
+          $ref: '#/components/schemas/ProtocolStats'
       required:
         - restart_required
     Peer:
