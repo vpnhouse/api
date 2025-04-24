@@ -479,7 +479,7 @@ components:
       required:
         - access_token
     ProtocolStats:
-      title: TrafficStats
+      title: ProtocolStats
       type: object
       description: Represents traffic and peer stats for specific protocol
       properties:
