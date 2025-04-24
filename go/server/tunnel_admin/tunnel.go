@@ -217,7 +217,7 @@ type ServiceStatus struct {
 	RestartRequired bool `json:"restart_required"`
 
 	// Represents traffic and peer stats for specific protocol
-	StatsGlobal *ProtocolStats `json:"stats_global,omitempty"`
+	StatsGlobal ProtocolStats `json:"stats_global"`
 
 	// Represents traffic and peer stats for specific protocol
 	StatsIprose *ProtocolStats `json:"stats_iprose,omitempty"`

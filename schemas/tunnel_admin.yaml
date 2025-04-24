@@ -523,6 +523,7 @@ components:
           $ref: '#/components/schemas/ProtocolStats'
       required:
         - restart_required
+        - stats_global
     Peer:
       type: object
       title: Peer
