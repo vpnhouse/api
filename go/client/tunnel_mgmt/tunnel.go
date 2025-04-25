@@ -25,14 +25,12 @@ const (
 
 // Contains short statistic from the node
 type PingResponse struct {
-	IfRxBytes        int `json:"if_rx_bytes"`
-	IfRxErrors       int `json:"if_rx_errors"`
-	IfRxPackets      int `json:"if_rx_packets"`
-	IfTxBytes        int `json:"if_tx_bytes"`
-	IfTxErrors       int `json:"if_tx_errors"`
-	IfTxPackets      int `json:"if_tx_packets"`
-	PeersTotal       int `json:"peers_total"`
-	PeersWithTraffic int `json:"peers_with_traffic"`
+	PeersActive int   `json:"peers_active"`
+	PeersTotal  int   `json:"peers_total"`
+	RxBytes     int64 `json:"rx_bytes"`
+	RxSpeed     int64 `json:"rx_speed"`
+	TxBytes     int64 `json:"tx_bytes"`
+	TxSpeed     int64 `json:"tx_speed"`
 }
 
 // TrustedKey defines model for TrustedKey.

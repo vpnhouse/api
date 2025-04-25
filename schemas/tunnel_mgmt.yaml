@@ -189,29 +189,27 @@ components:
       properties:
         peers_total:
           type: integer
-        peers_with_traffic:
+        peers_active:
           type: integer
-        if_rx_packets:
+        rx_bytes:
           type: integer
-        if_rx_bytes:
+          format: int64
+        tx_bytes:
           type: integer
-        if_rx_errors:
+          format: int64
+        rx_speed:
           type: integer
-        if_tx_packets:
+          format: int64
+        tx_speed:
           type: integer
-        if_tx_bytes:
-          type: integer
-        if_tx_errors:
-          type: integer
+          format: int64
       required:
         - peers_total
-        - peers_with_traffic
-        - if_rx_packets
-        - if_rx_bytes
-        - if_rx_errors
-        - if_tx_packets
-        - if_tx_bytes
-        - if_tx_errors
+        - peers_active
+        - rx_bytes
+        - tx_bytes
+        - rx_speed
+        - tx_speed
       x-examples:
         example-1:
           peers_total: 2
