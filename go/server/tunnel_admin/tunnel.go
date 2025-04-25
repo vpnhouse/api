@@ -190,23 +190,43 @@ type PeerRecord struct {
 	Peer Peer `json:"peer"`
 }
 
-// Holds current staus flags of the service
-type ServiceStatus struct {
-	PeersActive1d  *int `json:"peers_active_1d,omitempty"`
-	PeersActive1h  *int `json:"peers_active_1h,omitempty"`
-	PeersConnected *int `json:"peers_connected,omitempty"`
-	PeersTotal     *int `json:"peers_total,omitempty"`
+// Represents traffic and peer stats for specific protocol
+type ProtocolStats struct {
+	// Recently active peers count
+	PeersActive *int `json:"peers_active,omitempty"`
 
-	// Indicate, whether service requires restart to apply latest settings.
-	RestartRequired bool   `json:"restart_required"`
-	TrafficDown     *int64 `json:"traffic_down,omitempty"`
+	// Totally allocated peers for protocol
+	PeersTotal *int `json:"peers_total,omitempty"`
 
 	// Download speed accross all peers in bytes per second
-	TrafficDownSpeed *int64 `json:"traffic_down_speed,omitempty"`
-	TrafficUp        *int64 `json:"traffic_up,omitempty"`
+	SpeedDown *int64 `json:"speed_down,omitempty"`
 
 	// Upload speed accross all peers in bytes per second
-	TrafficUpSpeed *int64 `json:"traffic_up_speed,omitempty"`
+	SpeedUp *int64 `json:"speed_up,omitempty"`
+
+	// Downstream traffic accross all peers in bytes
+	TrafficDown *int64 `json:"traffic_down,omitempty"`
+
+	// Upstream traffc accross all peers in bytes
+	TrafficUp *int64 `json:"traffic_up,omitempty"`
+}
+
+// Holds current staus flags of the service
+type ServiceStatus struct {
+	// Indicate, whether service requires restart to apply latest settings.
+	RestartRequired bool `json:"restart_required"`
+
+	// Represents traffic and peer stats for specific protocol
+	StatsGlobal ProtocolStats `json:"stats_global"`
+
+	// Represents traffic and peer stats for specific protocol
+	StatsIprose *ProtocolStats `json:"stats_iprose,omitempty"`
+
+	// Represents traffic and peer stats for specific protocol
+	StatsProxy *ProtocolStats `json:"stats_proxy,omitempty"`
+
+	// Represents traffic and peer stats for specific protocol
+	StatsWireguard *ProtocolStats `json:"stats_wireguard,omitempty"`
 }
 
 // Server-side configuration.
