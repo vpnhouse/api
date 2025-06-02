@@ -1046,6 +1046,9 @@ components:
         project_id:
           type: string
           format: uuid
+        product_id:
+          type: string
+          format: uuid
         user_id:
           type: string
           format: uuid
