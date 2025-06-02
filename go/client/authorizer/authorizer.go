@@ -99,6 +99,7 @@ type License struct {
 	// Labels in JSON format
 	LabelsJson   *externalRef0.LabelsJson `json:"labels_json,omitempty"`
 	Period       *string                  `json:"period,omitempty"`
+	ProductId    *string                  `json:"product_id,omitempty"`
 	ProjectId    *string                  `json:"project_id,omitempty"`
 	SelectorJson *map[string]interface{}  `json:"selector_json,omitempty"`
 	StartAt      *time.Time               `json:"start_at,omitempty"`
