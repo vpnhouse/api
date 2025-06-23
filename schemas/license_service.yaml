@@ -193,6 +193,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchProductParams'
+
   /api/license-service/find-product:
     get:
       summary: Find product
@@ -401,6 +402,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchPurchaseParams'
+
   /api/license-service/find-purchase:
     get:
       summary: Find purchase
@@ -609,6 +611,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchLicenseParams'
+
   /api/license-service/find-license:
     get:
       summary: Find license
@@ -855,7 +858,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SubscriptionsRequest'
-
 
   /api/license-service/payment-details:
     get:
@@ -1793,6 +1795,13 @@ components:
         installation_id:
           type: string
           format: uuid
+        client_os:
+          type: string
+          description: "Client's OS (ios, android, windows, etc.)"
+        client_country:
+          type: string
+          maxLength: 2
+          description: "Client's 2-letter country code (ISO 3166)"
       required:
         - email
         - project_id
@@ -1864,6 +1873,13 @@ components:
         user_id:
           type: string
           format: uuid
+        client_os:
+          type: string
+          description: "Client's OS (ios, android, windows, etc.)"
+        client_country:
+          type: string
+          maxLength: 2
+          description: "Client's 2-letter country code (ISO 3166)"
       required:
         - project_id
         - product_id
