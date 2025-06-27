@@ -76,6 +76,11 @@ type CreateProductParams struct {
 
 // CreatePurchaseContextRequest defines model for CreatePurchaseContextRequest.
 type CreatePurchaseContextRequest struct {
+	// Client's 2-letter country code (ISO 3166)
+	ClientCountry *string `json:"client_country,omitempty"`
+
+	// Client's OS (ios, android, windows, etc.)
+	ClientOs  *string `json:"client_os,omitempty"`
 	Email     string  `json:"email"`
 	ProductId string  `json:"product_id"`
 	ProjectId string  `json:"project_id"`
@@ -223,6 +228,11 @@ type PatchPurchaseParams struct {
 
 // PaymentDetailsRequest defines model for PaymentDetailsRequest.
 type PaymentDetailsRequest struct {
+	// Client's 2-letter country code (ISO 3166)
+	ClientCountry *string `json:"client_country,omitempty"`
+
+	// Client's OS (ios, android, windows, etc.)
+	ClientOs       *string `json:"client_os,omitempty"`
 	Email          string  `json:"email"`
 	GaId           *string `json:"ga_id,omitempty"`
 	InstallationId *string `json:"installation_id,omitempty"`
